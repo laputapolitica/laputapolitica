@@ -187,10 +187,10 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-[80] overflow-y-auto bg-white/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 overflow-y-auto bg-[#FAF9F5]/85 backdrop-blur-md"
       role="dialog"
     >
-      <header className="sticky top-0 z-10 bg-white/80 px-5 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 bg-[#FAF9F5]/85 px-5 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
           <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
           <CountrySelector />
@@ -231,7 +231,7 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
         <button
           type="button"
           onClick={onClose}
-          className="mx-auto mt-10 inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
+          className="mx-auto mb-12 mt-8 inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
         >
           Cerrar
           <ArrowDownLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
