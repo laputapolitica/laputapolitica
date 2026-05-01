@@ -224,7 +224,7 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
         className="fixed inset-0 z-50 flex flex-col"
         role="dialog"
       >
-        <header className="sticky top-0 z-10 bg-[#FAF9F5] px-4 py-4">
+        <header className="sticky top-0 z-10 border-b border-border-default bg-[#FAF9F5] px-4 py-4">
           <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
             <Logo
               className="h-auto w-[206px] max-w-[calc(100vw-112px)]"
@@ -268,7 +268,7 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
           </article>
         </div>
 
-        <footer className="sticky bottom-0 z-10 bg-[#FAF9F5] px-4 py-4">
+        <footer className="sticky bottom-0 z-10 border-t border-border-default bg-[#FAF9F5] px-4 py-4">
           <div className="mx-auto flex max-w-[480px] justify-end">
             <button
               type="button"
