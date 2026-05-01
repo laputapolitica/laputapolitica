@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -212,6 +219,7 @@ function DrumRow({
 }: DrumRowProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const isProgrammaticScrollRef = useRef(false);
 
   const selectedIndex = Math.max(
     0,
@@ -219,6 +227,10 @@ function DrumRow({
   );
 
   const updateSelectedFromScroll = useCallback(() => {
+    if (isProgrammaticScrollRef.current) {
+      return;
+    }
+
     const scrollElement = scrollRef.current;
 
     if (!scrollElement) {
@@ -252,7 +264,7 @@ function DrumRow({
     }
   }, [onSelectedValueChange, options, selectedIndex, selectedValue]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scrollElement = scrollRef.current;
     const selectedElement = optionRefs.current[selectedIndex];
 
@@ -260,15 +272,21 @@ function DrumRow({
       return;
     }
 
-    const targetLeft =
-      selectedElement.offsetLeft -
-      scrollElement.clientWidth / 2 +
-      selectedElement.clientWidth / 2;
+    isProgrammaticScrollRef.current = true;
 
-    scrollElement.scrollTo({
-      left: targetLeft,
-      behavior: "auto",
+    const frame = window.requestAnimationFrame(() => {
+      selectedElement.scrollIntoView({
+        behavior: "auto",
+        block: "nearest",
+        inline: "center",
+      });
+
+      window.requestAnimationFrame(() => {
+        isProgrammaticScrollRef.current = false;
+      });
     });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [selectedIndex]);
 
   return (
