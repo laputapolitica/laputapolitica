@@ -32,6 +32,7 @@ type DrumRowProps = {
 };
 
 const FECHAS_DISPONIBLES = [
+  "2026-05-01",
   "2026-03-21",
   "2026-03-20",
   "2026-03-19",
