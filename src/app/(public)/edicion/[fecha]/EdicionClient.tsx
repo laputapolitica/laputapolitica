@@ -52,6 +52,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
     activeOrder === null
       ? undefined
       : edicion.noticias.find((noticia) => noticia.orden === activeOrder);
+  const isModalOpen = Boolean(noticiaActiva);
 
   const closeModal = useCallback(() => {
     router.push(pathname, { scroll: false });
@@ -155,6 +156,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
             ref={(node) => {
               slideRefs.current[noticia.orden] = node;
             }}
+            isModalOpen={isModalOpen && noticia.orden === activeOrder}
             noticia={noticia}
             slideNumber={noticia.orden + 1}
             onReadMore={() => openNoticia(noticia.orden)}
@@ -185,58 +187,68 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
   const newsNumber = formatNewsNumber(noticia.orden);
 
   return (
-    <div
-      aria-modal="true"
-      className="fixed inset-0 z-50 overflow-y-auto bg-[#FAF9F5]/85 backdrop-blur-md"
-      role="dialog"
-    >
-      <header className="sticky top-0 z-10 bg-[#FAF9F5]/85 px-5 py-4 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
-          <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
-          <CountrySelector />
-        </div>
-      </header>
+    <>
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 z-40 bg-[#FAF9F5]/60 backdrop-blur-[16px]"
+      />
 
-      <article className="mx-auto flex min-h-[calc(100vh-72px)] max-w-[480px] flex-col px-6 pb-12 pt-6">
-        <div className="font-ui text-sm font-semibold text-text-secondary">
-          NOTICIA {newsNumber}
-        </div>
+      <div
+        aria-modal="true"
+        className="fixed inset-0 z-50 overflow-y-auto p-6"
+        role="dialog"
+      >
+        <header className="mx-auto max-w-[480px]">
+          <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
+            <Logo
+              className="h-auto w-[206px] max-w-[calc(100vw-112px)]"
+              variant="large"
+            />
+            <CountrySelector />
+          </div>
+        </header>
 
-        <h1 className="mt-4 font-display text-2xl font-normal leading-[1.15] text-text-primary">
-          {noticia.titulo}
-        </h1>
+        <article className="mx-auto flex min-h-[calc(100vh-72px)] max-w-[480px] flex-col pt-6">
+          <div className="font-ui text-sm font-semibold text-text-secondary">
+            NOTICIA {newsNumber}
+          </div>
 
-        <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-          {noticia.cuerpo}
-        </p>
+          <h1 className="mt-4 font-display text-2xl font-normal leading-[1.15] text-text-primary">
+            {noticia.titulo}
+          </h1>
 
-        <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
+          <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+            {noticia.cuerpo}
+          </p>
 
-        <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-          {noticia.el_pulso.texto_resumen}
-        </p>
+          <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
 
-        <section className="mt-8">
-          <h2 className="font-ui text-base font-medium text-text-primary">
-            Interpretación general
-          </h2>
-          <InterpretacionBars
-            className="mt-4"
-            pct_incierta={noticia.el_pulso.pct_incierta}
-            pct_negativa={noticia.el_pulso.pct_negativa}
-            pct_positiva={noticia.el_pulso.pct_positiva}
-          />
-        </section>
+          <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+            {noticia.el_pulso.texto_resumen}
+          </p>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="mx-auto mb-12 mt-8 inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
-        >
-          Cerrar
-          <ArrowDownLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-        </button>
-      </article>
-    </div>
+          <section className="mt-8">
+            <h2 className="font-ui text-base font-medium text-text-primary">
+              Interpretación general
+            </h2>
+            <InterpretacionBars
+              className="mt-4"
+              pct_incierta={noticia.el_pulso.pct_incierta}
+              pct_negativa={noticia.el_pulso.pct_negativa}
+              pct_positiva={noticia.el_pulso.pct_positiva}
+            />
+          </section>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="mb-12 ml-auto mt-5 inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
+          >
+            Cerrar
+            <ArrowDownLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+          </button>
+        </article>
+      </div>
+    </>
   );
 }

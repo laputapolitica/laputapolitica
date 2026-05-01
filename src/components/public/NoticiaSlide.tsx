@@ -3,23 +3,27 @@ import { ArrowUpRight } from "lucide-react";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { InterpretacionBars } from "@/components/shared/InterpretacionBars";
+import { cn } from "@/lib/utils";
 import type { Noticia } from "@/lib/mock-data";
 
 type NoticiaSlideProps = {
   noticia: Noticia;
   slideNumber: number;
+  isModalOpen: boolean;
   onReadMore: () => void;
 };
 
 export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
-  function NoticiaSlide({ noticia, slideNumber, onReadMore }, ref) {
+  function NoticiaSlide({ noticia, slideNumber, isModalOpen, onReadMore }, ref) {
     return (
       <section
         ref={ref}
         data-slide={slideNumber}
         className="flex h-screen snap-start snap-always animate-in fade-in duration-200 flex-col pb-24 pl-12 pr-6 pt-24"
       >
-        <article className="flex min-h-0 flex-1 flex-col">
+        <article
+          className={cn("flex min-h-0 flex-1 flex-col", isModalOpen && "invisible")}
+        >
           <h2 className="font-display text-2xl font-normal leading-[1.15] text-text-primary">
             {noticia.titulo}
           </h2>
