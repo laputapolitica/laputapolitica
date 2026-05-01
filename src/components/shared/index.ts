@@ -1,4 +1,10 @@
 export { AdminBadge } from "./AdminBadge";
 export { CountrySelector } from "./CountrySelector";
 export { ElPulsoLogo } from "./ElPulsoLogo";
+export { InterpretacionBars } from "./InterpretacionBars";
 export { Logo } from "./Logo";
+export { NoticiaCard } from "./NoticiaCard";
+export { NoticiaModal } from "./NoticiaModal";
+export type { InterpretacionBarsProps } from "./InterpretacionBars";
+export type { Noticia, NoticiaCardProps, NoticiaMode } from "./NoticiaCard";
+export type { NoticiaModalProps } from "./NoticiaModal";
