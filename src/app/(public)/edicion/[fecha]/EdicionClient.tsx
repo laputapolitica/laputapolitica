@@ -182,13 +182,15 @@ type NoticiaExpandedModalProps = {
 };
 
 function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
+  const newsNumber = formatNewsNumber(noticia.orden);
+
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-[80] overflow-y-auto bg-bg-base/95 backdrop-blur-md"
+      className="fixed inset-0 z-[80] overflow-y-auto bg-white/80 backdrop-blur-md"
       role="dialog"
     >
-      <header className="sticky top-0 z-10 bg-bg-base px-5 py-4">
+      <header className="sticky top-0 z-10 bg-white/80 px-5 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
           <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
           <CountrySelector />
@@ -197,7 +199,7 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
 
       <article className="mx-auto flex min-h-[calc(100vh-72px)] max-w-[480px] flex-col px-6 pb-12 pt-6">
         <div className="font-ui text-sm font-semibold text-text-secondary">
-          NOTICIA {formatNewsNumber(noticia.orden)}
+          NOTICIA {newsNumber}
         </div>
 
         <h1 className="mt-4 font-display text-2xl font-normal leading-[1.15] text-text-primary">

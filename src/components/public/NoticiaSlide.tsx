@@ -17,7 +17,7 @@ export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
       <section
         ref={ref}
         data-slide={slideNumber}
-        className="flex h-screen snap-start snap-always animate-in fade-in duration-200 flex-col px-6 pb-24 pt-24"
+        className="flex h-screen snap-start snap-always animate-in fade-in duration-200 flex-col pb-24 pl-12 pr-6 pt-24"
       >
         <article className="flex min-h-0 flex-1 flex-col">
           <h2 className="font-display text-2xl font-normal leading-[1.15] text-text-primary">
