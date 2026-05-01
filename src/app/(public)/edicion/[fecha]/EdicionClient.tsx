@@ -11,6 +11,7 @@ import { Logo } from "@/components/shared/Logo";
 import {
   CTASlide,
   EdicionLayout,
+  FechaSelector,
   NoticiaSlide,
   PortadaSlide,
 } from "@/components/public";
@@ -39,6 +40,22 @@ function formatNewsNumber(orden: number) {
   return String(orden).padStart(2, "0");
 }
 
+function normalizeEditionDate(fecha: string) {
+  const parts = fecha.split("-");
+
+  if (parts.length !== 3) {
+    return fecha;
+  }
+
+  const [first, second, third] = parts;
+
+  if (first.length === 4) {
+    return fecha;
+  }
+
+  return `${third}-${second}-${first}`;
+}
+
 export function EdicionClient({ edicion, clima }: EdicionClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,6 +63,8 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLElement | null>>([]);
   const [slideActivo, setSlideActivo] = useState(1);
+  const [fechaSelectorOpen, setFechaSelectorOpen] = useState(false);
+  const fechaActual = normalizeEditionDate(edicion.fecha);
 
   const activeOrder = getOrderFromParam(searchParams.get("n"));
   const noticiaActiva =
@@ -137,6 +156,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
       fecha={edicion.fecha}
       onNext={() => scrollToSlide(Math.min(slideActivo + 1, 7))}
       onPrev={() => scrollToSlide(Math.max(slideActivo - 1, 1))}
+      onFechaClick={() => setFechaSelectorOpen(true)}
       slideActivo={slideActivo}
     >
       <div
@@ -174,6 +194,12 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
       {noticiaActiva ? (
         <NoticiaExpandedModal noticia={noticiaActiva} onClose={closeModal} />
       ) : null}
+
+      <FechaSelector
+        fechaActual={fechaActual}
+        isOpen={fechaSelectorOpen}
+        onClose={() => setFechaSelectorOpen(false)}
+      />
     </EdicionLayout>
   );
 }

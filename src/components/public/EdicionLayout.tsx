@@ -11,6 +11,7 @@ type EdicionLayoutProps = {
   slideActivo: number;
   onPrev: () => void;
   onNext: () => void;
+  onFechaClick: () => void;
 };
 
 const monthLabels = [
@@ -55,6 +56,7 @@ export function EdicionLayout({
   slideActivo,
   onPrev,
   onNext,
+  onFechaClick,
 }: EdicionLayoutProps) {
   return (
     <main className="min-h-screen bg-bg-base text-text-primary">
@@ -73,6 +75,7 @@ export function EdicionLayout({
         <div className="mx-auto flex max-w-[480px] items-center justify-between">
           <button
             type="button"
+            onClick={onFechaClick}
             className="inline-flex items-center gap-2 rounded-lg border border-black bg-white px-2 py-1.5 font-ui text-sm font-normal text-text-primary"
           >
             <Calendar aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
