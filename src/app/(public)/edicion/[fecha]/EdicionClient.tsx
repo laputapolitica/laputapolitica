@@ -213,74 +213,67 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
   const newsNumber = formatNewsNumber(noticia.orden);
 
   return (
-    <>
-      <div
-        aria-hidden="true"
-        className="fixed inset-0 z-40 bg-[#FAF9F5]/60 backdrop-blur-[16px]"
-      />
-
-      <div
-        aria-modal="true"
-        className="fixed inset-0 z-50 flex flex-col"
-        role="dialog"
-      >
-        <header className="sticky top-0 z-10 border-b border-border-default bg-[#FAF9F5] px-4 py-4">
-          <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
-            <Logo
-              className="h-auto w-[206px] max-w-[calc(100vw-112px)]"
-              variant="large"
-            />
-            <CountrySelector />
-          </div>
-        </header>
-
-        <div className="flex-1 overflow-y-auto px-6">
-          <article className="mx-auto flex max-w-[480px] flex-col pb-24 pt-6">
-            <div className="font-ui text-sm font-semibold text-text-secondary">
-              NOTICIA {newsNumber}
-            </div>
-
-            <h1 className="mt-4 font-display text-2xl font-normal leading-[1.15] text-text-primary">
-              {noticia.titulo}
-            </h1>
-
-            <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-              {noticia.cuerpo}
-            </p>
-
-            <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
-
-            <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-              {noticia.el_pulso.texto_resumen}
-            </p>
-
-            <section className="mt-8">
-              <h2 className="font-ui text-base font-medium text-text-primary">
-                Interpretación general
-              </h2>
-              <InterpretacionBars
-                className="mt-4"
-                pct_incierta={noticia.el_pulso.pct_incierta}
-                pct_negativa={noticia.el_pulso.pct_negativa}
-                pct_positiva={noticia.el_pulso.pct_positiva}
-              />
-            </section>
-          </article>
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex flex-col bg-[#FAF9F5]"
+      role="dialog"
+    >
+      <header className="sticky top-0 z-10 border-b border-border-default bg-[#FAF9F5] px-4 py-4">
+        <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
+          <Logo
+            className="h-auto w-[206px] max-w-[calc(100vw-112px)]"
+            variant="large"
+          />
+          <CountrySelector />
         </div>
+      </header>
 
-        <footer className="sticky bottom-0 z-10 border-t border-border-default bg-[#FAF9F5] px-4 py-4">
-          <div className="mx-auto flex max-w-[480px] justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
-            >
-              Cerrar
-              <ArrowDownLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-            </button>
+      <div className="flex-1 overflow-y-auto px-6">
+        <article className="mx-auto flex max-w-[480px] flex-col pb-24 pt-6">
+          <div className="font-ui text-sm font-semibold text-text-secondary">
+            NOTICIA {newsNumber}
           </div>
-        </footer>
+
+          <h1 className="mt-4 font-display text-2xl font-normal leading-[1.15] text-text-primary">
+            {noticia.titulo}
+          </h1>
+
+          <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+            {noticia.cuerpo}
+          </p>
+
+          <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
+
+          <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+            {noticia.el_pulso.texto_resumen}
+          </p>
+
+          <section className="mt-8">
+            <h2 className="font-ui text-base font-medium text-text-primary">
+              Interpretación general
+            </h2>
+            <InterpretacionBars
+              className="mt-4"
+              pct_incierta={noticia.el_pulso.pct_incierta}
+              pct_negativa={noticia.el_pulso.pct_negativa}
+              pct_positiva={noticia.el_pulso.pct_positiva}
+            />
+          </section>
+        </article>
       </div>
-    </>
+
+      <footer className="sticky bottom-0 z-10 border-t border-border-default bg-[#FAF9F5] px-4 py-4">
+        <div className="mx-auto flex max-w-[480px] justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
+          >
+            Cerrar
+            <ArrowDownLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+          </button>
+        </div>
+      </footer>
+    </div>
   );
 }
