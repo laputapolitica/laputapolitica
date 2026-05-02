@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDownLeft, ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -160,34 +160,32 @@ function DiaNav({
   return (
     <nav
       aria-label="Navegación de noticias"
-      className="fixed bottom-0 left-0 z-50 flex w-full items-center bg-bg-base px-4 py-5 text-text-primary"
+      className="fixed bottom-0 left-0 z-50 flex w-full items-center gap-8 bg-bg-base px-4 py-5 text-text-primary"
     >
       <button
         type="button"
         aria-label="Noticia anterior"
         disabled={isFirstSlide}
         onClick={onPrevious}
-        className="flex shrink-0 items-center justify-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
+        className="flex min-w-0 flex-1 items-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
       >
-        <ChevronLeft aria-hidden="true" size={20} strokeWidth={1.75} />
+        <ArrowLeft aria-hidden="true" className="shrink-0" size={16} strokeWidth={1.5} />
+        <span aria-hidden="true" className="h-px flex-1 bg-[#1A1A1A]" />
       </button>
-
-      <span aria-hidden="true" className="mx-3 h-px flex-1 bg-[#1A1A1A]" />
 
       <span className="shrink-0 whitespace-nowrap text-center font-display text-base font-normal text-text-primary">
         {indicator}
       </span>
-
-      <span aria-hidden="true" className="mx-3 h-px flex-1 bg-[#1A1A1A]" />
 
       <button
         type="button"
         aria-label="Noticia siguiente"
         disabled={isLastSlide}
         onClick={onNext}
-        className="flex shrink-0 items-center justify-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
+        className="flex min-w-0 flex-1 items-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
       >
-        <ChevronRight aria-hidden="true" size={20} strokeWidth={1.75} />
+        <span aria-hidden="true" className="h-px flex-1 bg-[#1A1A1A]" />
+        <ArrowRight aria-hidden="true" className="shrink-0" size={16} strokeWidth={1.5} />
       </button>
     </nav>
   );
