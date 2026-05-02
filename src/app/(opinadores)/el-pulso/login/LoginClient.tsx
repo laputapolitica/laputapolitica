@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useState } from "react";
 
 import {
   loginOpinador,
@@ -17,6 +18,7 @@ const labelClassName =
 
 export function LoginClient(): React.ReactElement {
   const initialState: LoginOpinadorState = {};
+  const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(
     loginOpinador,
     initialState,
@@ -51,12 +53,28 @@ export function LoginClient(): React.ReactElement {
             </FormField>
 
             <FormField label="CONTRASEÑA">
-              <Input
-                className={fieldClassName}
-                name="password"
-                placeholder="••••••••"
-                type="password"
-              />
+              <div className="relative">
+                <Input
+                  className={`${fieldClassName} pr-12`}
+                  name="password"
+                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
+                />
+                <button
+                  type="button"
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center bg-transparent text-text-secondary"
+                >
+                  {showPassword ? (
+                    <EyeOff aria-hidden="true" size={20} strokeWidth={1.75} />
+                  ) : (
+                    <Eye aria-hidden="true" size={20} strokeWidth={1.75} />
+                  )}
+                </button>
+              </div>
             </FormField>
 
             {state.error ? (
