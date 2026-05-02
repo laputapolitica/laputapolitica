@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownLeft, ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowDownLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -160,33 +160,59 @@ function DiaNav({
   return (
     <nav
       aria-label="Navegación de noticias"
-      className="fixed bottom-0 left-0 z-50 flex w-full items-center gap-8 bg-bg-base px-4 py-5 text-text-primary"
+      className="fixed bottom-0 left-0 z-50 w-full bg-bg-base text-text-primary"
     >
-      <button
-        type="button"
-        aria-label="Noticia anterior"
-        disabled={isFirstSlide}
-        onClick={onPrevious}
-        className="flex min-w-0 flex-1 items-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
-      >
-        <ArrowLeft aria-hidden="true" className="shrink-0" size={16} strokeWidth={1.5} />
-        <span aria-hidden="true" className="h-px flex-1 bg-[#1A1A1A]" />
-      </button>
+      <div className="flex w-full items-center px-5 py-5">
+        <button
+          type="button"
+          aria-label="Noticia anterior"
+          disabled={isFirstSlide}
+          onClick={onPrevious}
+          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-30"
+        >
+          <svg
+            aria-hidden="true"
+            width="100%"
+            height="6"
+            viewBox="0 0 112 6"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 2.88672L5 5.77347V-3.26633e-05L0 2.88672ZM112 2.88672V2.38672L4.5 2.38672V2.88672V3.38672L112 3.38672V2.88672Z"
+              fill="#444444"
+            />
+          </svg>
+        </button>
 
-      <span className="shrink-0 whitespace-nowrap text-center font-display text-base font-normal text-text-primary">
-        {indicator}
-      </span>
+        <span className="mx-4 shrink-0 whitespace-nowrap text-center font-display text-base font-normal text-text-primary">
+          {indicator}
+        </span>
 
-      <button
-        type="button"
-        aria-label="Noticia siguiente"
-        disabled={isLastSlide}
-        onClick={onNext}
-        className="flex min-w-0 flex-1 items-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
-      >
-        <span aria-hidden="true" className="h-px flex-1 bg-[#1A1A1A]" />
-        <ArrowRight aria-hidden="true" className="shrink-0" size={16} strokeWidth={1.5} />
-      </button>
+        <button
+          type="button"
+          aria-label="Noticia siguiente"
+          disabled={isLastSlide}
+          onClick={onNext}
+          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-30"
+        >
+          <svg
+            aria-hidden="true"
+            width="100%"
+            height="6"
+            viewBox="0 0 112 6"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M112 2.88672L107 -3.26633e-05V5.77347L112 2.88672ZM0 2.88672L0 3.38672L107.5 3.38672V2.88672V2.38672L0 2.38672L0 2.88672Z"
+              fill="#444444"
+            />
+          </svg>
+        </button>
+      </div>
     </nav>
   );
 }
