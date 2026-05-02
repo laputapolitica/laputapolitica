@@ -26,6 +26,7 @@ export interface OnboardingSlideProps {
   descripcion: string;
   ilustracionUrl: string;
   esFormulario?: boolean;
+  isActive?: boolean;
 }
 
 const provinciasArgentinas = [
@@ -68,9 +69,17 @@ export function OnboardingSlide({
   descripcion,
   ilustracionUrl,
   esFormulario = false,
+  isActive = false,
 }: OnboardingSlideProps): React.ReactElement {
   if (esFormulario) {
-    return <PostulacionSlide numero={numero} total={total} titulo={titulo} />;
+    return (
+      <PostulacionSlide
+        isActive={isActive}
+        numero={numero}
+        total={total}
+        titulo={titulo}
+      />
+    );
   }
 
   return (
@@ -103,12 +112,14 @@ export function OnboardingSlide({
 }
 
 type PostulacionSlideProps = {
+  isActive: boolean;
   numero: number;
   total: number;
   titulo: string;
 };
 
 function PostulacionSlide({
+  isActive,
   numero,
   total,
   titulo,
@@ -236,13 +247,15 @@ function PostulacionSlide({
             </p>
           ) : null}
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="fixed bottom-0 left-0 z-[60] h-14 w-full bg-[#111111] font-ui text-base font-medium text-white disabled:opacity-70"
-          >
-            {isPending ? "Enviando..." : "Postularme"}
-          </button>
+          {isActive ? (
+            <button
+              type="submit"
+              disabled={isPending}
+              className="fixed bottom-0 left-0 z-[60] h-14 w-full bg-[#111111] font-ui text-base font-medium text-white disabled:opacity-70"
+            >
+              {isPending ? "Enviando..." : "Postularme"}
+            </button>
+          ) : null}
         </form>
       </div>
     </section>

@@ -136,18 +136,24 @@ export function OpinadoresClient(): React.ReactElement {
               data-slide={slide.numero}
               className="w-screen flex-shrink-0 snap-center snap-always"
             >
-              <OnboardingSlide {...slide} total={TOTAL_SLIDES} />
+              <OnboardingSlide
+                {...slide}
+                isActive={activeSlide === slide.numero}
+                total={TOTAL_SLIDES}
+              />
             </div>
           ),
         )}
       </div>
 
-      <OnboardingNav
-        activeSlide={activeSlide}
-        total={TOTAL_SLIDES}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-      />
+      {activeSlide < TOTAL_SLIDES ? (
+        <OnboardingNav
+          activeSlide={activeSlide}
+          total={TOTAL_SLIDES}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
+      ) : null}
     </main>
   );
 }
