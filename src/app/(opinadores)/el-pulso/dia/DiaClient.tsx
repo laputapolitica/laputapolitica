@@ -160,35 +160,35 @@ function DiaNav({
   return (
     <nav
       aria-label="Navegación de noticias"
-      className="fixed bottom-0 left-0 z-50 flex h-16 w-full items-center gap-2 bg-bg-base px-5 text-text-primary"
+      className="fixed bottom-0 left-0 z-50 flex w-full items-center bg-bg-base px-4 py-5 text-text-primary"
     >
-      <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
-
       <button
         type="button"
         aria-label="Noticia anterior"
         disabled={isFirstSlide}
         onClick={onPrevious}
-        className="flex shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-30"
+        className="flex shrink-0 items-center justify-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
       >
-        <ChevronLeft aria-hidden="true" size={24} strokeWidth={1.5} />
+        <ChevronLeft aria-hidden="true" size={20} strokeWidth={1.75} />
       </button>
 
-      <span className="shrink-0 text-center font-display text-base font-normal text-text-primary">
+      <span aria-hidden="true" className="mx-3 h-px flex-1 bg-[#1A1A1A]" />
+
+      <span className="shrink-0 whitespace-nowrap text-center font-display text-base font-normal text-text-primary">
         {indicator}
       </span>
+
+      <span aria-hidden="true" className="mx-3 h-px flex-1 bg-[#1A1A1A]" />
 
       <button
         type="button"
         aria-label="Noticia siguiente"
         disabled={isLastSlide}
         onClick={onNext}
-        className="flex shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-30"
+        className="flex shrink-0 items-center justify-center bg-transparent p-0 text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
       >
-        <ChevronRight aria-hidden="true" size={24} strokeWidth={1.5} />
+        <ChevronRight aria-hidden="true" size={20} strokeWidth={1.75} />
       </button>
-
-      <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
     </nav>
   );
 }
