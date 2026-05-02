@@ -26,10 +26,6 @@ export function NoticiaSwipe({
         {noticia.titulo}
       </h2>
 
-      <p className="mt-4 font-editorial text-base leading-relaxed text-text-primary">
-        {noticia.el_pulso.texto_resumen}
-      </p>
-
       <button
         type="button"
         onClick={() => onRead(noticia)}
