@@ -25,6 +25,10 @@ const config = {
         },
         admin: {
           ink: "var(--color-admin-ink)",
+          success: "var(--color-admin-success)",
+          warning: "var(--color-admin-warning)",
+          danger: "var(--color-admin-danger)",
+          pending: "var(--color-admin-pending)",
         },
         pipeline: {
           pending: "var(--color-pipeline-pending)",
