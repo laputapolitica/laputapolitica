@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 import {
   crearPostulacion,
@@ -112,6 +114,7 @@ function PostulacionSlide({
   titulo,
 }: PostulacionSlideProps): React.ReactElement {
   const initialState: CrearPostulacionState = {};
+  const [phone, setPhone] = useState<string | undefined>();
   const [state, formAction, isPending] = useActionState(
     crearPostulacion,
     initialState,
@@ -171,26 +174,20 @@ function PostulacionSlide({
           </FormField>
 
           <FormField label="TELÉFONO">
-            <div className="grid grid-cols-[80px_minmax(0,1fr)] gap-3">
-              <button
-                type="button"
-                disabled
-                className="flex h-12 items-center justify-between rounded-lg border border-border-default bg-white px-3 font-ui text-base text-text-primary disabled:opacity-100"
-              >
-                <span>+54</span>
-                <span aria-hidden="true" className="flex flex-col text-[10px] leading-none">
-                  <span>↑</span>
-                  <span>↓</span>
-                </span>
-              </button>
-              <Input
-                className={fieldClassName}
-                name="telefono"
-                placeholder="11 1234-5678"
-                required
-                type="tel"
-              />
-            </div>
+            <PhoneInput
+              defaultCountry="AR"
+              international
+              withCountryCallingCode
+              value={phone}
+              onChange={setPhone}
+              className="phone-input-lpp flex h-12 w-full items-center rounded-lg border border-border-default bg-white px-3 font-ui text-base text-text-primary"
+              numberInputProps={{
+                className:
+                  "min-w-0 flex-1 border-0 bg-transparent px-3 py-0 font-ui text-base text-text-primary outline-none placeholder:text-text-secondary",
+                placeholder: "11 1234-5678",
+              }}
+            />
+            <input type="hidden" name="telefono" value={phone ?? ""} />
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
