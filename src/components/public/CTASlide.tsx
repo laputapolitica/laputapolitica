@@ -29,7 +29,7 @@ export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(
           </p>
 
           <Link
-            href="/opinadores"
+            href="/el-pulso"
             className="mt-8 inline-flex rounded-full border border-black bg-white px-8 py-3 font-ui text-base font-normal text-text-primary"
           >
             Sumar mi voz
