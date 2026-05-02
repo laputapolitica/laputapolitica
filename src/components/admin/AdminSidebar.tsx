@@ -35,10 +35,10 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  "block border px-4 py-3 font-ui text-base",
+                  "block w-[220px] rounded-lg px-4 py-2.5 font-ui text-base",
                   isActive
-                    ? "border-admin-ink bg-admin-ink text-bg-base"
-                    : "border-border-default text-text-primary",
+                    ? "bg-admin-ink text-bg-base"
+                    : "border border-admin-ink bg-white text-admin-ink",
                 ].join(" ")}
               >
                 {item.label}
@@ -50,7 +50,7 @@ export function AdminSidebar() {
         <button
           type="button"
           onClick={() => router.push("/admin/login")}
-          className="absolute bottom-12 left-12 w-[152px] border border-state-required px-4 py-3 text-left font-ui text-base text-state-required"
+          className="absolute bottom-12 left-12 w-[220px] rounded-lg border-2 border-[#C4342D] bg-white px-4 py-2.5 text-left font-ui text-base text-[#C4342D]"
         >
           Cerrar Sesion
         </button>
