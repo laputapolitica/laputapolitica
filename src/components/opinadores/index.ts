@@ -1,4 +1,10 @@
+export { HeaderOpinador } from "./HeaderOpinador";
+export { NoticiaSwipe } from "./NoticiaSwipe";
 export { OnboardingNav } from "./OnboardingNav";
 export { OnboardingSlide } from "./OnboardingSlide";
+export { OpinionForm } from "./OpinionForm";
+export type { HeaderOpinadorProps } from "./HeaderOpinador";
+export type { NoticiaSwipeNoticia, NoticiaSwipeProps } from "./NoticiaSwipe";
 export type { OnboardingNavProps } from "./OnboardingNav";
 export type { OnboardingSlideProps } from "./OnboardingSlide";
+export type { OpinionFormProps } from "./OpinionForm";
