@@ -88,8 +88,8 @@ export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
   }, [activeSlide, scrollToSlide]);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-bg-base text-text-primary">
-      <header className="fixed left-0 top-0 z-50 flex w-full items-center justify-between bg-bg-base px-5 py-4">
+    <main className="h-screen overflow-hidden bg-bg-base text-text-primary">
+      <header className="fixed left-0 top-0 z-50 flex h-16 w-full items-center justify-between bg-bg-base px-5">
         <div className="flex items-center gap-3">
           <Logo variant="small" className="h-10 w-auto" />
           <span aria-hidden="true" className="h-8 w-px bg-border-default" />
@@ -100,13 +100,13 @@ export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
 
       <HeaderOpinador nombre="Martin" />
 
-      <div className="fixed left-0 top-[122px] z-30 w-full bg-bg-base px-4 pt-4">
+      <div className="fixed left-0 top-28 z-30 flex h-10 w-full items-center bg-bg-base px-4">
         <p className="font-ui text-xs font-medium uppercase tracking-wider text-text-secondary">
           NOTICIAS DEL DÍA - OPINÁ SOBRE CADA UNA
         </p>
       </div>
 
-      <div className="flex h-screen w-screen snap-x snap-mandatory overflow-x-auto scroll-smooth">
+      <div className="fixed bottom-16 left-0 top-[152px] flex w-screen snap-x snap-mandatory overflow-x-auto scroll-smooth">
         {edicion.noticias.map(
           (noticia, index: number): React.ReactElement => (
             <div
@@ -115,7 +115,7 @@ export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
                 slideRefs.current[index] = element;
               }}
               data-slide={noticia.orden}
-              className="w-screen flex-shrink-0 snap-center snap-always overflow-y-auto px-4 pb-28 pt-[166px]"
+              className="h-full w-screen flex-shrink-0 snap-center snap-always px-4 py-4"
             >
               <NoticiaSwipe noticia={noticia} onRead={setNoticiaActiva} />
             </div>
@@ -160,20 +160,21 @@ function DiaNav({
   return (
     <nav
       aria-label="Navegación de noticias"
-      className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-between bg-bg-base px-5 py-5 text-text-primary"
+      className="fixed bottom-0 left-0 z-50 flex h-16 w-full items-center gap-2 bg-bg-base px-5 text-text-primary"
     >
+      <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
+
       <button
         type="button"
         aria-label="Noticia anterior"
         disabled={isFirstSlide}
         onClick={onPrevious}
-        className="flex min-w-0 flex-1 items-center gap-2 disabled:pointer-events-none disabled:opacity-30"
+        className="flex shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-30"
       >
         <ChevronLeft aria-hidden="true" size={24} strokeWidth={1.5} />
-        <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
       </button>
 
-      <span className="shrink-0 px-4 text-center font-display text-base font-normal text-text-primary">
+      <span className="shrink-0 text-center font-display text-base font-normal text-text-primary">
         {indicator}
       </span>
 
@@ -182,11 +183,12 @@ function DiaNav({
         aria-label="Noticia siguiente"
         disabled={isLastSlide}
         onClick={onNext}
-        className="flex min-w-0 flex-1 items-center gap-2 disabled:pointer-events-none disabled:opacity-30"
+        className="flex shrink-0 items-center justify-center disabled:pointer-events-none disabled:opacity-30"
       >
-        <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
         <ChevronRight aria-hidden="true" size={24} strokeWidth={1.5} />
       </button>
+
+      <span aria-hidden="true" className="h-px flex-1 bg-text-primary" />
     </nav>
   );
 }

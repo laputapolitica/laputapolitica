@@ -78,7 +78,7 @@ export function HeaderOpinador({
   }, []);
 
   return (
-    <section className="fixed left-0 top-16 z-40 flex w-full items-center justify-between border-y border-border-default bg-bg-base px-4 py-3 font-ui text-base">
+    <section className="fixed left-0 top-16 z-40 flex h-12 w-full items-center justify-between border-y border-border-default bg-bg-base px-4 font-ui text-base">
       <p className="min-w-0 flex-1 truncate text-text-primary">Hola, {nombre}</p>
       <p className="shrink-0 px-3 font-medium text-text-primary">{displayDate}</p>
       <p className="min-w-0 flex-1 truncate text-right text-state-required">

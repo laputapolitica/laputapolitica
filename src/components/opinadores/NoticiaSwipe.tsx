@@ -17,7 +17,7 @@ export function NoticiaSwipe({
   onRead,
 }: NoticiaSwipeProps): React.ReactElement {
   return (
-    <article className="mx-auto flex min-h-full max-w-[480px] flex-col rounded-xl border border-border-default bg-white p-6">
+    <article className="mx-auto flex h-full max-w-[480px] flex-col overflow-y-auto rounded-xl border border-border-default bg-white p-6">
       <p className="font-ui text-sm text-text-secondary">
         Noticia {String(noticia.orden).padStart(2, "0")}
       </p>
