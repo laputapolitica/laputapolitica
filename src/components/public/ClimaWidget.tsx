@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 import type { Clima, ClimaDia } from "@/lib/mock-data";
@@ -10,25 +9,51 @@ type ClimaWidgetProps = {
 export function ClimaWidget({ clima }: ClimaWidgetProps) {
   return (
     <section className="mx-auto w-full max-w-[360px]">
-      <div className="grid grid-cols-[40px_1fr_40px] items-center">
+      <div className="flex items-center">
         <button
           type="button"
           aria-label="Provincia anterior"
-          className="inline-flex h-10 w-10 items-center justify-center text-text-primary"
+          className="flex-1 bg-transparent p-0"
         >
-          <ChevronLeft aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+          <svg
+            aria-hidden="true"
+            width="100%"
+            height="6"
+            viewBox="0 0 139 6"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 2.88672L5 5.77347V-3.26633e-05L0 2.88672ZM139 2.88672V2.38672L4.5 2.38672V2.88672V3.38672L139 3.38672V2.88672Z"
+              fill="#444444"
+            />
+          </svg>
         </button>
 
-        <h3 className="font-display text-xl font-normal text-text-primary">
+        <h3 className="mx-4 shrink-0 whitespace-nowrap font-display text-xl font-normal text-text-primary">
           {clima.provincia}
         </h3>
 
         <button
           type="button"
           aria-label="Provincia siguiente"
-          className="inline-flex h-10 w-10 items-center justify-center text-text-primary"
+          className="flex-1 bg-transparent p-0"
         >
-          <ChevronRight aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+          <svg
+            aria-hidden="true"
+            width="100%"
+            height="6"
+            viewBox="0 0 139 6"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M139 2.88672L134 -3.26633e-05V5.77347L139 2.88672ZM0 2.88672L0 3.38672L134.5 3.38672V2.88672V2.38672L0 2.38672L0 2.88672Z"
+              fill="#444444"
+            />
+          </svg>
         </button>
       </div>
 
