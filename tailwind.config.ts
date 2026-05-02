@@ -23,6 +23,9 @@ const config = {
         border: {
           default: "var(--color-border-default)",
         },
+        admin: {
+          ink: "var(--color-admin-ink)",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "serif"],
