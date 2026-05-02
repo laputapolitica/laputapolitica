@@ -26,6 +26,11 @@ const config = {
         admin: {
           ink: "var(--color-admin-ink)",
         },
+        pipeline: {
+          pending: "var(--color-pipeline-pending)",
+          running: "var(--color-pipeline-running)",
+          "gate-required": "var(--color-pipeline-gate-required)",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "serif"],

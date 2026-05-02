@@ -24,8 +24,8 @@ export function AdminSidebar() {
   const router = useRouter();
 
   return (
-    <aside className="fixed left-0 top-16 h-[calc(100vh-64px)] w-[200px] bg-bg-base pl-12">
-      <nav className="flex h-full flex-col pt-12">
+    <aside className="h-full w-[220px] bg-bg-base">
+      <nav className="flex h-full flex-col justify-between">
         <div className="flex flex-col gap-2">
           {navItems.map((item) => {
             const isActive = isActivePath(pathname, item.href);
@@ -35,10 +35,10 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  "block w-[220px] rounded-lg px-4 py-2.5 font-ui text-base",
+                  "flex h-10 w-[220px] items-center rounded-lg border pl-3 text-left font-ui text-base",
                   isActive
-                    ? "bg-admin-ink text-bg-base"
-                    : "border border-admin-ink bg-white text-admin-ink",
+                    ? "border-admin-ink bg-admin-ink font-semibold text-bg-base"
+                    : "border-admin-ink bg-white font-medium text-admin-ink",
                 ].join(" ")}
               >
                 {item.label}
@@ -50,7 +50,7 @@ export function AdminSidebar() {
         <button
           type="button"
           onClick={() => router.push("/admin/login")}
-          className="absolute bottom-12 left-12 w-[220px] rounded-lg border-2 border-[#C4342D] bg-white px-4 py-2.5 text-left font-ui text-base text-[#C4342D]"
+          className="flex h-10 w-[220px] items-center rounded-lg border-2 border-[#C4342D] bg-white pl-3 text-left font-ui text-base font-semibold text-[#C4342D]"
         >
           Cerrar Sesion
         </button>
