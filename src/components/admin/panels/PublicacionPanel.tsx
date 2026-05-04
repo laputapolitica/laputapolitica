@@ -13,6 +13,7 @@ import {
   IconWeb,
 } from "@/components/admin/icons";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
+import { VOTE_COLORS } from "@/lib/constants";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
@@ -261,9 +262,9 @@ function InterpretacionGeneral({
   interpretacion: NoticiaPublicacion["interpretacion"];
 }) {
   const items = [
-    { label: "Positiva", value: interpretacion.positiva, color: "#A8D5BA" },
-    { label: "Negativa", value: interpretacion.negativa, color: "#E6A8A1" },
-    { label: "Incierta", value: interpretacion.incierta, color: "#C7C3E6" },
+    { label: "Positiva", value: interpretacion.positiva, color: VOTE_COLORS.positiva },
+    { label: "Negativa", value: interpretacion.negativa, color: VOTE_COLORS.negativa },
+    { label: "Incierta", value: interpretacion.incierta, color: VOTE_COLORS.incierta },
   ];
 
   return (
@@ -609,19 +610,19 @@ function InstagramSlide03() {
   const votes = [
     {
       label: "Positiva",
-      borderColor: "#A8D5BA",
+      borderColor: VOTE_COLORS.positiva,
       pxValue: `${noticia.interpretacion.positiva * 2}px`,
       percentValue: `${noticia.interpretacion.positiva}%`,
     },
     {
       label: "Negativa",
-      borderColor: "#E6A8A1",
+      borderColor: VOTE_COLORS.negativa,
       pxValue: `${noticia.interpretacion.negativa * 2}px`,
       percentValue: `${noticia.interpretacion.negativa}%`,
     },
     {
       label: "Incierta",
-      borderColor: "#C7C3E6",
+      borderColor: VOTE_COLORS.incierta,
       pxValue: `${noticia.interpretacion.incierta * 2}px`,
       percentValue: `${noticia.interpretacion.incierta}%`,
     },
@@ -759,7 +760,7 @@ const mockOpinadores = [
     nombre: "Juan Perez",
     email: "juanperez@email.com",
     ciudad: "Buenos Aires",
-    votos: ["#E6A8A1", "#C7C3E6", "#E6A8A1", "#A8D5BA", "#E6A8A1"],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.incierta, VOTE_COLORS.negativa, VOTE_COLORS.positiva, VOTE_COLORS.negativa],
     completadas: 5,
     ultimaRespuesta: "20:38",
   },
@@ -768,7 +769,7 @@ const mockOpinadores = [
     nombre: "Maria Lopez",
     email: "marialopez@email.com",
     ciudad: "Cordoba",
-    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#C7C3E6", "#E6A8A1"],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.positiva, VOTE_COLORS.negativa, VOTE_COLORS.incierta, VOTE_COLORS.negativa],
     completadas: 5,
     ultimaRespuesta: "20:35",
   },
@@ -777,7 +778,7 @@ const mockOpinadores = [
     nombre: "Carlos Ruiz",
     email: "carlosruiz@email.com",
     ciudad: "Rosario",
-    votos: ["#E6A8A1", "#C7C3E6", null, null, null],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.incierta, null, null, null],
     completadas: 3,
     ultimaRespuesta: "20:30",
   },
@@ -786,7 +787,7 @@ const mockOpinadores = [
     nombre: "Ana Garcia",
     email: "anagarcia@email.com",
     ciudad: "Mendoza",
-    votos: ["#E6A8A1", "#C7C3E6", "#A8D5BA", "#A8D5BA", "#E6A8A1"],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.incierta, VOTE_COLORS.positiva, VOTE_COLORS.positiva, VOTE_COLORS.negativa],
     completadas: 5,
     ultimaRespuesta: "20:20",
   },
@@ -795,7 +796,7 @@ const mockOpinadores = [
     nombre: "Pedro Sanchez",
     email: "pedrosanchez@email.com",
     ciudad: "La Plata",
-    votos: ["#E6A8A1", null, null, null, null],
+    votos: [VOTE_COLORS.negativa, null, null, null, null],
     completadas: 1,
     ultimaRespuesta: "20:15",
   },
@@ -804,7 +805,7 @@ const mockOpinadores = [
     nombre: "Lucia Diaz",
     email: "luciadiaz@email.com",
     ciudad: "Tucuman",
-    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#A8D5BA", "#C7C3E6"],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.positiva, VOTE_COLORS.negativa, VOTE_COLORS.positiva, VOTE_COLORS.incierta],
     completadas: 5,
     ultimaRespuesta: "20:10",
   },
@@ -813,7 +814,7 @@ const mockOpinadores = [
     nombre: "Diego Romero",
     email: "diegoromero@email.com",
     ciudad: "Salta",
-    votos: ["#E6A8A1", "#C7C3E6", null, null, null],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.incierta, null, null, null],
     completadas: 2,
     ultimaRespuesta: "20:05",
   },
@@ -822,7 +823,7 @@ const mockOpinadores = [
     nombre: "Sofia Martinez",
     email: "sofiamartinez@email.com",
     ciudad: "Mar del Plata",
-    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#C7C3E6", "#E6A8A1"],
+    votos: [VOTE_COLORS.negativa, VOTE_COLORS.positiva, VOTE_COLORS.negativa, VOTE_COLORS.incierta, VOTE_COLORS.negativa],
     completadas: 5,
     ultimaRespuesta: "20:00",
   },
@@ -836,35 +837,35 @@ const mockOpiniones = [
     texto:
       "Predominó una lectura crítica de la medida, marcada por la preocupación por su impacto social y por la falta de precisiones sobre su implementación. Entre los argumentos más repetidos apareció la idea de que el ajuste podría trasladarse directamente a los usuarios del transporte, con efectos desiguales según la región.",
     interpretacion: "Negativa",
-    color: "#E6A8A1",
+    color: VOTE_COLORS.negativa,
   },
   {
     noticia: "Negociaciones con el FMI",
     texto:
       "El acuerdo aparece como un alivio necesario de corto plazo, pero la comunidad desconfía de su costo político y social a largo plazo. Predominó la incertidumbre sobre los efectos reales del programa.",
     interpretacion: "Incierta",
-    color: "#C7C3E6",
+    color: VOTE_COLORS.incierta,
   },
   {
     noticia: "Conflicto con gobernadores",
     texto:
       "Nadie quiere romper, pero todos muestran fuerza antes de negociar. La lectura fue pragmática: el conflicto es una pulseada de poder más que una crisis institucional.",
     interpretacion: "Negativa",
-    color: "#E6A8A1",
+    color: VOTE_COLORS.negativa,
   },
   {
     noticia: "Reformas legislativas",
     texto:
       "Hay voluntad de cambio pero desconfianza en el proceso. La negociación acelerada y poco transparente genera más dudas que certezas entre los opinadores.",
     interpretacion: "Positiva",
-    color: "#A8D5BA",
+    color: VOTE_COLORS.positiva,
   },
   {
     noticia: "Clima social y protestas",
     texto:
       "El cansancio social es real pero hay cautela frente a la escalada. La preocupación domina pero no hay consenso sobre hacia dónde va el conflicto.",
     interpretacion: "Negativa",
-    color: "#E6A8A1",
+    color: VOTE_COLORS.negativa,
   },
 ];
 
