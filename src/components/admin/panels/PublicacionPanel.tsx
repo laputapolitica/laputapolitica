@@ -3,17 +3,18 @@
 import { useState } from "react";
 
 import { IconAtras } from "@/components/admin/icons";
-import { VOTE_COLORS } from "@/lib/constants";
 import type { Canal, MockOpinador } from "./PublicacionPanel/types";
 import { canales, mockOpiniones, mockOpinadores, noticias } from "./PublicacionPanel/mocks";
 import { LoadingText } from "./PublicacionPanel/shared/LoadingText";
 import { EditButton, CopyButton } from "./PublicacionPanel/shared/ActionButtons";
+import { StaticPillRow } from "./PublicacionPanel/shared/StaticPillRow";
 import { CanalIcon } from "./PublicacionPanel/shared/CanalIcon";
 import { TabButton } from "./PublicacionPanel/shared/TabButton";
 import { getPointColor } from "./PublicacionPanel/helpers";
 import { PortadaSlide } from "./PublicacionPanel/WebChannel/PortadaSlide";
 import { NoticiaSlide } from "./PublicacionPanel/WebChannel/NoticiaSlide";
 import { ClimaSlide } from "./PublicacionPanel/WebChannel/ClimaSlide";
+import { InstagramSlideContent } from "./PublicacionPanel/InstagramChannel";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 
 interface PublicacionPanelProps {
@@ -21,277 +22,11 @@ interface PublicacionPanelProps {
   onPublicar?: () => void;
 }
 
-function InstagramEditablePill({ value }: { value: string }) {
-  const [pillValue, setPillValue] = useState(value);
-
-  return (
-    <div className="inline-flex items-center gap-3">
-      <input
-        type="text"
-        value={pillValue}
-        onChange={(event) => setPillValue(event.target.value)}
-        className="h-[28px] rounded-[3.5px] border border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink outline-none"
-        style={{ width: `${pillValue.length + 2}ch` }}
-      />
-      <EditButton />
-      <CopyButton />
-    </div>
-  );
-}
-
-function InstagramBulletRows({ bullets }: { bullets: string[] }) {
-  return (
-    <div className="flex flex-col gap-1">
-      {bullets.map((bullet) => (
-        <InstagramBulletRow key={bullet} bullet={bullet} />
-      ))}
-    </div>
-  );
-}
-
-function InstagramBulletRow({ bullet }: { bullet: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <div className="inline-flex rounded-[3.5px] border border-admin-ink bg-white px-2 py-1">
-        <span className="font-ui text-sm font-medium text-admin-ink">
-          ■ {bullet}
-        </span>
-      </div>
-      <div className="flex shrink-0 items-center gap-2 pt-1">
-        <EditButton />
-        <CopyButton />
-      </div>
-    </div>
-  );
-}
-
-function InstagramVoteRow({
-  label,
-  borderColor,
-  pxValue,
-  percentValue,
-}: {
-  label: string;
-  borderColor: string;
-  pxValue: string;
-  percentValue: string;
-}) {
-  const [widthValue, setWidthValue] = useState(pxValue);
-  const [voteValue, setVoteValue] = useState(percentValue);
-
-  return (
-    <div className="flex items-center gap-2">
-      <div
-        className="inline-flex h-[28px] items-center rounded-[3.5px] px-2"
-        style={{ border: `1px solid ${borderColor}` }}
-      >
-        <span
-          className="font-ui text-sm font-medium"
-          style={{ color: borderColor }}
-        >
-          {label}
-        </span>
-      </div>
-      <input
-        type="text"
-        value={widthValue}
-        onChange={(event) => setWidthValue(event.target.value)}
-        className="h-[28px] rounded-[4px] border border-admin-ink bg-white px-2 font-ui text-xs font-medium text-admin-ink outline-none"
-        style={{ width: `${widthValue.length + 2}ch` }}
-      />
-      <CopyButton />
-      <input
-        type="text"
-        value={voteValue}
-        onChange={(event) => setVoteValue(event.target.value)}
-        className="h-[28px] rounded-[4px] border border-admin-ink bg-white px-2 font-ui text-xs font-medium text-admin-ink outline-none"
-        style={{ width: `${voteValue.length + 3}ch` }}
-      />
-      <CopyButton />
-    </div>
-  );
-}
-
-function InstagramSlide01() {
-  return (
-    <div>
-      <div className="flex items-center gap-2">
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-sm font-medium text-admin-ink">
-            Equilibrio ciego
-          </span>
-        </div>
-        <EditButton />
-        <CopyButton />
-      </div>
-
-      <div className="mt-5 flex items-start gap-3">
-        <div className="h-[150px] w-[150px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
-        <CopyButton />
-      </div>
-
-      <div className="mt-5 flex items-center gap-2">
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-sm font-medium text-admin-ink">
-            21 MAR 2026
-          </span>
-        </div>
-        <EditButton />
-        <CopyButton />
-      </div>
-    </div>
-  );
-}
-
-function InstagramStaticPillRow({ value }: { value: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="whitespace-nowrap font-ui text-xs font-semibold text-admin-ink">
-          {value}
-        </span>
-      </div>
-      <EditButton />
-      <CopyButton />
-    </div>
-  );
-}
-
-function InstagramSlide02() {
-  const noticia = noticias[0];
-  const bullets = [
-    "El Gobierno reabrió la discusión por los subsidios al transporte.",
-    "Las provincias buscan evitar que el ajuste caiga sobre los usuarios.",
-    "La tarifa volvió al centro de la agenda económica.",
-    "El costo político se reparte entre Nación y gobernadores.",
-    "El impacto diario se concentra en quienes viajan para trabajar.",
-  ];
-
-  return (
-    <div className="space-y-5">
-      <InstagramStaticPillRow value="EXPEDIENTE Nº: 2026_080-AR-01" />
-      <InstagramStaticPillRow value={noticia.titulo} />
-      <InstagramBulletRows bullets={bullets} />
-      <InstagramStaticPillRow value="21 MAR 2026" />
-    </div>
-  );
-}
-
-function InstagramSlide03() {
-  const noticia = noticias[0];
-  const bullets = [
-    noticia.pulso,
-    "La corrección aparece como necesaria para una parte de la comunidad.",
-    "El riesgo social queda asociado al bolsillo cotidiano.",
-    "La incertidumbre se concentra en el alcance real del aumento.",
-    "El debate mezcla ajuste fiscal, transporte y humor social.",
-  ];
-  const votes = [
-    {
-      label: "Positiva",
-      borderColor: VOTE_COLORS.positiva,
-      pxValue: `${noticia.interpretacion.positiva * 2}px`,
-      percentValue: `${noticia.interpretacion.positiva}%`,
-    },
-    {
-      label: "Negativa",
-      borderColor: VOTE_COLORS.negativa,
-      pxValue: `${noticia.interpretacion.negativa * 2}px`,
-      percentValue: `${noticia.interpretacion.negativa}%`,
-    },
-    {
-      label: "Incierta",
-      borderColor: VOTE_COLORS.incierta,
-      pxValue: `${noticia.interpretacion.incierta * 2}px`,
-      percentValue: `${noticia.interpretacion.incierta}%`,
-    },
-  ];
-
-  return (
-    <div className="space-y-5">
-      <InstagramEditablePill value="ANEXO SOCIAL: 2026_080-AR-01-S" />
-      <InstagramBulletRows bullets={bullets} />
-      <div className="inline-flex flex-col gap-2">
-        {votes.map((vote) => (
-          <InstagramVoteRow
-            key={vote.label}
-            label={vote.label}
-            borderColor={vote.borderColor}
-            pxValue={vote.pxValue}
-            percentValue={vote.percentValue}
-          />
-        ))}
-      </div>
-      <InstagramEditablePill value="21 MAR 2026" />
-    </div>
-  );
-}
-
-function InstagramSlide04() {
-  const titulares = [
-    "Pacto con el FMI",
-    "Provincias en guerra",
-    "Reformas en el Congreso",
-    "Clima social en alerta",
-  ];
-
-  return (
-    <div className="space-y-5">
-      {titulares.map((titulo) => (
-        <div key={titulo} className="flex items-start gap-2">
-          <div className="inline-flex items-start rounded-[3.5px] border border-admin-ink bg-white px-2 py-1">
-            <span
-              className="font-ui text-sm font-medium text-admin-ink uppercase"
-              style={{
-                letterSpacing: "8px",
-                maxWidth: "22ch",
-                wordBreak: "keep-all",
-                overflowWrap: "break-word",
-                whiteSpace: "normal",
-                display: "block",
-              }}
-            >
-              {titulo}
-            </span>
-          </div>
-          <EditButton />
-          <CopyButton />
-        </div>
-      ))}
-      <div className="flex items-center gap-2">
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-sm font-medium text-admin-ink">
-            21 MAR 2026
-          </span>
-        </div>
-        <EditButton />
-        <CopyButton />
-      </div>
-    </div>
-  );
-}
-
-function InstagramSlideContent({ activeSlide }: { activeSlide: number }) {
-  if (activeSlide === 1) {
-    return <InstagramSlide01 />;
-  }
-
-  if (activeSlide === 2) {
-    return <InstagramSlide02 />;
-  }
-
-  if (activeSlide === 3) {
-    return <InstagramSlide03 />;
-  }
-
-  return <InstagramSlide04 />;
-}
-
 function TwitterSlideContent({ activeSlide }: { activeSlide: number }) {
   if (activeSlide === 1) {
     return (
       <div className="space-y-5">
-        <InstagramStaticPillRow value="Equilibrio ciego" />
+        <StaticPillRow value="Equilibrio ciego" />
         <div className="flex items-start gap-3">
           <div className="h-[150px] w-[150px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
           <CopyButton />
@@ -302,7 +37,7 @@ function TwitterSlideContent({ activeSlide }: { activeSlide: number }) {
 
   if (activeSlide === 12) {
     return (
-      <InstagramStaticPillRow value="La edición completa en laputapolitica.com" />
+      <StaticPillRow value="La edición completa en laputapolitica.com" />
     );
   }
 
