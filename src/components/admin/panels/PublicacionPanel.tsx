@@ -1,159 +1,22 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
+import { IconAtras } from "@/components/admin/icons";
 import { VOTE_COLORS } from "@/lib/constants";
 import type { Canal, MockOpinador, NoticiaPublicacion } from "./PublicacionPanel/types";
 import { canales, clima, mockOpiniones, mockOpinadores, noticias } from "./PublicacionPanel/mocks";
-import {
-  IconAtras,
-  IconBajar,
-  IconCopiar,
-  IconEditar,
-  IconInstagram,
-  IconTwitter,
-  IconWeb,
-} from "@/components/admin/icons";
+import { LoadingText } from "./PublicacionPanel/shared/LoadingText";
+import { EditButton, CopyButton, DownloadButton } from "./PublicacionPanel/shared/ActionButtons";
+import { CanalIcon } from "./PublicacionPanel/shared/CanalIcon";
+import { TabButton } from "./PublicacionPanel/shared/TabButton";
+import { EditableTitle } from "./PublicacionPanel/shared/EditableTitle";
+import { getPointColor } from "./PublicacionPanel/helpers";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
   onPublicar?: () => void;
-}
-
-function LoadingText({ text }: { text: string }) {
-  const [dots, setDots] = useState("");
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => {
-        if (prev === "...") {
-          return "";
-        }
-
-        return prev + ".";
-      });
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <span className="font-ui text-sm font-medium text-admin-ink">
-      {text}
-      <span className="inline-block w-[18px] text-left">{dots}</span>
-    </span>
-  );
-}
-
-function ActionButton({ children }: { children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      className="inline-flex h-[22px] cursor-pointer items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 font-ui text-xs font-medium text-admin-ink"
-    >
-      {children}
-    </button>
-  );
-}
-
-function EditButton() {
-  return (
-    <ActionButton>
-      <IconEditar width={12} height={12} />
-      Editar
-    </ActionButton>
-  );
-}
-
-function CopyButton() {
-  return (
-    <ActionButton>
-      <IconCopiar width={12} height={12} />
-      Copiar
-    </ActionButton>
-  );
-}
-
-function DownloadButton() {
-  return (
-    <ActionButton>
-      <IconBajar width={12} height={12} />
-      Descargar
-    </ActionButton>
-  );
-}
-
-function CanalIcon({ canal }: { canal: Canal }) {
-  const iconProps = { width: 14, height: 14 };
-
-  if (canal === "web") {
-    return <IconWeb {...iconProps} />;
-  }
-
-  if (canal === "instagram") {
-    return <IconInstagram {...iconProps} />;
-  }
-
-  return <IconTwitter {...iconProps} />;
-}
-
-function TabButton({
-  children,
-  isActive,
-  onClick,
-  size = "default",
-}: {
-  children: ReactNode;
-  isActive: boolean;
-  onClick: () => void;
-  size?: "default" | "small";
-}) {
-  const statusClass = isActive
-    ? size === "small"
-      ? "border border-admin-ink font-semibold text-admin-ink"
-      : "border-2 border-admin-ink font-semibold text-admin-ink"
-    : size === "small"
-      ? "border border-[#CFCBC4] font-medium text-[#CFCBC4]"
-      : "border-2 border-[#CFCBC4] font-medium text-[#CFCBC4]";
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "inline-flex cursor-pointer items-center gap-1.5 rounded-[4px] border bg-white font-ui",
-        size === "small" ? "h-[24px] px-2 text-xs" : "h-[28px] px-3 text-sm",
-        statusClass,
-      ].join(" ")}
-    >
-      {children}
-    </button>
-  );
-}
-
-function EditableTitle({ value }: { value: string }) {
-  const [title, setTitle] = useState(value);
-
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-          TÍTULO
-        </span>
-        <div className="flex items-center gap-2">
-          <EditButton />
-        </div>
-      </div>
-      <input
-        type="text"
-        value={title}
-        onChange={(event) => setTitle(event.target.value)}
-        className="w-full rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
-      />
-    </div>
-  );
 }
 
 function PortadaSlide() {
@@ -669,13 +532,6 @@ function TwitterSlideContent({ activeSlide }: { activeSlide: number }) {
       </div>
     </div>
   );
-}
-
-function getPointColor(completadas: number, total: number) {
-  const pct = (completadas / total) * 100;
-  if (pct < 33) return "#FF5C60";
-  if (pct < 66) return "#FAC800";
-  return "#35C759";
 }
 
 function ElPulsoContent({ onSelect }: { onSelect: (opinador: MockOpinador) => void }) {
