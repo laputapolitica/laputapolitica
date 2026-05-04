@@ -1,9 +1,17 @@
 export { AdminHeader } from "./AdminHeader";
 export { AdminShell } from "./AdminShell";
 export { AdminSidebar } from "./AdminSidebar";
+export { ElPulsoPanel } from "./panels/ElPulsoPanel";
 export { PipelineDiagram, mockState } from "./PipelineDiagram";
+export { PortadaPanel } from "./panels/PortadaPanel";
+export { PublicacionPanel } from "./panels/PublicacionPanel";
 export { RelevamientoPanel } from "./panels/RelevamientoPanel";
 export { TitulosResumenesPanel } from "./panels/TitulosResumenesPanel";
+export { VentanaOpinionPanel } from "./panels/VentanaOpinionPanel";
 export type { PipelineDiagramProps, PipelineState } from "./PipelineDiagram";
+export type { ElPulsoPanelProps } from "./panels/ElPulsoPanel";
+export type { PortadaPanelProps } from "./panels/PortadaPanel";
+export type { PublicacionPanelProps } from "./panels/PublicacionPanel";
 export type { RelevamientoPanelProps } from "./panels/RelevamientoPanel";
 export type { TitulosResumenesPanelProps } from "./panels/TitulosResumenesPanel";
+export type { VentanaOpinionPanelProps } from "./panels/VentanaOpinionPanel";

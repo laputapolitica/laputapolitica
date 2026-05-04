@@ -1,57 +1,56 @@
 "use client";
 
-import { Check, Copy, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { IconR } from "@/components/admin/icons";
+import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
 
-export type TituloResumenItem = {
+interface TitulosResumenesPanelProps {
+  status: "running" | "ready";
+  onAutorizar?: () => void;
+}
+
+type NoticiaTituloResumen = {
   id: string;
-  noticia: string;
   titulo: string;
   resumen: string;
   fuentes: string[];
 };
 
-export interface TitulosResumenesPanelProps {
-  status: "running" | "ready";
-  items?: TituloResumenItem[];
-  onAutorizar?: () => void;
-  onRehacer?: (id: string) => void;
-}
-
-const defaultItems: TituloResumenItem[] = [
+const mockNoticias: NoticiaTituloResumen[] = [
   {
-    id: "transporte",
-    noticia: "Ajustes y subsidios al transporte",
+    id: "noticia-01",
     titulo: "El transporte vuelve al centro de la pulseada fiscal",
     resumen:
-      "El Gobierno reabrió la discusión por los subsidios y las provincias buscan evitar que el ajuste caiga entero sobre los usuarios.",
+      "El Gobierno reabrió la discusión por los subsidios al transporte y las provincias buscan evitar que el ajuste caiga entero sobre los usuarios.",
     fuentes: ["Infobae", "La Nación", "Página/12"],
   },
   {
-    id: "fmi",
-    noticia: "Negociaciones con el FMI",
-    titulo: "El acuerdo con el FMI ordena cuentas, pero no despeja la política",
+    id: "noticia-02",
+    titulo: "El FMI ordena las cuentas, pero no despeja la política",
     resumen:
       "La Casa Rosada muestra respaldo financiero mientras gobernadores y oposición miden cuánto margen social queda para sostener el programa.",
     fuentes: ["Clarín", "Ámbito", "Perfil"],
   },
   {
-    id: "gobernadores",
-    noticia: "Conflicto con gobernadores",
-    titulo: "Los gobernadores vuelven a negociar con la billetera en la mesa",
+    id: "noticia-03",
+    titulo: "Los gobernadores negocian con la billetera en la mesa",
     resumen:
       "La disputa por fondos tensó la relación con Nación y reabrió una pulseada por obras, cajas provinciales y poder territorial.",
     fuentes: ["TN", "C5N", "El Destape"],
   },
   {
-    id: "legislativo",
-    noticia: "Reformas legislativas",
-    titulo: "El Congreso prueba hasta dónde llega la paciencia reformista",
+    id: "noticia-04",
+    titulo: "El Congreso prueba la paciencia reformista",
     resumen:
       "El oficialismo empuja cambios clave, pero cada artículo obliga a renegociar con bloques que quieren mostrar independencia.",
     fuentes: ["Parlamentario", "Clarín", "Infobae"],
+  },
+  {
+    id: "noticia-05",
+    titulo: "La calle vuelve a medir el clima social",
+    resumen:
+      "Las protestas muestran una tensión persistente entre el ajuste, la caída del poder adquisitivo y la búsqueda oficial de estabilidad.",
+    fuentes: ["Página/12", "La Nación", "C5N"],
   },
 ];
 
@@ -60,7 +59,13 @@ function LoadingText({ text }: { text: string }) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots((prev) => (prev === "..." ? "" : `${prev}.`));
+      setDots((prev) => {
+        if (prev === "...") {
+          return "";
+        }
+
+        return prev + ".";
+      });
     }, 500);
 
     return () => clearInterval(interval);
@@ -74,48 +79,76 @@ function LoadingText({ text }: { text: string }) {
   );
 }
 
+function FuenteIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M4.5 7.5L7.5 4.5M6.5 2.5H9.5V5.5M5.5 2.5H3C2.44772 2.5 2 2.94772 2 3.5V9C2 9.55228 2.44772 10 3 10H8.5C9.05228 10 9.5 9.55228 9.5 9V6.5"
+        stroke="#111111"
+        strokeWidth="1"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+function PanelButton({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 font-ui text-xs font-medium text-admin-ink"
+    >
+      {children}
+    </button>
+  );
+}
+
 export function TitulosResumenesPanel({
   status,
-  items = defaultItems,
   onAutorizar,
-  onRehacer,
 }: TitulosResumenesPanelProps) {
-  const [draftItems, setDraftItems] = useState(items);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [noticias, setNoticias] = useState(mockNoticias);
 
   if (status === "running") {
     return (
       <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-admin-ink">
-        <LoadingText text="Generando títulos y resúmenes" />
+        <LoadingText text="Creando titulos y resumenes de las noticias" />
       </div>
     );
   }
 
-  function updateItem(
-    id: string,
-    field: keyof Pick<TituloResumenItem, "titulo" | "resumen">,
+  const activeNoticia = noticias[activeIndex];
+
+  function updateActiveNoticia(
+    field: keyof Pick<NoticiaTituloResumen, "titulo" | "resumen">,
     value: string,
   ) {
-    setDraftItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
+    setNoticias((currentNoticias) =>
+      currentNoticias.map((noticia, index) =>
+        index === activeIndex ? { ...noticia, [field]: value } : noticia,
       ),
     );
   }
 
-  async function copyItem(item: TituloResumenItem) {
-    await navigator.clipboard.writeText(`${item.titulo}\n\n${item.resumen}`);
-    setCopiedId(item.id);
-    window.setTimeout(() => setCopiedId(null), 1200);
-  }
-
   return (
-    <div className="w-full p-8 font-ui">
+    <div className="w-full font-ui">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <IconR width={20} height={20} />
+          <IconR width={20} height={20} color="#35C759" />
           <div className="flex h-[22px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="whitespace-nowrap font-ui text-[11px] font-medium leading-none text-admin-ink">
+            <span className="font-ui text-[11px] font-medium leading-none text-admin-ink whitespace-nowrap">
               Títulos y Resúmenes
             </span>
           </div>
@@ -130,100 +163,109 @@ export function TitulosResumenesPanel({
         </button>
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_220px] gap-6">
-        <div className="flex flex-col gap-3">
-          {draftItems.map((item, index) => {
-            const isCopied = copiedId === item.id;
+      <div className="mb-6 flex gap-2">
+        {noticias.map((noticia, index) => {
+          const isActive = index === activeIndex;
 
-            return (
-              <article
-                key={item.id}
-                className="rounded-lg border border-admin-ink bg-white p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-admin-ink text-xs font-semibold text-admin-ink">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className="truncate text-sm font-semibold text-admin-ink">
-                      {item.noticia}
-                    </span>
-                  </div>
+          return (
+            <button
+              key={noticia.id}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              className={[
+                "h-[28px] rounded-[4px] px-3 font-ui text-sm",
+                isActive
+                  ? "bg-admin-ink font-semibold text-white"
+                  : "border border-admin-ink bg-white font-medium text-admin-ink",
+              ].join(" ")}
+            >
+              Noticia {String(index + 1).padStart(2, "0")}
+            </button>
+          );
+        })}
+      </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void copyItem(item)}
-                      className="flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2 text-xs font-medium text-admin-ink"
-                    >
-                      {isCopied ? <Check size={12} /> : <Copy size={12} />}
-                      {isCopied ? "Copiado" : "Copiar"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onRehacer?.(item.id)}
-                      className="flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2 text-xs font-medium text-admin-ink"
-                    >
-                      <RotateCcw size={12} />
-                      Rehacer
-                    </button>
-                  </div>
-                </div>
-
-                <label className="mb-2 block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-normal text-text-secondary">
-                    Título
-                  </span>
-                  <input
-                    type="text"
-                    value={item.titulo}
-                    onChange={(event) =>
-                      updateItem(item.id, "titulo", event.target.value)
-                    }
-                    className="h-10 w-full rounded-[5px] border border-border-default bg-bg-base px-3 font-editorial text-base font-semibold text-admin-ink outline-none focus:border-admin-ink"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-normal text-text-secondary">
-                    Resumen
-                  </span>
-                  <textarea
-                    value={item.resumen}
-                    onChange={(event) =>
-                      updateItem(item.id, "resumen", event.target.value)
-                    }
-                    rows={3}
-                    className="min-h-[82px] w-full resize-none rounded-[5px] border border-border-default bg-bg-base px-3 py-2 font-ui text-sm leading-5 text-admin-ink outline-none focus:border-admin-ink"
-                  />
-                </label>
-              </article>
-            );
-          })}
-        </div>
-
-        <aside className="flex h-fit flex-col gap-3 rounded-lg border border-admin-ink bg-white p-4">
-          <div>
-            <h2 className="text-sm font-semibold text-admin-ink">Fuentes</h2>
-            <p className="mt-1 text-xs leading-4 text-text-secondary">
-              Referencias usadas por el editor de títulos.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(draftItems.flatMap((item) => item.fuentes))).map(
-              (fuente) => (
-                <span
-                  key={fuente}
-                  className="rounded-[5px] border border-border-default bg-bg-base px-2 py-1 text-xs font-medium text-admin-ink"
-                >
-                  {fuente}
+      <div className="mb-6 flex flex-col gap-4">
+        <section>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+              TÍTULO
+            </span>
+            <div className="flex items-center gap-2">
+              <PanelButton>
+                <IconEditar width={12} height={12} />
+                <span className="font-ui text-xs font-medium text-admin-ink">
+                  Editar
                 </span>
-              ),
-            )}
+              </PanelButton>
+              <PanelButton>
+                <IconRehacer width={12} height={12} />
+                <span className="font-ui text-xs font-medium text-admin-ink">
+                  Rehacer
+                </span>
+              </PanelButton>
+            </div>
           </div>
-        </aside>
+
+          <input
+            type="text"
+            value={activeNoticia.titulo}
+            onChange={(event) =>
+              updateActiveNoticia("titulo", event.target.value)
+            }
+            className="w-full rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
+          />
+        </section>
+
+        <section>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+              RESUMEN
+            </span>
+            <div className="flex items-center gap-2">
+              <PanelButton>
+                <IconEditar width={12} height={12} />
+                <span className="font-ui text-xs font-medium text-admin-ink">
+                  Editar
+                </span>
+              </PanelButton>
+              <PanelButton>
+                <IconRehacer width={12} height={12} />
+                <span className="font-ui text-xs font-medium text-admin-ink">
+                  Rehacer
+                </span>
+              </PanelButton>
+            </div>
+          </div>
+
+          <textarea
+            value={activeNoticia.resumen}
+            onChange={(event) =>
+              updateActiveNoticia("resumen", event.target.value)
+            }
+            className="min-h-[80px] w-full resize-none rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
+          />
+        </section>
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center gap-1.5 font-ui text-sm font-semibold text-admin-ink">
+          <FuenteIcon />
+          Fuentes
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {activeNoticia.fuentes.map((fuente) => (
+            <span
+              key={fuente}
+              className="rounded-[4px] border border-border-default bg-white px-2 py-1 font-ui text-xs font-medium text-text-secondary"
+            >
+              {fuente}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
+export type { TitulosResumenesPanelProps };

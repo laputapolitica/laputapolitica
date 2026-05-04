@@ -131,6 +131,15 @@ function getStatusColor(status: NodeStatus) {
   return statusColors[status];
 }
 
+function getGateColor(status: GateStatus) {
+  const statusColors: Record<GateStatus, string> = {
+    pending: colors.gatePending,
+    approved: colors.done,
+  };
+
+  return statusColors[status];
+}
+
 function toXPercent(x: number) {
   return `${(x / 1076) * 100}%`;
 }
@@ -195,7 +204,7 @@ export function PipelineDiagram({
               {node.label}
             </span>
             <span
-              className="absolute h-[11px] w-[11px] rounded-full"
+              className="absolute h-[8px] w-[8px] rounded-full"
               style={{
                 left: toXPercent(node.x + node.width - 14),
                 top: toYPercent(node.y + 12),
@@ -216,7 +225,11 @@ export function PipelineDiagram({
               transform: "translate(-50%, -50%)",
             }}
           >
-            <IconR width={20} height={20} />
+            <IconR
+              width={20}
+              height={20}
+              color={getGateColor(pipelineState[gate.id])}
+            />
           </div>
         ))}
       </div>
