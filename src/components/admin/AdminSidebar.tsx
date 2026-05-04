@@ -50,7 +50,7 @@ export function AdminSidebar() {
         <button
           type="button"
           onClick={() => router.push("/admin/login")}
-          className="flex h-10 w-[220px] items-center rounded-lg border-2 border-[#C4342D] bg-white pl-3 text-left font-ui text-base font-semibold text-[#C4342D]"
+          className="flex h-10 w-[220px] items-center rounded-lg border-2 border-[#C4342D] bg-white pl-3 text-left font-ui text-base font-semibold text-[#C4342D] cursor-pointer"
         >
           Cerrar Sesion
         </button>

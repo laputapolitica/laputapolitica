@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import {
+  IconAtras,
   IconBajar,
   IconCopiar,
   IconEditar,
@@ -132,7 +133,7 @@ function ActionButton({ children }: { children: ReactNode }) {
   return (
     <button
       type="button"
-      className="inline-flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 font-ui text-xs font-medium text-admin-ink"
+      className="inline-flex h-[22px] cursor-pointer items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 font-ui text-xs font-medium text-admin-ink"
     >
       {children}
     </button>
@@ -204,7 +205,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={[
-        "inline-flex items-center gap-1.5 rounded-[4px] border bg-white font-ui",
+        "inline-flex cursor-pointer items-center gap-1.5 rounded-[4px] border bg-white font-ui",
         size === "small" ? "h-[24px] px-2 text-xs" : "h-[28px] px-3 text-sm",
         statusClass,
       ].join(" ")}
@@ -630,7 +631,7 @@ function InstagramSlide03() {
     <div className="space-y-5">
       <InstagramEditablePill value="ANEXO SOCIAL: 2026_080-AR-01-S" />
       <InstagramBulletRows bullets={bullets} />
-      <div className="space-y-2">
+      <div className="inline-flex flex-col gap-2">
         {votes.map((vote) => (
           <InstagramVoteRow
             key={vote.label}
@@ -758,7 +759,7 @@ const mockOpinadores = [
     nombre: "Juan Perez",
     email: "juanperez@email.com",
     ciudad: "Buenos Aires",
-    votos: ["#A8D5BA", "#E6A8A1", "#A8D5BA", "#C7C3E6", "#E6A8A1"],
+    votos: ["#E6A8A1", "#C7C3E6", "#E6A8A1", "#A8D5BA", "#E6A8A1"],
     completadas: 5,
     ultimaRespuesta: "20:38",
   },
@@ -767,7 +768,7 @@ const mockOpinadores = [
     nombre: "Maria Lopez",
     email: "marialopez@email.com",
     ciudad: "Cordoba",
-    votos: ["#E6A8A1", "#E6A8A1", "#C7C3E6", "#A8D5BA", "#E6A8A1"],
+    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#C7C3E6", "#E6A8A1"],
     completadas: 5,
     ultimaRespuesta: "20:35",
   },
@@ -776,7 +777,7 @@ const mockOpinadores = [
     nombre: "Carlos Ruiz",
     email: "carlosruiz@email.com",
     ciudad: "Rosario",
-    votos: ["#A8D5BA", "#A8D5BA", "#A8D5BA", null, null],
+    votos: ["#E6A8A1", "#C7C3E6", null, null, null],
     completadas: 3,
     ultimaRespuesta: "20:30",
   },
@@ -785,7 +786,7 @@ const mockOpinadores = [
     nombre: "Ana Garcia",
     email: "anagarcia@email.com",
     ciudad: "Mendoza",
-    votos: ["#C7C3E6", "#A8D5BA", "#E6A8A1", "#A8D5BA", "#C7C3E6"],
+    votos: ["#E6A8A1", "#C7C3E6", "#A8D5BA", "#A8D5BA", "#E6A8A1"],
     completadas: 5,
     ultimaRespuesta: "20:20",
   },
@@ -803,7 +804,7 @@ const mockOpinadores = [
     nombre: "Lucia Diaz",
     email: "luciadiaz@email.com",
     ciudad: "Tucuman",
-    votos: ["#A8D5BA", "#A8D5BA", "#C7C3E6", "#A8D5BA", "#A8D5BA"],
+    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#A8D5BA", "#C7C3E6"],
     completadas: 5,
     ultimaRespuesta: "20:10",
   },
@@ -812,7 +813,7 @@ const mockOpinadores = [
     nombre: "Diego Romero",
     email: "diegoromero@email.com",
     ciudad: "Salta",
-    votos: ["#E6A8A1", "#A8D5BA", null, null, null],
+    votos: ["#E6A8A1", "#C7C3E6", null, null, null],
     completadas: 2,
     ultimaRespuesta: "20:05",
   },
@@ -821,9 +822,49 @@ const mockOpinadores = [
     nombre: "Sofia Martinez",
     email: "sofiamartinez@email.com",
     ciudad: "Mar del Plata",
-    votos: ["#C7C3E6", "#C7C3E6", "#A8D5BA", "#E6A8A1", "#C7C3E6"],
+    votos: ["#E6A8A1", "#A8D5BA", "#E6A8A1", "#C7C3E6", "#E6A8A1"],
     completadas: 5,
     ultimaRespuesta: "20:00",
+  },
+];
+
+type MockOpinador = (typeof mockOpinadores)[number];
+
+const mockOpiniones = [
+  {
+    noticia: "Ajustes y subsidios al transporte",
+    texto:
+      "Predominó una lectura crítica de la medida, marcada por la preocupación por su impacto social y por la falta de precisiones sobre su implementación. Entre los argumentos más repetidos apareció la idea de que el ajuste podría trasladarse directamente a los usuarios del transporte, con efectos desiguales según la región.",
+    interpretacion: "Negativa",
+    color: "#E6A8A1",
+  },
+  {
+    noticia: "Negociaciones con el FMI",
+    texto:
+      "El acuerdo aparece como un alivio necesario de corto plazo, pero la comunidad desconfía de su costo político y social a largo plazo. Predominó la incertidumbre sobre los efectos reales del programa.",
+    interpretacion: "Incierta",
+    color: "#C7C3E6",
+  },
+  {
+    noticia: "Conflicto con gobernadores",
+    texto:
+      "Nadie quiere romper, pero todos muestran fuerza antes de negociar. La lectura fue pragmática: el conflicto es una pulseada de poder más que una crisis institucional.",
+    interpretacion: "Negativa",
+    color: "#E6A8A1",
+  },
+  {
+    noticia: "Reformas legislativas",
+    texto:
+      "Hay voluntad de cambio pero desconfianza en el proceso. La negociación acelerada y poco transparente genera más dudas que certezas entre los opinadores.",
+    interpretacion: "Positiva",
+    color: "#A8D5BA",
+  },
+  {
+    noticia: "Clima social y protestas",
+    texto:
+      "El cansancio social es real pero hay cautela frente a la escalada. La preocupación domina pero no hay consenso sobre hacia dónde va el conflicto.",
+    interpretacion: "Negativa",
+    color: "#E6A8A1",
   },
 ];
 
@@ -834,7 +875,7 @@ function getPointColor(completadas: number, total: number) {
   return "#35C759";
 }
 
-function ElPulsoContent() {
+function ElPulsoContent({ onSelect }: { onSelect: (opinador: MockOpinador) => void }) {
   const opinadoresOrdenados = [...mockOpinadores].sort((a, b) =>
     b.ultimaRespuesta.localeCompare(a.ultimaRespuesta),
   );
@@ -845,7 +886,8 @@ function ElPulsoContent() {
         {opinadoresOrdenados.map((op) => (
           <div
             key={op.id}
-            className="flex items-center justify-between rounded-lg border border-admin-ink px-3 py-2"
+            onClick={() => onSelect(op)}
+            className="flex cursor-pointer items-center justify-between rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
           >
             <div className="flex items-center gap-2">
               <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
@@ -891,6 +933,39 @@ function ElPulsoContent() {
   );
 }
 
+function ElPulsoDetalle({
+  opinador,
+  noticiaIndex,
+}: {
+  opinador: typeof mockOpinadores[0];
+  noticiaIndex: number;
+}) {
+  const opinion = mockOpiniones[noticiaIndex];
+  const votoColor = opinador.votos[noticiaIndex] ?? "#E5E3DD";
+
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex items-center rounded-[3.5px] border border-admin-ink px-2 py-1">
+        <span className="font-ui text-sm font-medium text-admin-ink">{opinion.noticia}</span>
+      </div>
+
+      <div className="flex items-start rounded-[3.5px] border border-admin-ink bg-white px-2 py-1" style={{ maxWidth: '480px' }}>
+        <span className="font-ui text-sm font-medium text-admin-ink">{opinion.texto}</span>
+      </div>
+
+      <div className="inline-flex flex-col gap-2">
+        <div className="inline-flex items-center rounded-[3.5px] border border-admin-ink px-2 py-1">
+          <span className="font-ui text-sm font-medium text-admin-ink">Interpretación</span>
+        </div>
+        <div className="inline-flex h-[28px] w-fit items-center gap-2 rounded-[3.5px] border border-admin-ink bg-white px-2">
+          <span className="font-ui text-sm font-medium text-admin-ink">{opinion.interpretacion}</span>
+          <span className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: opinion.color }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SlideContent({
   activeCanal,
   activeSlide,
@@ -920,6 +995,10 @@ function SlideContent({
 export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) {
   const [activeCanal, setActiveCanal] = useState<Canal>("web");
   const [activeSlide, setActiveSlide] = useState(1);
+  const [selectedOpinador, setSelectedOpinador] = useState<MockOpinador | null>(
+    null,
+  );
+  const [noticiaIndex, setNoticiaIndex] = useState(0);
   const slideCount = activeCanal === "twitter" ? 12 : activeCanal === "instagram" ? 4 : 7;
 
   if (status === "loading") {
@@ -950,7 +1029,7 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
           <button
             type="button"
             onClick={onPublicar}
-            className="flex h-[28px] items-center rounded-[5px] border-2 border-admin-success bg-white px-3 font-ui text-sm font-semibold text-admin-ink"
+            className="flex h-[28px] cursor-pointer items-center rounded-[5px] border-2 border-admin-success bg-white px-3 font-ui text-sm font-semibold text-admin-ink"
           >
             Publicar
           </button>
@@ -975,17 +1054,71 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
           <button
             type="button"
             onClick={() => setActiveCanal("elpulso")}
-            className={`flex items-center ${activeCanal === "elpulso" ? "opacity-100" : "opacity-30"}`}
+            className={`flex cursor-pointer items-center ${activeCanal === "elpulso" ? "opacity-100" : "opacity-30"}`}
           >
             <ElPulsoLogo width={82} height={20} />
           </button>
         </div>
 
         {activeCanal === "elpulso" && (
-          <div className="mb-2 mt-4 flex gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-              14/25 opiniones
-            </div>
+          <div className="mb-2 mt-4 flex items-center justify-between">
+            {selectedOpinador ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOpinador(null)}
+                    className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
+                  >
+                    <IconAtras width={10} height={10} />
+                    Atras
+                  </button>
+                  <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                    {selectedOpinador.nombre}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNoticiaIndex((i) => Math.max(0, i - 1))}
+                    disabled={noticiaIndex === 0}
+                    className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
+                  >
+                    <span style={{ paddingBottom: "1px" }}>←</span>
+                  </button>
+                  <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                    Noticia {noticiaIndex + 1}/{mockOpiniones.length}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNoticiaIndex((i) =>
+                        Math.min(mockOpiniones.length - 1, i + 1),
+                      )
+                    }
+                    disabled={noticiaIndex === mockOpiniones.length - 1}
+                    className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === mockOpiniones.length - 1 ? "opacity-30" : ""}`}
+                  >
+                    <span style={{ paddingBottom: "1px" }}>→</span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+                    {selectedOpinador.votos.map((color, i) => (
+                      <span key={i} className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: color ?? "#E5E3DD" }} />
+                    ))}
+                  </div>
+                  <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+                    <span className="font-ui text-xs font-semibold text-admin-ink">{selectedOpinador.completadas}/5</span>
+                    <span className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: getPointColor(selectedOpinador.completadas, 5) }} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                14/25 opiniones
+              </div>
+            )}
           </div>
         )}
 
@@ -1011,7 +1144,14 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {activeCanal === "elpulso" ? (
-          <ElPulsoContent />
+          selectedOpinador ? (
+            <ElPulsoDetalle
+              opinador={selectedOpinador}
+              noticiaIndex={noticiaIndex}
+            />
+          ) : (
+            <ElPulsoContent onSelect={setSelectedOpinador} />
+          )
         ) : (
           <SlideContent activeCanal={activeCanal} activeSlide={activeSlide} />
         )}

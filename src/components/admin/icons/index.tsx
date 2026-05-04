@@ -243,6 +243,31 @@ export function IconBajar({ width = 10, height = 10 }: IconProps) {
   );
 }
 
+export function IconAtras({ width = 10, height = 10 }: IconProps) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M5 0C7.76142 0 10 2.23858 10 5C10 7.76142 7.76142 10 5 10C2.23858 10 0 7.76142 0 5C0 2.23858 2.23858 0 5 0Z" fill="#111111"/>
+      <path d="M6.5015 6.13628V3.86372C6.50185 3.77607 6.479 3.68988 6.43527 3.61384C6.39153 3.5378 6.32846 3.4746 6.2524 3.43063C6.17634 3.38665 6.09 3.36345 6.00208 3.36336C5.91415 3.36328 5.82776 3.38631 5.75162 3.43014L3.75193 4.56642C3.675 4.60989 3.611 4.67292 3.56648 4.74909C3.52196 4.82526 3.4985 4.91184 3.4985 5C3.4985 5.08816 3.52196 5.17474 3.56648 5.25091C3.611 5.32708 3.675 5.39012 3.75193 5.43358L5.75162 6.56987C5.82776 6.61369 5.91415 6.63672 6.00208 6.63664C6.09 6.63655 6.17634 6.61335 6.2524 6.56937C6.32846 6.5254 6.39153 6.4622 6.43527 6.38616C6.479 6.31013 6.50185 6.22393 6.5015 6.13628Z" fill="#FAF9F5"/>
+    </svg>
+  );
+}
+
+export function ArrowLeft({ width = 60 }: { width?: number }) {
+  return (
+    <svg width={width} height="6" viewBox="0 0 170 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 2.88672L5 5.77347V-3.26633e-05L0 2.88672ZM170 2.88672V2.38672L4.5 2.38672V2.88672V3.38672L170 3.38672V2.88672Z" fill="#111111"/>
+    </svg>
+  );
+}
+
+export function ArrowRight({ width = 60 }: { width?: number }) {
+  return (
+    <svg width={width} height="6" viewBox="0 0 170 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M170 2.88672L165 -3.26633e-05V5.77347L170 2.88672ZM0 2.88672L0 3.38672L165.5 3.38672V2.88672V2.38672L0 2.38672L0 2.88672Z" fill="#111111"/>
+    </svg>
+  );
+}
+
 export function IconEliminar({ width = 10, height = 10 }: IconProps) {
   return (
     <svg
