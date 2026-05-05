@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { PipelineDiagram, mockState } from "@/components/admin";
 import { POINT_COLORS } from "@/lib/constants";
 import { mockEdiciones } from "@/lib/mock-ediciones";
@@ -20,9 +22,10 @@ export default function AdminEdicionesPage() {
       {/* Listado de ediciones — scrolleable */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         {mockEdiciones.map((edicion) => (
-          <div
+          <Link
             key={edicion.fechaISO}
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
+            href={`/admin/ediciones/${edicion.fechaISO}`}
+            className="flex items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
           >
             {/* Fecha */}
             <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
@@ -58,7 +61,7 @@ export default function AdminEdicionesPage() {
                 {edicion.horaPublicacion}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
