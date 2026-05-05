@@ -30,6 +30,24 @@ export function AdminSidebar() {
           {navItems.map((item) => {
             const isActive = isActivePath(pathname, item.href);
 
+            if (item.href === "/admin/opinadores") {
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={() => router.push(`/admin/opinadores?t=${Date.now()}`)}
+                  className={[
+                    "flex h-10 w-[220px] cursor-pointer items-center rounded-lg border pl-3 text-left font-ui text-base",
+                    isActive
+                      ? "border-admin-ink bg-admin-ink font-semibold text-bg-base"
+                      : "border-admin-ink bg-white font-medium text-admin-ink",
+                  ].join(" ")}
+                >
+                  {item.label}
+                </button>
+              );
+            }
+
             return (
               <Link
                 key={item.href}
