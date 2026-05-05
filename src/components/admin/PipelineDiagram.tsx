@@ -50,8 +50,6 @@ type PipelineGate = {
 
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
-  activeNodeId?: PipelineNodeId;
-  onNodeClick?: (nodeId: PipelineNodeId) => void;
 };
 
 export const mockState: PipelineState = {
@@ -152,8 +150,6 @@ function toYPercent(y: number) {
 
 export function PipelineDiagram({
   pipelineState = mockState,
-  activeNodeId,
-  onNodeClick,
 }: PipelineDiagramProps) {
   return (
     <div
@@ -179,61 +175,45 @@ export function PipelineDiagram({
           />
         ))}
 
-        {nodes.map((node) => {
-          const status = pipelineState[node.id];
-          const isClickable = status === "done" || status === "running";
-          const isActive = node.id === activeNodeId;
-          return (
-            <rect
-              key={node.id}
-              x={node.x}
-              y={node.y}
-              width={node.width}
-              height="24"
-              rx="3.5"
-              fill={isActive ? colors.ink : colors.white}
-              stroke={colors.ink}
-              strokeWidth={isActive ? "2" : "1"}
-              style={{ cursor: isClickable ? "pointer" : "default" }}
-            />
-          );
-        })}
+        {nodes.map((node) => (
+          <rect
+            key={node.id}
+            x={node.x}
+            y={node.y}
+            width={node.width}
+            height="24"
+            rx="3.5"
+            fill={colors.white}
+            stroke={colors.ink}
+            strokeWidth="1"
+          />
+        ))}
       </svg>
 
       <div style={{ position: "absolute", inset: 0 }}>
-        {nodes.map((node) => {
-          const status = pipelineState[node.id];
-          const isClickable = status === "done" || status === "running";
-          const isActive = node.id === activeNodeId;
-          return (
-            <div
-              key={node.id}
-              onClick={() => isClickable && onNodeClick?.(node.id)}
-              style={{ cursor: isClickable ? "pointer" : "default" }}
+        {nodes.map((node) => (
+          <div key={node.id}>
+            <span
+              className="absolute whitespace-nowrap font-ui text-[11px] font-medium leading-none text-admin-ink"
+              style={{
+                left: toXPercent(node.x + 8),
+                top: toYPercent(node.y + 12),
+                transform: "translateY(-50%)",
+              }}
             >
-              <span
-                className="absolute whitespace-nowrap font-ui text-[11px] font-medium leading-none"
-                style={{
-                  left: toXPercent(node.x + 8),
-                  top: toYPercent(node.y + 12),
-                  transform: "translateY(-50%)",
-                  color: isActive ? colors.white : colors.ink,
-                }}
-              >
-                {node.label}
-              </span>
-              <span
-                className="absolute h-[8px] w-[8px] rounded-full"
-                style={{
-                  left: toXPercent(node.x + node.width - 14),
-                  top: toYPercent(node.y + 12),
-                  transform: "translate(-50%, -50%)",
-                  backgroundColor: getStatusColor(pipelineState[node.id]),
-                }}
-              />
-            </div>
-          );
-        })}
+              {node.label}
+            </span>
+            <span
+              className="absolute h-[8px] w-[8px] rounded-full"
+              style={{
+                left: toXPercent(node.x + node.width - 14),
+                top: toYPercent(node.y + 12),
+                transform: "translate(-50%, -50%)",
+                backgroundColor: getStatusColor(pipelineState[node.id]),
+              }}
+            />
+          </div>
+        ))}
 
         {gates.map((gate) => (
           <div

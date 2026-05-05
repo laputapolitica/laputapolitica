@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   ElPulsoPanel,
   PipelineDiagram,
@@ -10,8 +9,7 @@ import {
   TitulosResumenesPanel,
   VentanaOpinionPanel,
 } from "@/components/admin";
-import type { PipelineState } from "@/components/admin/PipelineDiagram";
-import type { PipelineNodeId } from "@/components/admin/PipelineDiagram";
+import type { PipelineNodeId, PipelineState } from "@/components/admin/PipelineDiagram";
 
 const mockState: PipelineState = {
   relevamiento: "done",
@@ -28,39 +26,57 @@ const mockState: PipelineState = {
   publicacion: "running",
 };
 
-function ActivePanel({ nodeId }: { nodeId: PipelineNodeId }) {
-  const status = mockState[nodeId];
-  const panelStatus = status === "running" ? "ready" : "ready";
+// Determina qué nodo está activo según el estado del pipeline.
+// Prioridad: el primer nodo en estado "running" en orden de pipeline.
+// Si no hay ninguno corriendo, el último "done".
+function getActiveNodeId(state: PipelineState): PipelineNodeId {
+  const order: PipelineNodeId[] = [
+    "relevamiento",
+    "titulosResumenes",
+    "portada",
+    "ventanaOpinion",
+    "elPulso",
+    "web",
+    "instagram",
+    "twitter",
+    "publicacion",
+  ];
 
+  const running = order.find((id) => state[id] === "running");
+  if (running) return running;
+
+  const done = [...order].reverse().find((id) => state[id] === "done");
+  if (done) return done;
+
+  return "relevamiento";
+}
+
+function ActivePanel({ nodeId }: { nodeId: PipelineNodeId }) {
   if (nodeId === "relevamiento") {
-    return <RelevamientoPanel status={panelStatus} />;
+    return <RelevamientoPanel status="ready" />;
   }
   if (nodeId === "titulosResumenes") {
-    return <TitulosResumenesPanel status={panelStatus} />;
+    return <TitulosResumenesPanel status="ready" />;
   }
   if (nodeId === "portada") {
-    return <PortadaPanel status={panelStatus} />;
+    return <PortadaPanel status="ready" />;
   }
   if (nodeId === "ventanaOpinion") {
     return <VentanaOpinionPanel />;
   }
   if (nodeId === "elPulso") {
-    return <ElPulsoPanel status={panelStatus} />;
+    return <ElPulsoPanel status="ready" />;
   }
   // web, instagram, twitter, publicacion → todos van a PublicacionPanel
-  return <PublicacionPanel status={panelStatus} />;
+  return <PublicacionPanel status="ready" />;
 }
 
 export default function AdminPage() {
-  const [activeNodeId, setActiveNodeId] = useState<PipelineNodeId>("publicacion");
+  const activeNodeId = getActiveNodeId(mockState);
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <PipelineDiagram
-        pipelineState={mockState}
-        activeNodeId={activeNodeId}
-        onNodeClick={setActiveNodeId}
-      />
+      <PipelineDiagram pipelineState={mockState} />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         <ActivePanel nodeId={activeNodeId} />
       </section>
