@@ -58,7 +58,7 @@ export const mockState: PipelineState = {
   titulosResumenes: "done",
   titulosGate: "approved",
   portada: "done",
-  portadaGate: "pending",
+  portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "done",
   web: "done",

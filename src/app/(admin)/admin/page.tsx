@@ -8,23 +8,9 @@ import {
   RelevamientoPanel,
   TitulosResumenesPanel,
   VentanaOpinionPanel,
+  mockState,
 } from "@/components/admin";
 import type { PipelineNodeId, PipelineState } from "@/components/admin/PipelineDiagram";
-
-const mockState: PipelineState = {
-  relevamiento: "done",
-  relevamientoGate: "approved",
-  titulosResumenes: "done",
-  titulosGate: "approved",
-  portada: "done",
-  portadaGate: "approved",
-  ventanaOpinion: "done",
-  elPulso: "done",
-  web: "done",
-  instagram: "done",
-  twitter: "done",
-  publicacion: "running",
-};
 
 // Determina qué nodo está activo según el estado del pipeline.
 // Prioridad: el primer nodo en estado "running" en orden de pipeline.
