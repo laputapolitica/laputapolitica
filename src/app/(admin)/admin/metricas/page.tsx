@@ -18,32 +18,25 @@ import {
   mockEdicionesMasVistas,
 } from "@/lib/mock-metricas";
 import { getSentimientoColor } from "@/lib/colors";
+import { DataPill, SectionPanel } from "@/components/admin/shared";
 
 function KPICard({ label, valor, descripcion }: { label: string; valor: string; descripcion: string }) {
   return (
-    <div className="flex flex-col items-start gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
-      <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{label}</span>
-      </div>
+    <SectionPanel thick className="flex flex-col items-start gap-2">
+      <DataPill>{label}</DataPill>
       <span className="font-ui text-2xl font-semibold leading-none text-admin-ink">
         {valor}
       </span>
-      <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{descripcion}</span>
-      </div>
-    </div>
+      <DataPill>{descripcion}</DataPill>
+    </SectionPanel>
   );
 }
 
 function GraficoParticipacion() {
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
-      <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-sm font-medium text-admin-ink">Participación por edición</span>
-      </div>
-      <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-sm font-medium text-admin-ink">Opinadores que opinaron sobre el total — últimos 20 días</span>
-      </div>
+    <SectionPanel thick className="flex flex-col gap-1.5">
+      <DataPill size="lg" className="w-fit">Participación por edición</DataPill>
+      <DataPill size="lg" className="w-fit">Opinadores que opinaron sobre el total — últimos 20 días</DataPill>
 
       <div className="flex items-center gap-2">
         <div className="inline-flex h-[28px] items-center gap-2 rounded-[6px] border border-admin-ink bg-white px-2">
@@ -99,19 +92,15 @@ function GraficoParticipacion() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </SectionPanel>
   );
 }
 
 function GraficoVisitas() {
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
-      <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-sm font-medium text-admin-ink">Visitas por edición</span>
-      </div>
-      <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-sm font-medium text-admin-ink">Últimas 15 ediciones</span>
-      </div>
+    <SectionPanel thick className="flex flex-col gap-1.5">
+      <DataPill size="lg" className="w-fit">Visitas por edición</DataPill>
+      <DataPill size="lg" className="w-fit">Últimas 15 ediciones</DataPill>
 
       <div className="rounded-lg border border-admin-ink bg-white p-3">
         <ResponsiveContainer width="100%" height={120}>
@@ -167,16 +156,14 @@ function GraficoVisitas() {
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </SectionPanel>
   );
 }
 
 function TablaEdicionesMasVistas() {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-lg border border-admin-ink bg-bg-base px-3 py-2.5">
-      <div className="shrink-0 inline-flex h-[24px] w-fit items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-xs font-medium text-admin-ink">Ediciones más vistas</span>
-      </div>
+    <SectionPanel className="flex min-h-0 flex-1 flex-col gap-2 py-2.5">
+      <DataPill className="shrink-0 w-fit">Ediciones más vistas</DataPill>
 
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-2">
         {mockEdicionesMasVistas.map((ed) => (
@@ -187,17 +174,9 @@ function TablaEdicionesMasVistas() {
             <div className="inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[3.5px] border border-admin-ink bg-white">
               <span className="font-ui text-xs font-medium text-admin-ink">{ed.ranking}</span>
             </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{ed.fecha}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{ed.titulo}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {ed.opiniones}/{ed.totalOpinadores} opiniones
-              </span>
-            </div>
+            <DataPill>{ed.fecha}</DataPill>
+            <DataPill>{ed.titulo}</DataPill>
+            <DataPill>{ed.opiniones}/{ed.totalOpinadores} opiniones</DataPill>
             <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
               <span className="font-ui text-xs font-medium text-admin-ink">El Pulso</span>
               <span
@@ -206,15 +185,11 @@ function TablaEdicionesMasVistas() {
               />
             </div>
             <div className="flex-1" />
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {ed.visitas} visitas
-              </span>
-            </div>
+            <DataPill>{ed.visitas} visitas</DataPill>
           </div>
         ))}
       </div>
-    </div>
+    </SectionPanel>
   );
 }
 
