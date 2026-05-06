@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
+import { DataPill, AdminButton } from "@/components/admin/shared";
+import { TabButton } from "@/components/admin/panels/PublicacionPanel/shared/TabButton";
 
 interface TitulosResumenesPanelProps {
   status: "running" | "ready";
@@ -105,12 +107,9 @@ function PanelButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 font-ui text-xs font-medium text-admin-ink"
-    >
+    <AdminButton className="h-[22px] gap-1.5 px-2.5">
       {children}
-    </button>
+    </AdminButton>
   );
 }
 
@@ -147,11 +146,9 @@ export function TitulosResumenesPanel({
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <IconR width={20} height={20} color="#35C759" />
-          <div className="flex h-[22px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-[11px] font-medium leading-none text-admin-ink whitespace-nowrap">
-              Títulos y Resúmenes
-            </span>
-          </div>
+          <DataPill className="h-[22px] text-[11px]">
+            Títulos y Resúmenes
+          </DataPill>
         </div>
 
         <button
@@ -164,25 +161,16 @@ export function TitulosResumenesPanel({
       </div>
 
       <div className="mb-6 flex gap-2">
-        {noticias.map((noticia, index) => {
-          const isActive = index === activeIndex;
-
-          return (
-            <button
-              key={noticia.id}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={[
-                "h-[28px] rounded-[4px] px-3 font-ui text-sm",
-                isActive
-                  ? "bg-admin-ink font-semibold text-white"
-                  : "border border-admin-ink bg-white font-medium text-admin-ink",
-              ].join(" ")}
-            >
-              Noticia {String(index + 1).padStart(2, "0")}
-            </button>
-          );
-        })}
+        {noticias.map((noticia, index) => (
+          <TabButton
+            key={noticia.id}
+            isActive={index === activeIndex}
+            onClick={() => setActiveIndex(index)}
+            size="small"
+          >
+            Noticia {String(index + 1).padStart(2, "0")}
+          </TabButton>
+        ))}
       </div>
 
       <div className="mb-6 flex flex-col gap-4">

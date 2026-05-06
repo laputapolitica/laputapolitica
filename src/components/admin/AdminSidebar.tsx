@@ -65,6 +65,37 @@ export function AdminSidebar() {
           })}
         </div>
 
+        {pathname === "/admin" && (
+          <div className="flex flex-col gap-1 mt-2">
+            <span className="font-ui text-[10px] font-medium text-text-secondary uppercase tracking-wider px-1">
+              Dev — Panel activo
+            </span>
+            <select
+              className="h-9 w-[220px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
+              defaultValue=""
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val) {
+                  router.push(`/admin?panel=${val}`);
+                } else {
+                  router.push("/admin");
+                }
+              }}
+            >
+              <option value="">Auto (mock state)</option>
+              <option value="relevamiento">Relevamiento</option>
+              <option value="titulosResumenes">Títulos y Resúmenes</option>
+              <option value="portada">Portada</option>
+              <option value="ventanaOpinion">Ventana de Opinión</option>
+              <option value="elPulso">El Pulso</option>
+              <option value="web">Web (Publicación)</option>
+              <option value="instagram">Instagram (Publicación)</option>
+              <option value="twitter">Twitter (Publicación)</option>
+              <option value="publicacion">Publicación</option>
+            </select>
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => router.push("/admin/login")}
