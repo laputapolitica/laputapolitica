@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { PipelineDiagram, mockState } from "@/components/admin";
-import { getStatusColor } from "@/lib/colors";
+import { DataPill, RatioPill, RowCard } from "@/components/admin/shared";
 import { mockEdiciones } from "@/lib/mock-ediciones";
 
 export default function AdminEdicionesPage() {
@@ -18,42 +18,24 @@ export default function AdminEdicionesPage() {
           <Link
             key={edicion.fechaISO}
             href={`/admin/ediciones/${edicion.fechaISO}`}
-            className="flex items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
+            className="block"
           >
-            {/* Fecha */}
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {edicion.fecha}
-              </span>
-            </div>
+            <RowCard className="cursor-pointer transition-colors hover:bg-[#F0EDE6]">
+              {/* Fecha */}
+              <DataPill>{edicion.fecha}</DataPill>
 
-            {/* Título */}
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {edicion.titulo}
-              </span>
-            </div>
+              {/* Título */}
+              <DataPill>{edicion.titulo}</DataPill>
 
-            {/* Opiniones */}
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(edicion.opiniones, edicion.totalOpinadores) }}
-              />
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {edicion.opiniones}/{edicion.totalOpinadores} opiniones
-              </span>
-            </div>
+              {/* Opiniones */}
+              <RatioPill valor={edicion.opiniones} total={edicion.totalOpinadores} sufijo="opiniones" />
 
-            {/* Espacio flexible */}
-            <div className="flex-1" />
+              {/* Espacio flexible */}
+              <div className="flex-1" />
 
-            {/* Hora de publicación */}
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {edicion.horaPublicacion}
-              </span>
-            </div>
+              {/* Hora de publicación */}
+              <DataPill>{edicion.horaPublicacion}</DataPill>
+            </RowCard>
           </Link>
         ))}
       </div>
