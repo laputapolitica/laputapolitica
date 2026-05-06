@@ -9,7 +9,7 @@ import {
   mockPendientes,
   mockRechazados,
 } from "@/lib/mock-opinadores";
-import { getStatusColor } from "@/lib/colors";
+import { DataPill, RatioPill, AdminButton, RowCard, SectionPanel } from "@/components/admin/shared";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
@@ -33,20 +33,12 @@ function ListaOpinadores({
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between rounded-lg border border-admin-ink px-3 py-2">
-        <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-semibold text-admin-ink">
-            {mockOpinadores.length} Opinadores
-          </span>
-        </div>
+      <SectionPanel className="shrink-0 flex items-center justify-between">
+        <DataPill>{mockOpinadores.length} Opinadores</DataPill>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onRechazados}
-            className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#E85A4F] bg-white px-2 font-ui text-xs font-medium text-[#E85A4F]"
-          >
+          <AdminButton variant="danger" onClick={onRechazados}>
             Rechazados
-          </button>
+          </AdminButton>
           <button
             type="button"
             onClick={onPendientes}
@@ -55,36 +47,21 @@ function ListaOpinadores({
             Pendientes
           </button>
         </div>
-      </div>
+      </SectionPanel>
 
       {/* Listado scrolleable */}
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
         {mockOpinadores.map((op) => (
-          <div
+          <RowCard
             key={op.id}
             onClick={() => onSelect(op)}
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
           >
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{op.nombre}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{op.email}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{op.ciudad}</span>
-            </div>
+            <DataPill>{op.nombre}</DataPill>
+            <DataPill>{op.email}</DataPill>
+            <DataPill>{op.ciudad}</DataPill>
             <div className="flex-1" />
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
-                {op.diasParticipados}/{op.totalDias} d/o
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(op.diasParticipados, op.totalDias) }}
-              />
-            </div>
-          </div>
+            <RatioPill valor={op.diasParticipados} total={op.totalDias} sufijo="d/o" />
+          </RowCard>
         ))}
       </div>
     </div>
@@ -102,91 +79,54 @@ function DetalleOpinador({
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header del opinador */}
-      <div className="shrink-0 rounded-lg border border-admin-ink px-3 py-2 space-y-2">
+      <SectionPanel className="shrink-0 space-y-2">
         {/* Fila 1: nombre + ratios + eliminar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
               {opinador.nombre}
             </div>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">
-                {opinador.diasParticipados}/{opinador.totalDias} d/o
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(opinador.diasParticipados, opinador.totalDias) }}
-              />
-            </div>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">
-                {opinador.noticiasOpinadas}/{opinador.totalNoticias} n/o
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
-              />
-            </div>
+            <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
+            <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
           </div>
-          <button
-            type="button"
-            className="inline-flex h-[24px] items-center rounded-[3.5px] border border-[#E85A4F] bg-white px-2 font-ui text-xs font-medium text-[#E85A4F] cursor-pointer"
-          >
+          <AdminButton variant="danger">
             Eliminar
-          </button>
+          </AdminButton>
         </div>
 
         {/* Fila 2: email + teléfono */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{opinador.email}</span>
-          </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{opinador.telefono}</span>
-          </div>
+          <DataPill>{opinador.email}</DataPill>
+          <DataPill>{opinador.telefono}</DataPill>
         </div>
 
         {/* Fila 3: ciudad + edad + fecha de inicio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{opinador.ciudad}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{opinador.edad} años</span>
-            </div>
+            <DataPill>{opinador.ciudad}</DataPill>
+            <DataPill>{opinador.edad} años</DataPill>
           </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">Fecha de inicio {opinador.fechaInicio}</span>
-          </div>
+          <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
         </div>
-      </div>
+      </SectionPanel>
 
       {/* Listado de ediciones scrolleable */}
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
         {opinador.ediciones.map((ed) => (
-          <div
+          <RowCard
             key={ed.fechaISO}
             onClick={() => onSelectEdicion({ fecha: ed.fecha, fechaISO: ed.fechaISO, titulo: ed.titulo })}
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
           >
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{ed.fecha}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{ed.titulo}</span>
-            </div>
+            <DataPill>{ed.fecha}</DataPill>
+            <DataPill>{ed.titulo}</DataPill>
             <div className="flex-1" />
             <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-semibold text-admin-ink">
-                {ed.completadas}/{ed.total}
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(ed.completadas, ed.total) }}
-              />
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
+              ))}
             </div>
-          </div>
+            <RatioPill valor={ed.completadas} total={ed.total} />
+          </RowCard>
         ))}
       </div>
     </div>
@@ -211,62 +151,33 @@ function OpinionesEnEdicion({
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header del opinador (igual que en DetalleOpinador) */}
-      <div className="shrink-0 rounded-lg border border-admin-ink px-3 py-2 space-y-2">
+      <SectionPanel className="shrink-0 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
               {opinador.nombre}
             </div>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">
-                {opinador.diasParticipados}/{opinador.totalDias} d/o
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(opinador.diasParticipados, opinador.totalDias) }}
-              />
-            </div>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">
-                {opinador.noticiasOpinadas}/{opinador.totalNoticias} n/o
-              </span>
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getStatusColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
-              />
-            </div>
+            <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
+            <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
           </div>
-          <button
-            type="button"
-            className="inline-flex h-[24px] items-center rounded-[3.5px] border border-[#E85A4F] bg-white px-2 font-ui text-xs font-medium text-[#E85A4F] cursor-pointer"
-          >
+          <AdminButton variant="danger">
             Eliminar
-          </button>
+          </AdminButton>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{opinador.email}</span>
-          </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{opinador.telefono}</span>
-          </div>
+          <DataPill>{opinador.email}</DataPill>
+          <DataPill>{opinador.telefono}</DataPill>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{opinador.ciudad}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{opinador.edad} años</span>
-            </div>
+            <DataPill>{opinador.ciudad}</DataPill>
+            <DataPill>{opinador.edad} años</DataPill>
           </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">Fecha de inicio {opinador.fechaInicio}</span>
-          </div>
+          <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
         </div>
-      </div>
+      </SectionPanel>
 
       {/* Header de edición seleccionada con navegación */}
       <div className="shrink-0 flex items-center justify-between">
@@ -279,12 +190,8 @@ function OpinionesEnEdicion({
             <IconAtras width={10} height={10} />
             Atras
           </button>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{edicion.fecha}</span>
-          </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{edicion.titulo}</span>
-          </div>
+          <DataPill>{edicion.fecha}</DataPill>
+          <DataPill>{edicion.titulo}</DataPill>
         </div>
 
         <div className="flex items-center gap-3">
@@ -309,12 +216,13 @@ function OpinionesEnEdicion({
           </button>
         </div>
 
-        <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-semibold text-admin-ink">5/5</span>
-          <span
-            className="h-[8px] w-[8px] rounded-full shrink-0"
-            style={{ backgroundColor: getStatusColor(5, 5) }}
-          />
+        <div className="flex items-center gap-2">
+          <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
+            ))}
+          </div>
+          <RatioPill valor={5} total={5} />
         </div>
       </div>
 
@@ -346,7 +254,7 @@ function mockOpinadorParaDetalle(op: OpinadorAdmin): MockOpinador {
 function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) => void; onVolver: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="shrink-0 flex items-center justify-between rounded-lg border border-admin-ink px-3 py-2">
+      <SectionPanel className="shrink-0 flex items-center justify-between">
         <button
           type="button"
           onClick={onVolver}
@@ -354,27 +262,18 @@ function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) =>
         >
           Pendientes
         </button>
-        <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-medium text-admin-ink">{mockPendientes.length} postulaciones</span>
-        </div>
-      </div>
+        <DataPill>{mockPendientes.length} postulaciones</DataPill>
+      </SectionPanel>
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
         {mockPendientes.map((p) => (
-          <div
+          <RowCard
             key={p.id}
             onClick={() => onSelect(p)}
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 transition-colors hover:bg-[#F0EDE6]"
           >
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.nombre}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.email}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.ciudad}</span>
-            </div>
-          </div>
+            <DataPill>{p.nombre}</DataPill>
+            <DataPill>{p.email}</DataPill>
+            <DataPill>{p.ciudad}</DataPill>
+          </RowCard>
         ))}
       </div>
     </div>
@@ -384,34 +283,21 @@ function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) =>
 function ListaRechazados({ onVolver }: { onVolver: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="shrink-0 flex items-center justify-between rounded-lg border border-admin-ink px-3 py-2">
-        <button
-          type="button"
-          onClick={onVolver}
-          className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#E85A4F] bg-white px-2 font-ui text-xs font-medium text-[#E85A4F]"
-        >
+      <SectionPanel className="shrink-0 flex items-center justify-between">
+        <AdminButton variant="danger" onClick={onVolver}>
           Rechazados
-        </button>
-        <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-medium text-admin-ink">{mockRechazados.length} rechazados</span>
-        </div>
-      </div>
+        </AdminButton>
+        <DataPill>{mockRechazados.length} rechazados</DataPill>
+      </SectionPanel>
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
         {mockRechazados.map((p) => (
-          <div
+          <RowCard
             key={p.id}
-            className="flex items-center gap-2 rounded-lg border border-admin-ink px-3 py-2"
           >
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.nombre}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.email}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{p.ciudad}</span>
-            </div>
-          </div>
+            <DataPill>{p.nombre}</DataPill>
+            <DataPill>{p.email}</DataPill>
+            <DataPill>{p.ciudad}</DataPill>
+          </RowCard>
         ))}
       </div>
     </div>
@@ -422,19 +308,15 @@ function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion;
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header */}
-      <div className="shrink-0 rounded-lg border border-admin-ink px-3 py-2 space-y-2">
+      <SectionPanel className="shrink-0 space-y-2">
         <div className="flex items-center justify-between">
           <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
             {postulacion.nombre}
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#E85A4F] bg-white px-2 font-ui text-xs font-medium text-[#E85A4F]"
-            >
+            <AdminButton variant="danger" onClick={onBack}>
               Rechazar
-            </button>
+            </AdminButton>
             <button
               type="button"
               className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#35C759] bg-white px-2 font-ui text-xs font-medium text-[#35C759]"
@@ -444,33 +326,21 @@ function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion;
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{postulacion.email}</span>
-          </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">{postulacion.telefono}</span>
-          </div>
+          <DataPill>{postulacion.email}</DataPill>
+          <DataPill>{postulacion.telefono}</DataPill>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{postulacion.ciudad}</span>
-            </div>
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">{postulacion.edad} años</span>
-            </div>
+            <DataPill>{postulacion.ciudad}</DataPill>
+            <DataPill>{postulacion.edad} años</DataPill>
           </div>
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-medium text-admin-ink">Postulacion enviada {postulacion.fechaPostulacion}</span>
-          </div>
+          <DataPill>Postulacion enviada {postulacion.fechaPostulacion}</DataPill>
         </div>
-      </div>
+      </SectionPanel>
 
       {/* Motivación */}
       <div className="min-h-0 flex-1 overflow-y-auto space-y-3">
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-medium text-admin-ink">¿Por qué quiere ser opinador?</span>
-        </div>
+        <DataPill size="lg">¿Por qué quiere ser opinador?</DataPill>
         <div className="rounded-[4px] border border-admin-ink bg-white px-3 py-2" style={{ maxWidth: "480px" }}>
           <p className="font-ui text-sm font-medium text-admin-ink">{postulacion.motivacion}</p>
         </div>
