@@ -9,7 +9,7 @@ import { InterpretacionGeneral } from "@/components/admin/panels/PublicacionPane
 import { mockEdiciones } from "@/lib/mock-ediciones";
 import { noticias } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { ElPulsoChannel } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel";
-import { getPointColor } from "@/components/admin/panels/PublicacionPanel/helpers";
+import { getStatusColor } from "@/lib/colors";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 
 type TabDetalle = "web" | "elpulso";
@@ -233,7 +233,7 @@ export default function EdicionDetallePage() {
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full"
-                style={{ backgroundColor: getPointColor(selectedOpinador.completadas, 5) }}
+                style={{ backgroundColor: getStatusColor(selectedOpinador.completadas, 5) }}
               />
             </div>
           </div>

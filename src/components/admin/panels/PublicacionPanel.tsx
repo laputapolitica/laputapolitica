@@ -8,7 +8,7 @@ import { canales, mockOpiniones, noticias } from "./PublicacionPanel/mocks";
 import { LoadingText } from "./PublicacionPanel/shared/LoadingText";
 import { CanalIcon } from "./PublicacionPanel/shared/CanalIcon";
 import { TabButton } from "./PublicacionPanel/shared/TabButton";
-import { getPointColor } from "./PublicacionPanel/helpers";
+import { getStatusColor } from "@/lib/colors";
 import { PortadaSlide } from "./PublicacionPanel/WebChannel/PortadaSlide";
 import { NoticiaSlide } from "./PublicacionPanel/WebChannel/NoticiaSlide";
 import { ClimaSlide } from "./PublicacionPanel/WebChannel/ClimaSlide";
@@ -166,7 +166,7 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
                   </div>
                   <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
                     <span className="font-ui text-xs font-semibold text-admin-ink">{selectedOpinador.completadas}/5</span>
-                    <span className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: getPointColor(selectedOpinador.completadas, 5) }} />
+                    <span className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: getStatusColor(selectedOpinador.completadas, 5) }} />
                   </div>
                 </div>
               </>

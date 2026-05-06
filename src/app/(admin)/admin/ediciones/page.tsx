@@ -1,15 +1,8 @@
 import Link from "next/link";
 
 import { PipelineDiagram, mockState } from "@/components/admin";
-import { POINT_COLORS } from "@/lib/constants";
+import { getStatusColor } from "@/lib/colors";
 import { mockEdiciones } from "@/lib/mock-ediciones";
-
-function getOpinionesColor(opiniones: number, total: number): string {
-  const pct = (opiniones / total) * 100;
-  if (pct < 33) return POINT_COLORS.low;
-  if (pct < 66) return POINT_COLORS.medium;
-  return POINT_COLORS.high;
-}
 
 export default function AdminEdicionesPage() {
   return (
@@ -45,7 +38,7 @@ export default function AdminEdicionesPage() {
             <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getOpinionesColor(edicion.opiniones, edicion.totalOpinadores) }}
+                style={{ backgroundColor: getStatusColor(edicion.opiniones, edicion.totalOpinadores) }}
               />
               <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">
                 {edicion.opiniones}/{edicion.totalOpinadores} opiniones

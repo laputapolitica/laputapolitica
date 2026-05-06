@@ -1,6 +1,6 @@
 import type { MockOpinador } from "../types";
 import { mockOpinadores } from "../mocks";
-import { getPointColor } from "../helpers";
+import { getStatusColor } from "@/lib/colors";
 
 export function ElPulsoListView({ onSelect }: { onSelect: (opinador: MockOpinador) => void }) {
   const opinadoresOrdenados = [...mockOpinadores].sort((a, b) =>
@@ -49,7 +49,7 @@ export function ElPulsoListView({ onSelect }: { onSelect: (opinador: MockOpinado
                 </span>
                 <span
                   className="h-[8px] w-[8px] rounded-full"
-                  style={{ backgroundColor: getPointColor(op.completadas, 5) }}
+                  style={{ backgroundColor: getStatusColor(op.completadas, 5) }}
                 />
               </div>
             </div>

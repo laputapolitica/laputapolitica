@@ -6,10 +6,10 @@ import { IconAtras } from "@/components/admin/icons";
 import { ElPulsoDetailView } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel/DetailView";
 import {
   mockOpinadores,
-  getParticipacionColor,
   mockPendientes,
   mockRechazados,
 } from "@/lib/mock-opinadores";
+import { getStatusColor } from "@/lib/colors";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
@@ -81,7 +81,7 @@ function ListaOpinadores({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(op.diasParticipados, op.totalDias) }}
+                style={{ backgroundColor: getStatusColor(op.diasParticipados, op.totalDias) }}
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ function DetalleOpinador({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(opinador.diasParticipados, opinador.totalDias) }}
+                style={{ backgroundColor: getStatusColor(opinador.diasParticipados, opinador.totalDias) }}
               />
             </div>
             <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
@@ -124,7 +124,7 @@ function DetalleOpinador({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
+                style={{ backgroundColor: getStatusColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
               />
             </div>
           </div>
@@ -183,7 +183,7 @@ function DetalleOpinador({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(ed.completadas, ed.total) }}
+                style={{ backgroundColor: getStatusColor(ed.completadas, ed.total) }}
               />
             </div>
           </div>
@@ -223,7 +223,7 @@ function OpinionesEnEdicion({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(opinador.diasParticipados, opinador.totalDias) }}
+                style={{ backgroundColor: getStatusColor(opinador.diasParticipados, opinador.totalDias) }}
               />
             </div>
             <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
@@ -232,7 +232,7 @@ function OpinionesEnEdicion({
               </span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getParticipacionColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
+                style={{ backgroundColor: getStatusColor(opinador.noticiasOpinadas, opinador.totalNoticias) }}
               />
             </div>
           </div>
@@ -313,7 +313,7 @@ function OpinionesEnEdicion({
           <span className="font-ui text-xs font-semibold text-admin-ink">5/5</span>
           <span
             className="h-[8px] w-[8px] rounded-full shrink-0"
-            style={{ backgroundColor: getParticipacionColor(5, 5) }}
+            style={{ backgroundColor: getStatusColor(5, 5) }}
           />
         </div>
       </div>

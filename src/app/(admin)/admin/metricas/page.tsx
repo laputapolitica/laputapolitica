@@ -17,7 +17,7 @@ import {
   mockVisitas,
   mockEdicionesMasVistas,
 } from "@/lib/mock-metricas";
-import { VOTE_COLORS } from "@/lib/constants";
+import { getSentimientoColor } from "@/lib/colors";
 
 function KPICard({ label, valor, descripcion }: { label: string; valor: string; descripcion: string }) {
   return (
@@ -171,12 +171,6 @@ function GraficoVisitas() {
   );
 }
 
-function getPulsoColor(sentimiento: "positivo" | "negativo" | "incierto"): string {
-  if (sentimiento === "positivo") return VOTE_COLORS.positiva;
-  if (sentimiento === "negativo") return VOTE_COLORS.negativa;
-  return VOTE_COLORS.incierta;
-}
-
 function TablaEdicionesMasVistas() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-lg border border-admin-ink bg-bg-base px-3 py-2.5">
@@ -208,7 +202,7 @@ function TablaEdicionesMasVistas() {
               <span className="font-ui text-xs font-medium text-admin-ink">El Pulso</span>
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getPulsoColor(ed.pulsoSentimiento) }}
+                style={{ backgroundColor: getSentimientoColor(ed.pulsoSentimiento) }}
               />
             </div>
             <div className="flex-1" />

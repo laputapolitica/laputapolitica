@@ -1,4 +1,4 @@
-import { POINT_COLORS } from "@/lib/constants";
+import { getStatusColor } from "@/lib/colors";
 
 export type OpinadorAdmin = {
   id: number;
@@ -21,12 +21,7 @@ export type OpinadorAdmin = {
   }[];
 };
 
-export function getParticipacionColor(valor: number, total: number): string {
-  const pct = (valor / total) * 100;
-  if (pct < 33) return POINT_COLORS.low;
-  if (pct < 66) return POINT_COLORS.medium;
-  return POINT_COLORS.high;
-}
+export const getParticipacionColor = getStatusColor;
 
 export const mockOpinadores: OpinadorAdmin[] = [
   {
