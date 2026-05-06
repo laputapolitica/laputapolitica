@@ -1,19 +1,5 @@
-import type { PipelineNodeId } from "@/components/admin/PipelineDiagram";
-
-export type EstadoEdicion = {
-  nodo: PipelineNodeId;
-  status: "done" | "running" | "pending";
-};
-
-export type Edicion = {
-  fecha: string;         // "21 MAR 2026"
-  fechaISO: string;      // "2026-03-21" — para la URL futura
-  titulo: string;
-  opiniones: number;
-  totalOpinadores: number;
-  horaPublicacion: string;
-  estado: EstadoEdicion;
-};
+export type { EstadoEdicion, Edicion } from "@/types/admin";
+import type { Edicion } from "@/types/admin";
 
 export const mockEdiciones: Edicion[] = [
   { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", opiniones: 14, totalOpinadores: 25, horaPublicacion: "22:03", estado: { nodo: "publicacion", status: "done" } },

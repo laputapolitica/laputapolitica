@@ -1,25 +1,6 @@
 import { getStatusColor } from "@/lib/colors";
-
-export type OpinadorAdmin = {
-  id: number;
-  nombre: string;
-  email: string;
-  telefono: string;
-  ciudad: string;
-  edad: number;
-  fechaInicio: string;
-  diasParticipados: number;
-  totalDias: number;
-  noticiasOpinadas: number;
-  totalNoticias: number;
-  ediciones: {
-    fecha: string;
-    fechaISO: string;
-    titulo: string;
-    completadas: number;
-    total: number;
-  }[];
-};
+export type { OpinadorAdmin, Postulacion } from "@/types/admin";
+import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 export const getParticipacionColor = getStatusColor;
 
@@ -138,18 +119,6 @@ export const mockOpinadores: OpinadorAdmin[] = [
     ],
   },
 ];
-
-export type Postulacion = {
-  id: number;
-  nombre: string;
-  email: string;
-  telefono: string;
-  ciudad: string;
-  edad: number;
-  fechaPostulacion: string;
-  motivacion: string;
-  estado: "pendiente" | "rechazado";
-};
 
 export const mockPostulaciones: Postulacion[] = [
   { id: 101, nombre: "Lucas Fernandez", email: "lucasfernandez@email.com", telefono: "+54 11 6789-0123", ciudad: "Buenos Aires", edad: 24, fechaPostulacion: "20/03/2026", motivacion: "Me interesa participar activamente en la política argentina y creo que mi perspectiva como joven profesional puede aportar valor a la comunidad de opinadores.", estado: "pendiente" },

@@ -1,30 +1,5 @@
-export type KPI = {
-  label: string;
-  valor: string;
-  descripcion: string;
-};
-
-export type ParticipacionDia = {
-  fecha: string;        // "04/03"
-  participaron: number;
-  noParticiparon: number;
-};
-
-export type VisitasDia = {
-  fecha: string;        // "10/03"
-  visitas: number;
-};
-
-export type EdicionMasVista = {
-  ranking: number;
-  fecha: string;
-  fechaISO: string;
-  titulo: string;
-  opiniones: number;
-  totalOpinadores: number;
-  pulsoSentimiento: "positivo" | "negativo" | "incierto";
-  visitas: number;
-};
+export type { KPI, ParticipacionDia, VisitasDia, EdicionMasVista, PulsoSentimiento } from "@/types/admin";
+import type { KPI, ParticipacionDia, VisitasDia, EdicionMasVista } from "@/types/admin";
 
 export const mockKPIs: KPI[] = [
   { label: "Opinadores", valor: "25", descripcion: "verificados activos" },

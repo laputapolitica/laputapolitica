@@ -1,10 +1,5 @@
-export type Usuario = {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaDesde: string;
-  rol: "Admin" | "Editor" | "Director";
-};
+export type { Usuario } from "@/types/admin";
+import type { Usuario } from "@/types/admin";
 
 export const mockUsuarios: Usuario[] = [
   { id: 1, nombre: "Marcos Buz", email: "marcosbuz@email.com", fechaDesde: "01/01/2026", rol: "Admin" },
