@@ -10,6 +10,7 @@ import { mockEdiciones } from "@/lib/mock-ediciones";
 import { noticias } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { ElPulsoChannel } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel";
 import { getStatusColor } from "@/lib/colors";
+import { DataPill, AdminButton } from "@/components/admin/shared";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 
 type TabDetalle = "web" | "elpulso";
@@ -152,12 +153,8 @@ export default function EdicionDetallePage() {
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header — fecha + título */}
       <div className="shrink-0 flex items-center gap-2">
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-medium text-admin-ink">{edicion.fecha}</span>
-        </div>
-        <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-          <span className="font-ui text-xs font-medium text-admin-ink">{edicion.titulo}</span>
-        </div>
+        <DataPill size="lg">{edicion.fecha}</DataPill>
+        <DataPill size="lg">{edicion.titulo}</DataPill>
       </div>
 
       {/* Tabs — Web + El Pulso */}
@@ -184,58 +181,53 @@ export default function EdicionDetallePage() {
       {activeTab === "elpulso" && selectedOpinador && (
         <div className="shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <AdminButton
               onClick={() => setSelectedOpinador(null)}
-              className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
+              className="gap-1.5 rounded-[4px] border-2 font-semibold"
             >
               <IconAtras width={10} height={10} />
               Atras
-            </button>
-            <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+            </AdminButton>
+            <DataPill className="rounded-[4px] border-2 font-semibold">
               {selectedOpinador.nombre}
-            </div>
+            </DataPill>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
+            <AdminButton
               onClick={() => setNoticiaIndex((i) => Math.max(0, i - 1))}
               disabled={noticiaIndex === 0}
-              className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
+              className="rounded-[4px] px-3 text-sm"
             >
               <span style={{ paddingBottom: "1px" }}>←</span>
-            </button>
-            <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+            </AdminButton>
+            <DataPill className="rounded-[4px] border-2 font-semibold">
               Noticia {noticiaIndex + 1}/5
-            </div>
-            <button
-              type="button"
+            </DataPill>
+            <AdminButton
               onClick={() => setNoticiaIndex((i) => Math.min(4, i + 1))}
               disabled={noticiaIndex === 4}
-              className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 4 ? "opacity-30" : ""}`}
+              className="rounded-[4px] px-3 text-sm"
             >
               <span style={{ paddingBottom: "1px" }}>→</span>
-            </button>
+            </AdminButton>
           </div>
           <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+            <DataPill>
               {selectedOpinador.votos.map((color, i) => (
                 <span
                   key={i}
-                  className="h-[8px] w-[8px] rounded-full"
+                  className="ml-1.5 inline-block h-[8px] w-[8px] rounded-full first:ml-0"
                   style={{ backgroundColor: color ?? "#E5E3DD" }}
                 />
               ))}
-            </div>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-semibold text-admin-ink">
-                {selectedOpinador.completadas}/5
-              </span>
+            </DataPill>
+            <DataPill>
+              <span className="font-semibold">{selectedOpinador.completadas}/5</span>
               <span
-                className="h-[8px] w-[8px] rounded-full"
+                className="ml-1.5 inline-block h-[8px] w-[8px] rounded-full"
                 style={{ backgroundColor: getStatusColor(selectedOpinador.completadas, 5) }}
               />
-            </div>
+            </DataPill>
           </div>
         </div>
       )}
