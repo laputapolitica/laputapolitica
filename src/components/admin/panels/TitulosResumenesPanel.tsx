@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
-import { DataPill, AdminButton } from "@/components/admin/shared";
+import { IconR } from "@/components/admin/icons";
+import { DataPill, EditableField } from "@/components/admin/shared";
 import { TabButton } from "@/components/admin/panels/PublicacionPanel/shared/TabButton";
 
 interface TitulosResumenesPanelProps {
@@ -101,18 +101,6 @@ function FuenteIcon() {
   );
 }
 
-function PanelButton({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <AdminButton className="h-[22px] gap-1.5 px-2.5">
-      {children}
-    </AdminButton>
-  );
-}
-
 export function TitulosResumenesPanel({
   status,
   onAutorizar,
@@ -175,63 +163,23 @@ export function TitulosResumenesPanel({
 
       <div className="mb-6 flex flex-col gap-4">
         <section>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-              TÍTULO
-            </span>
-            <div className="flex items-center gap-2">
-              <PanelButton>
-                <IconEditar width={12} height={12} />
-                <span className="font-ui text-xs font-medium text-admin-ink">
-                  Editar
-                </span>
-              </PanelButton>
-              <PanelButton>
-                <IconRehacer width={12} height={12} />
-                <span className="font-ui text-xs font-medium text-admin-ink">
-                  Rehacer
-                </span>
-              </PanelButton>
-            </div>
-          </div>
-
-          <input
-            type="text"
+          <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            TÍTULO
+          </span>
+          <EditableField
             value={activeNoticia.titulo}
-            onChange={(event) =>
-              updateActiveNoticia("titulo", event.target.value)
-            }
-            className="w-full rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
+            onSave={(val) => updateActiveNoticia("titulo", val)}
           />
         </section>
 
         <section>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-              RESUMEN
-            </span>
-            <div className="flex items-center gap-2">
-              <PanelButton>
-                <IconEditar width={12} height={12} />
-                <span className="font-ui text-xs font-medium text-admin-ink">
-                  Editar
-                </span>
-              </PanelButton>
-              <PanelButton>
-                <IconRehacer width={12} height={12} />
-                <span className="font-ui text-xs font-medium text-admin-ink">
-                  Rehacer
-                </span>
-              </PanelButton>
-            </div>
-          </div>
-
-          <textarea
+          <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            RESUMEN
+          </span>
+          <EditableField
             value={activeNoticia.resumen}
-            onChange={(event) =>
-              updateActiveNoticia("resumen", event.target.value)
-            }
-            className="min-h-[80px] w-full resize-none rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
+            onSave={(val) => updateActiveNoticia("resumen", val)}
+            multiline
           />
         </section>
       </div>
