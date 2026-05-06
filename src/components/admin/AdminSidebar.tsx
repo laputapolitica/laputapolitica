@@ -7,7 +7,7 @@ const navItems = [
   { href: "/admin", label: "Edicion del dia" },
   { href: "/admin/ediciones", label: "Lista de ediciones" },
   { href: "/admin/opinadores", label: "Opinadores" },
-  { href: "/admin/metricas", label: "Metricas" },
+  { href: "/admin/metricas", label: "Métricas" },
   { href: "/admin/usuarios-y-roles", label: "Usuarios y roles" },
 ];
 

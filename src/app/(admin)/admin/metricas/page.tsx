@@ -181,7 +181,7 @@ function TablaEdicionesMasVistas() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-lg border border-admin-ink bg-bg-base px-3 py-2.5">
       <div className="shrink-0 inline-flex h-[24px] w-fit items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-xs font-medium text-admin-ink">Ediciones mas vistas</span>
+        <span className="font-ui text-xs font-medium text-admin-ink">Ediciones más vistas</span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-2">
