@@ -21,11 +21,11 @@ import { VOTE_COLORS } from "@/lib/constants";
 
 function KPICard({ label, valor, descripcion }: { label: string; valor: string; descripcion: string }) {
   return (
-    <div className="flex flex-col items-start gap-2 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2.5">
+    <div className="flex flex-col items-start gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
       <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
         <span className="font-ui text-xs font-medium text-admin-ink whitespace-nowrap">{label}</span>
       </div>
-      <span className="font-ui text-3xl font-semibold leading-none text-admin-ink">
+      <span className="font-ui text-2xl font-semibold leading-none text-admin-ink">
         {valor}
       </span>
       <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
@@ -37,7 +37,7 @@ function KPICard({ label, valor, descripcion }: { label: string; valor: string; 
 
 function GraficoParticipacion() {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
       <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
         <span className="font-ui text-sm font-medium text-admin-ink">Participación por edición</span>
       </div>
@@ -57,7 +57,7 @@ function GraficoParticipacion() {
       </div>
 
       <div className="rounded-lg border border-admin-ink bg-white p-3">
-        <ResponsiveContainer width="100%" height={180}>
+        <ResponsiveContainer width="100%" height={120}>
           <BarChart
             data={mockParticipacion}
             margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
@@ -105,7 +105,7 @@ function GraficoParticipacion() {
 
 function GraficoVisitas() {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2">
       <div className="inline-flex h-[28px] w-fit items-center rounded-[6px] border border-admin-ink bg-white px-2">
         <span className="font-ui text-sm font-medium text-admin-ink">Visitas por edición</span>
       </div>
@@ -114,7 +114,7 @@ function GraficoVisitas() {
       </div>
 
       <div className="rounded-lg border border-admin-ink bg-white p-3">
-        <ResponsiveContainer width="100%" height={180}>
+        <ResponsiveContainer width="100%" height={120}>
           <AreaChart
             data={mockVisitas}
             margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
@@ -226,7 +226,7 @@ function TablaEdicionesMasVistas() {
 
 export default function AdminMetricasPage() {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-2">
       <div className="shrink-0 grid grid-cols-4 gap-3">
         {mockKPIs.map((kpi) => (
           <KPICard
