@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { IconR } from "@/components/admin/icons";
 import { PipelineNode } from "./pipeline/PipelineNode";
 import { PipelineGate } from "./pipeline/PipelineGate";
 
@@ -383,7 +384,7 @@ export function PipelineDiagram({
       {/* Pipeline */}
       <div
         ref={containerRef}
-        className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base px-4 py-2"
+        className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base px-3 py-2"
       >
         {/* SVG layer de conectores */}
         <svg
@@ -489,21 +490,19 @@ export function PipelineDiagram({
       </div>
       {/* Bandeja de revisión activa (sin borde ni fondo propio) */}
       {activeReview && (
-        <div className="flex w-full items-center justify-between px-3 py-3">
+        <div className="flex w-full items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
-            <PipelineGate
-              status={pipelineState[activeReview.gateId] as GateStatus}
-              nodeStatus={pipelineState[activeReview.nodeId]}
-            />
-            <PipelineNode
-              label={activeReview.label}
-              status={pipelineState[activeReview.nodeId]}
-            />
+            <IconR width={20} height={20} color="#FF5C60" />
+            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-1.5">
+              <span className="font-ui text-[11px] font-medium leading-none text-admin-ink whitespace-nowrap">
+                {activeReview.label}
+              </span>
+            </div>
           </div>
           <button
             type="button"
             onClick={onAutorizar}
-            className="inline-flex h-[32px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-admin-ink px-4 font-ui text-sm font-bold text-white"
+            className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
           >
             Autorizar
           </button>
