@@ -21,10 +21,5 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  return (
-    <>
-      <AdminHeader />
-      <AdminShell>{children}</AdminShell>
-    </>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
