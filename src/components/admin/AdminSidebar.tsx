@@ -38,7 +38,7 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="h-full w-[220px] bg-bg-base">
+    <aside className="h-full w-[180px] bg-bg-base">
       <nav className="flex h-full flex-col justify-between">
         <div className="flex flex-col gap-2">
           {navItems.map((item) => {
@@ -51,9 +51,9 @@ export function AdminSidebar() {
                   type="button"
                   onClick={() => router.push(`/admin/opinadores?t=${Date.now()}`)}
                   className={[
-                    "flex h-10 w-[220px] cursor-pointer items-center rounded-lg border pl-3 text-left font-ui text-base",
+                    "flex h-8 w-[180px] cursor-pointer items-center rounded-md border pl-3 text-left font-ui text-sm",
                     isActive
-                      ? "border-admin-ink bg-admin-ink font-semibold text-bg-base"
+                      ? "border-admin-ink bg-admin-ink font-medium text-bg-base"
                       : "border-admin-ink bg-white font-medium text-admin-ink",
                   ].join(" ")}
                 >
@@ -67,9 +67,9 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={[
-                  "flex h-10 w-[220px] items-center rounded-lg border pl-3 text-left font-ui text-base",
+                  "flex h-8 w-[180px] items-center rounded-md border pl-3 text-left font-ui text-sm",
                   isActive
-                    ? "border-admin-ink bg-admin-ink font-semibold text-bg-base"
+                    ? "border-admin-ink bg-admin-ink font-medium text-bg-base"
                     : "border-admin-ink bg-white font-medium text-admin-ink",
                 ].join(" ")}
               >
@@ -85,7 +85,7 @@ export function AdminSidebar() {
               Dev — Escenario
             </span>
             <select
-              className="h-9 w-[220px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
+              className="h-9 w-[180px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
               value={searchParams.get("scenario") ?? ""}
               onChange={(event) => updateAdminQuery("scenario", event.target.value)}
             >
@@ -118,7 +118,7 @@ export function AdminSidebar() {
               Dev — Panel activo
             </span>
             <select
-              className="h-9 w-[220px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
+              className="h-9 w-[180px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
               value={searchParams.get("panel") ?? ""}
               onChange={(event) => updateAdminQuery("panel", event.target.value)}
             >
@@ -139,7 +139,7 @@ export function AdminSidebar() {
         <button
           type="button"
           onClick={() => router.push("/admin/login")}
-          className="flex h-10 w-[220px] items-center rounded-lg border-2 border-[#C4342D] bg-white pl-3 text-left font-ui text-base font-semibold text-[#C4342D] cursor-pointer"
+          className="flex h-8 w-[180px] items-center rounded-md border border-[#C4342D] bg-white pl-3 text-left font-ui text-sm font-medium text-[#C4342D] cursor-pointer"
         >
           Cerrar Sesion
         </button>
