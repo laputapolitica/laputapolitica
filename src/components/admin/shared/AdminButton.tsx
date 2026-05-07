@@ -33,7 +33,7 @@ export function AdminButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex ${height} cursor-pointer items-center rounded-[3.5px] px-2 font-ui ${text} font-medium ${variantClasses} ${disabled ? "cursor-not-allowed opacity-30" : ""} ${className}`}
+      className={`inline-flex ${height} cursor-pointer items-center rounded-[3.5px] px-2 font-ui ${text} font-medium outline outline-2 outline-fuchsia-500 ${variantClasses} ${disabled ? "cursor-not-allowed opacity-30" : ""} ${className}`}
     >
       {children}
     </button>

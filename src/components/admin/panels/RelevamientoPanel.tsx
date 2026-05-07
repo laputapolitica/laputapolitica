@@ -9,6 +9,7 @@ import {
   IconR,
   IconSubir,
 } from "@/components/admin/icons";
+import { DataPill, EditableField, IconButton } from "@/components/admin/shared";
 
 type NoticiasRelevamiento = {
   activas: string[];
@@ -88,26 +89,11 @@ export function RelevamientoPanel({
     <div className="w-full font-ui">
       <div className="flex items-center gap-2 mb-6">
         <IconR width={20} height={20} />
-        <div
-          className="flex h-[22px] items-center border border-admin-ink bg-white"
-          style={{
-            borderRadius: "3.5px",
-            paddingLeft: "8px",
-            paddingRight: "8px",
-          }}
-        >
-          <span className="font-ui text-[11px] font-medium leading-none text-admin-ink whitespace-nowrap">
-            Relevamiento
-          </span>
-        </div>
+        <DataPill>Relevamiento</DataPill>
       </div>
 
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex h-[28px] items-center rounded-[5px] border-2 border-admin-ink bg-white px-2">
-          <span className="font-ui text-sm font-semibold text-admin-ink">
-            Lista de Noticias
-          </span>
-        </div>
+        <DataPill size="lg">Lista de Noticias</DataPill>
         <button
           type="button"
           onClick={onAutorizar}
@@ -120,36 +106,19 @@ export function RelevamientoPanel({
       <div className="flex flex-col gap-2">
         {noticias.activas.map((noticia, index) => (
           <div key={noticia} className="flex items-center gap-2">
-            <span className="w-auto rounded-[5.5px] border border-admin-ink bg-white px-2 py-1 text-sm font-medium text-admin-ink">
-              {noticia}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => onSubir?.(index)}
-              className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 text-xs font-medium text-admin-ink"
-            >
+            <EditableField value={noticia} />
+            <IconButton onClick={() => onSubir?.(index)} className="h-[22px]">
               <IconSubir />
               Subir
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onBajar?.(index)}
-              className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 text-xs font-medium text-admin-ink"
-            >
+            </IconButton>
+            <IconButton onClick={() => onBajar?.(index)} className="h-[22px]">
               <IconBajar />
               Bajar
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onEliminar?.(index)}
-              className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 text-xs font-medium text-admin-ink"
-            >
+            </IconButton>
+            <IconButton onClick={() => onEliminar?.(index)} className="h-[22px]">
               <IconEliminar />
               Eliminar
-            </button>
+            </IconButton>
           </div>
         ))}
       </div>
@@ -157,18 +126,11 @@ export function RelevamientoPanel({
       <div className="mt-4 flex flex-col gap-2">
         {noticias.descartadas.map((noticia, index) => (
           <div key={noticia} className="flex items-center gap-2">
-            <span className="w-auto rounded-[5.5px] border border-[#CFCBC4] bg-white px-2 py-1 text-sm font-medium text-[#CFCBC4]">
-              {noticia}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => onAgregar?.(index)}
-              className="flex h-[22px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2.5 text-xs font-medium text-admin-ink"
-            >
+            <EditableField value={noticia} readOnly className="opacity-40" />
+            <IconButton onClick={() => onAgregar?.(index)} className="h-[22px]">
               <IconAgregar />
               Agregar
-            </button>
+            </IconButton>
           </div>
         ))}
       </div>

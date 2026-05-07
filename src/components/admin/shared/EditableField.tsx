@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { IconEditar, IconRehacer } from "@/components/admin/icons";
 
 type EditableFieldProps = {
   value: string;
   onSave?: (newValue: string) => void;
   multiline?: boolean;
+  readOnly?: boolean;
   className?: string;
 };
 
@@ -27,11 +27,6 @@ export function EditableField({
     }
   }, [isEditing]);
 
-  function handleEdit() {
-    setDraft(current);
-    setIsEditing(true);
-  }
-
   function handleSave() {
     setCurrent(draft);
     onSave?.(draft);
@@ -43,15 +38,12 @@ export function EditableField({
     setIsEditing(false);
   }
 
-  function handleCopy() {
-    navigator.clipboard.writeText(current);
-  }
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !multiline) handleSave();
     if (e.key === "Escape") handleCancel();
   }
 
+  // Modo edición
   if (isEditing) {
     return (
       <div className={`flex items-start gap-2 ${className}`}>
@@ -94,29 +86,27 @@ export function EditableField({
     );
   }
 
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2">
-        <span className="font-ui text-sm font-medium text-admin-ink whitespace-nowrap">
-          {current}
-        </span>
+  // Modo lectura — solo el pill, sin botones
+  if (multiline) {
+    return (
+      <div
+        className={`h-[100px] w-full overflow-y-auto rounded-[4px] border border-admin-ink bg-white px-3 py-2 ${className}`}
+      >
+        <p className="font-ui text-sm font-medium text-admin-ink">{current}</p>
       </div>
-      <button
-        type="button"
-        onClick={handleEdit}
-        className="inline-flex h-[24px] cursor-pointer items-center gap-1 rounded-[3.5px] border border-admin-ink bg-white px-2 font-ui text-xs font-medium text-admin-ink"
-      >
-        <IconEditar width={11} height={11} />
-        Editar
-      </button>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="inline-flex h-[24px] cursor-pointer items-center gap-1 rounded-[3.5px] border border-admin-ink bg-white px-2 font-ui text-xs font-medium text-admin-ink"
-      >
-        <IconRehacer width={11} height={11} />
-        Copiar
-      </button>
+    );
+  }
+
+  return (
+    <div
+      className={`inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2 ${className}`}
+    >
+      <span className="font-ui text-sm font-medium text-admin-ink whitespace-nowrap">
+        {current}
+      </span>
     </div>
   );
 }
+
+// Expone el setter para que el padre pueda activar edición externamente si necesita
+export type { EditableFieldProps };

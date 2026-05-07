@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { IconR } from "@/components/admin/icons";
-import { DataPill, EditableField } from "@/components/admin/shared";
+import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
+import { DataPill, EditableField, IconButton } from "@/components/admin/shared";
 import { TabButton } from "@/components/admin/panels/PublicacionPanel/shared/TabButton";
 
 interface TitulosResumenesPanelProps {
@@ -166,21 +166,43 @@ export function TitulosResumenesPanel({
           <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
             TÍTULO
           </span>
-          <EditableField
-            value={activeNoticia.titulo}
-            onSave={(val) => updateActiveNoticia("titulo", val)}
-          />
+          <div className="flex items-center gap-2">
+            <EditableField
+              value={activeNoticia.titulo}
+              onSave={(val) => updateActiveNoticia("titulo", val)}
+            />
+            <IconButton onClick={() => navigator.clipboard.writeText(activeNoticia.titulo)}>
+              <IconRehacer width={11} height={11} />
+              Copiar
+            </IconButton>
+            <IconButton onClick={() => {}}>
+              <IconEditar width={11} height={11} />
+              Editar
+            </IconButton>
+          </div>
         </section>
 
         <section>
           <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
             RESUMEN
           </span>
-          <EditableField
-            value={activeNoticia.resumen}
-            onSave={(val) => updateActiveNoticia("resumen", val)}
-            multiline
-          />
+          <div className="flex items-start gap-2">
+            <EditableField
+              value={activeNoticia.resumen}
+              onSave={(val) => updateActiveNoticia("resumen", val)}
+              multiline
+            />
+            <div className="flex flex-col gap-1.5">
+              <IconButton onClick={() => navigator.clipboard.writeText(activeNoticia.resumen)}>
+                <IconRehacer width={11} height={11} />
+                Copiar
+              </IconButton>
+              <IconButton onClick={() => {}}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+            </div>
+          </div>
         </section>
       </div>
 
@@ -191,12 +213,7 @@ export function TitulosResumenesPanel({
         </div>
         <div className="flex flex-wrap gap-2">
           {activeNoticia.fuentes.map((fuente) => (
-            <span
-              key={fuente}
-              className="rounded-[4px] border border-border-default bg-white px-2 py-1 font-ui text-xs font-medium text-text-secondary"
-            >
-              {fuente}
-            </span>
+            <DataPill key={fuente} variant="secondary">{fuente}</DataPill>
           ))}
         </div>
       </div>
