@@ -380,7 +380,10 @@ export function PipelineDiagram({
 
         {/* relevamientoGate */}
         <div ref={setRef("relevamientoGate")}>
-          <PipelineGate status={pipelineState.relevamientoGate} />
+          <PipelineGate
+            status={pipelineState.relevamientoGate}
+            nodeStatus={pipelineState.relevamiento}
+          />
         </div>
 
         {/* Títulos y Resúmenes */}
@@ -393,7 +396,10 @@ export function PipelineDiagram({
 
         {/* titulosGate */}
         <div ref={setRef("titulosGate")}>
-          <PipelineGate status={pipelineState.titulosGate} />
+          <PipelineGate
+            status={pipelineState.titulosGate}
+            nodeStatus={pipelineState.titulosResumenes}
+          />
         </div>
 
         {/* Portada + Ventana de Opinión (stack vertical) */}
@@ -412,7 +418,10 @@ export function PipelineDiagram({
         {/* portadaGate (alineado con Portada arriba) */}
         <div className="flex flex-col gap-5 items-start">
           <div ref={setRef("portadaGate")} className="ml-2">
-            <PipelineGate status={pipelineState.portadaGate} />
+            <PipelineGate
+              status={pipelineState.portadaGate}
+              nodeStatus={pipelineState.portada}
+            />
           </div>
           {/* Spacer invisible para que tenga la misma altura que el grupo Portada+Ventana */}
           <div className="h-[24px] w-[20px]" />

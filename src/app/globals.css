@@ -176,3 +176,14 @@
   stroke-dasharray: 8 8;
   animation: pipeline-flow 0.7s linear infinite;
 }
+
+@keyframes gate-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gate-spinner {
+  animation: gate-spinner 1.8s linear infinite;
+  transform-origin: center;
+}
