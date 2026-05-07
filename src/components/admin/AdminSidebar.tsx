@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Edicion del dia" },
@@ -22,6 +22,20 @@ function isActivePath(pathname: string, href: string) {
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function updateAdminQuery(key: "panel" | "scenario", value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+
+    const query = params.toString();
+    router.push(query ? `/admin?${query}` : "/admin");
+  }
 
   return (
     <aside className="h-full w-[220px] bg-bg-base">
@@ -66,23 +80,46 @@ export function AdminSidebar() {
         </div>
 
         {pathname === "/admin" && (
-          <div className="flex flex-col gap-1 mt-2">
+          <div className="mt-2 flex flex-col gap-3">
+            <span className="font-ui text-[10px] font-medium text-text-secondary uppercase tracking-wider px-1">
+              Dev — Escenario
+            </span>
+            <select
+              className="h-9 w-[220px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
+              value={searchParams.get("scenario") ?? ""}
+              onChange={(event) => updateAdminQuery("scenario", event.target.value)}
+            >
+              <option value="">Auto (mock state)</option>
+              <option value="inicio">Inicio: Relevamiento running</option>
+              <option value="revision-relevamiento">
+                Revisión de Relevamiento
+              </option>
+              <option value="titulos-running">
+                Títulos y Resúmenes running
+              </option>
+              <option value="revision-titulos">Revisión de Títulos</option>
+              <option value="paralelo-portada-opinion">
+                Portada + Ventana de Opinión (paralelo)
+              </option>
+              <option value="revision-portada">
+                Revisión de Portada + Ventana running
+              </option>
+              <option value="elpulso-running">El Pulso running</option>
+              <option value="paralelo-canales">
+                Web + Instagram + Twitter (paralelo)
+              </option>
+              <option value="publicacion">Publicación running</option>
+            </select>
+
             <span className="font-ui text-[10px] font-medium text-text-secondary uppercase tracking-wider px-1">
               Dev — Panel activo
             </span>
             <select
               className="h-9 w-[220px] rounded-lg border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink cursor-pointer outline-none"
-              defaultValue=""
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val) {
-                  router.push(`/admin?panel=${val}`);
-                } else {
-                  router.push("/admin");
-                }
-              }}
+              value={searchParams.get("panel") ?? ""}
+              onChange={(event) => updateAdminQuery("panel", event.target.value)}
             >
-              <option value="">Auto (mock state)</option>
+              <option value="">Auto</option>
               <option value="relevamiento">Relevamiento</option>
               <option value="titulosResumenes">Títulos y Resúmenes</option>
               <option value="portada">Portada</option>

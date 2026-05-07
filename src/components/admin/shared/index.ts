@@ -5,3 +5,4 @@ export { RowCard } from "./RowCard";
 export { SectionPanel } from "./SectionPanel";
 export { EditableField } from "./EditableField";
 export { IconButton } from "./IconButton";
+export { LoadingText, LoadingTextGrid } from "./LoadingText";

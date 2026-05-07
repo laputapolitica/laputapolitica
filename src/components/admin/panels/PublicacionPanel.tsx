@@ -5,7 +5,7 @@ import { useState } from "react";
 import { IconAtras } from "@/components/admin/icons";
 import type { Canal, MockOpinador } from "./PublicacionPanel/types";
 import { canales, mockOpiniones, noticias } from "./PublicacionPanel/mocks";
-import { LoadingText } from "./PublicacionPanel/shared/LoadingText";
+import { LoadingTextGrid } from "@/components/admin/shared";
 import { CanalIcon } from "./PublicacionPanel/shared/CanalIcon";
 import { TabButton } from "./PublicacionPanel/shared/TabButton";
 import { getStatusColor } from "@/lib/colors";
@@ -59,17 +59,13 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
 
   if (status === "loading") {
     return (
-      <div className="flex h-full w-full flex-col gap-2">
-        <section className="flex min-h-[150px] flex-1 items-center justify-center rounded-lg border-2 border-admin-ink bg-bg-base">
-          <LoadingText text="Creando contenido para la Web" />
-        </section>
-        <section className="flex min-h-[150px] flex-1 items-center justify-center rounded-lg border-2 border-admin-ink bg-bg-base">
-          <LoadingText text="Creando contenido para Instagram" />
-        </section>
-        <section className="flex min-h-[150px] flex-1 items-center justify-center rounded-lg border-2 border-admin-ink bg-bg-base">
-          <LoadingText text="Creando contenido para X (Twitter)" />
-        </section>
-      </div>
+      <LoadingTextGrid
+        messages={[
+          "Creando contenido para la Web",
+          "Creando contenido para Instagram",
+          "Creando contenido para X (Twitter)",
+        ]}
+      />
     );
   }
 

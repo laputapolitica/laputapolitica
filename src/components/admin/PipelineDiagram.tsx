@@ -58,6 +58,126 @@ export const mockState: PipelineState = {
   titulosResumenes: "done",
   titulosGate: "approved",
   portada: "done",
+  portadaGate: "pending",   // IA terminó la portada, falta revisión del editor
+  ventanaOpinion: "running", // sigue corriendo en paralelo
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateInicio: PipelineState = {
+  relevamiento: "running",
+  relevamientoGate: "pending",
+  titulosResumenes: "pending",
+  titulosGate: "pending",
+  portada: "pending",
+  portadaGate: "pending",
+  ventanaOpinion: "pending",
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateRevisionRelevamiento: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "pending",
+  titulosResumenes: "pending",
+  titulosGate: "pending",
+  portada: "pending",
+  portadaGate: "pending",
+  ventanaOpinion: "pending",
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateTitulosRunning: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "running",
+  titulosGate: "pending",
+  portada: "pending",
+  portadaGate: "pending",
+  ventanaOpinion: "pending",
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateRevisionTitulos: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "pending",
+  portada: "pending",
+  portadaGate: "pending",
+  ventanaOpinion: "pending",
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateParaleloPortadaOpinion: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "running",
+  portadaGate: "pending",
+  ventanaOpinion: "running",
+  elPulso: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateElPulsoRunning: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "done",
+  portadaGate: "approved",
+  ventanaOpinion: "done",
+  elPulso: "running",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateParaleloWebInstagramTwitter: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "done",
+  portadaGate: "approved",
+  ventanaOpinion: "done",
+  elPulso: "done",
+  web: "running",
+  instagram: "running",
+  twitter: "running",
+  publicacion: "pending",
+};
+
+export const mockStatePublicacion: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "done",
   portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "done",
@@ -204,7 +324,7 @@ export function PipelineDiagram({
               {node.label}
             </span>
             <span
-              className="absolute h-[8px] w-[8px] rounded-full"
+              className={`absolute h-[8px] w-[8px] rounded-full ${pipelineState[node.id] === "running" ? "animate-pulse" : ""}`}
               style={{
                 left: toXPercent(node.x + node.width - 14),
                 top: toYPercent(node.y + 12),
