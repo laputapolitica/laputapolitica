@@ -109,6 +109,9 @@ export function AdminSidebar() {
                 Web + Instagram + Twitter (paralelo)
               </option>
               <option value="publicacion">Publicación running</option>
+              <option value="publicado">
+                ✓ Publicado (esperando próxima edición)
+              </option>
             </select>
 
             <span className="font-ui text-[10px] font-medium text-text-secondary uppercase tracking-wider px-1">

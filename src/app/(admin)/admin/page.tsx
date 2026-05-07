@@ -5,6 +5,7 @@ import {
   ElPulsoPanel,
   PipelineDiagram,
   PortadaPanel,
+  PublicadoPanel,
   PublicacionPanel,
   RelevamientoPanel,
   TitulosResumenesPanel,
@@ -18,6 +19,7 @@ import {
   mockStateParaleloPortadaOpinion,
   mockStateParaleloWebInstagramTwitter,
   mockStatePublicacion,
+  mockStatePublicado,
   mockStateRevisionRelevamiento,
   mockStateRevisionTitulos,
   mockStateTitulosRunning,
@@ -73,6 +75,7 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
   "elpulso-running": mockStateElPulsoRunning,
   "paralelo-canales": mockStateParaleloWebInstagramTwitter,
   publicacion: mockStatePublicacion,
+  publicado: mockStatePublicado,
 };
 
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
@@ -97,6 +100,13 @@ function ActivePanel({ nodeId }: { nodeId: PipelineNodeId }) {
 }
 
 function PipelineActivePanel({ state }: { state: PipelineState }) {
+  // Si todo está done → pantalla de publicado con cuenta atrás
+  const allDone = Object.entries(state)
+    .filter(([key]) => !key.includes("Gate"))
+    .every(([, val]) => val === "done");
+
+  if (allDone) return <PublicadoPanel />;
+
   const reviewNode = getReviewNode(state);
 
   if (reviewNode) {

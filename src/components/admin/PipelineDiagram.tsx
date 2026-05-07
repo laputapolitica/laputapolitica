@@ -187,6 +187,21 @@ export const mockStatePublicacion: PipelineState = {
   publicacion: "running",
 };
 
+export const mockStatePublicado: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "done",
+  portadaGate: "approved",
+  ventanaOpinion: "done",
+  elPulso: "done",
+  web: "done",
+  instagram: "done",
+  twitter: "done",
+  publicacion: "done",
+};
+
 const nodes: PipelineNode[] = [
   { id: "relevamiento", label: "Relevamiento", x: 20.5, y: 49.5, width: 132 },
   {

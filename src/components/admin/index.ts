@@ -4,6 +4,7 @@ export { AdminSidebar } from "./AdminSidebar";
 export { ElPulsoPanel } from "./panels/ElPulsoPanel";
 export { PipelineDiagram, mockState } from "./PipelineDiagram";
 export { PortadaPanel } from "./panels/PortadaPanel";
+export { PublicadoPanel } from "./panels/PublicadoPanel";
 export { PublicacionPanel } from "./panels/PublicacionPanel";
 export { RelevamientoPanel } from "./panels/RelevamientoPanel";
 export { TitulosResumenesPanel } from "./panels/TitulosResumenesPanel";
