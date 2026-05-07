@@ -165,3 +165,14 @@
     @apply font-ui;
   }
 }
+
+@keyframes pipeline-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+.pipeline-flow {
+  stroke-dasharray: 8 8;
+  animation: pipeline-flow 0.7s linear infinite;
+}

@@ -1,9 +1,12 @@
 "use client";
 
-import { IconR } from "@/components/admin/icons";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-type NodeStatus = "pending" | "running" | "done";
-type GateStatus = "pending" | "approved";
+import { PipelineNode } from "./pipeline/PipelineNode";
+import { PipelineGate } from "./pipeline/PipelineGate";
+
+export type NodeStatus = "pending" | "running" | "done";
+export type GateStatus = "pending" | "approved";
 
 export interface PipelineState {
   relevamiento: NodeStatus;
@@ -31,35 +34,19 @@ export type PipelineNodeId =
   | "twitter"
   | "publicacion";
 
-type PipelineNode = {
-  id: PipelineNodeId;
-  label: string;
-  x: number;
-  y: number;
-  width: number;
-};
-
-type PipelineGate = {
-  id: keyof Pick<
-    PipelineState,
-    "relevamientoGate" | "titulosGate" | "portadaGate"
-  >;
-  cx: number;
-  cy: number;
-};
-
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
 };
 
+// ─── MOCK STATES ─────────────────────────────────────────────────
 export const mockState: PipelineState = {
   relevamiento: "done",
   relevamientoGate: "approved",
   titulosResumenes: "done",
   titulosGate: "approved",
   portada: "done",
-  portadaGate: "pending",   // IA terminó la portada, falta revisión del editor
-  ventanaOpinion: "running", // sigue corriendo en paralelo
+  portadaGate: "pending",
+  ventanaOpinion: "running",
   elPulso: "pending",
   web: "pending",
   instagram: "pending",
@@ -202,171 +189,260 @@ export const mockStatePublicado: PipelineState = {
   publicacion: "done",
 };
 
-const nodes: PipelineNode[] = [
-  { id: "relevamiento", label: "Relevamiento", x: 20.5, y: 49.5, width: 132 },
-  {
-    id: "titulosResumenes",
-    label: "Títulos y Resúmenes",
-    x: 193.5,
-    y: 49.5,
-    width: 180,
-  },
-  { id: "portada", label: "Portada", x: 414.5, y: 19.5, width: 95 },
-  {
-    id: "ventanaOpinion",
-    label: "Ventana de opinion",
-    x: 414.5,
-    y: 79.5,
-    width: 170,
-  },
-  { id: "elPulso", label: "El Pulso", x: 625.5, y: 49.5, width: 94 },
-  { id: "web", label: "Web", x: 760.5, y: 19.5, width: 71 },
-  { id: "instagram", label: "Instagram", x: 760.5, y: 49.5, width: 109 },
-  { id: "twitter", label: "X (Twitter)", x: 760.5, y: 79.5, width: 112 },
-  { id: "publicacion", label: "Publicación", x: 910.5, y: 49.5, width: 119 },
+// ─── CONNECTORS DEFINITION ───────────────────────────────────────
+// Cada conector va de un anchor a otro anchor.
+// Anchor format: "{refKey}:{side}" donde side es L o R.
+// El path se calcula en runtime según las posiciones reales.
+type ConnectorDef = {
+  from: string;
+  to: string;
+  // Si está running, el conector tiene animación
+  fromNode?: PipelineNodeId;
+};
+
+const CONNECTORS: ConnectorDef[] = [
+  { from: "relevamiento:R", to: "relevamientoGate:L", fromNode: "relevamiento" },
+  { from: "relevamientoGate:R", to: "titulosResumenes:L" },
+  { from: "titulosResumenes:R", to: "titulosGate:L", fromNode: "titulosResumenes" },
+  { from: "titulosGate:R", to: "portada:L" },
+  { from: "titulosGate:R", to: "ventanaOpinion:L" },
+  { from: "portada:R", to: "portadaGate:L", fromNode: "portada" },
+  { from: "portadaGate:R", to: "elPulso:L" },
+  { from: "ventanaOpinion:R", to: "elPulso:L", fromNode: "ventanaOpinion" },
+  { from: "elPulso:R", to: "web:L", fromNode: "elPulso" },
+  { from: "elPulso:R", to: "instagram:L", fromNode: "elPulso" },
+  { from: "elPulso:R", to: "twitter:L", fromNode: "elPulso" },
+  { from: "web:R", to: "publicacion:L", fromNode: "web" },
+  { from: "instagram:R", to: "publicacion:L", fromNode: "instagram" },
+  { from: "twitter:R", to: "publicacion:L", fromNode: "twitter" },
 ];
 
-const gates: PipelineGate[] = [
-  { id: "relevamientoGate", cx: 173, cy: 60 },
-  { id: "titulosGate", cx: 394, cy: 60 },
-  { id: "portadaGate", cx: 558, cy: 30 },
-];
-
-const connectorPaths = [
-  "M153 60H193",
-  "M374 54.5H390C392.209 54.5 394 52.7091 394 50.5V33.5C394 31.2909 395.791 29.5 398 29.5H414",
-  "M374 65.5H390C392.209 65.5 394 67.2909 394 69.5V85.5C394 87.7091 395.791 89.5 398 89.5H414",
-  "M585 89.5H601C603.209 89.5 605 87.7091 605 85.5V69.5C605 67.2909 606.791 65.5 609 65.5H625",
-  "M510 29.5H601C603.209 29.5 605 31.2909 605 33.5V50.5C605 52.7091 606.791 54.5 609 54.5H625",
-  "M720 65.5H736C738.209 65.5 740 67.2909 740 69.5V85.5C740 87.7091 741.791 89.5 744 89.5H760",
-  "M720 60H760",
-  "M720 54.5H736C738.209 54.5 740 52.7091 740 50.5V33.5C740 31.2909 741.791 29.5 744 29.5H760",
-  "M873 89.5H889C891.209 89.5 893 87.7091 893 85.5V69.5C893 67.2909 894.791 65.5 897 65.5H910",
-  "M870 60H910",
-  "M832 29.5H886C888.209 29.5 890 31.2909 890 33.5V50.5C890 52.7091 891.791 54.5 894 54.5H910",
-];
-
-const colors = {
-  background: "#FAF9F5",
-  ink: "#111111",
-  white: "#FFFFFF",
-  pending: "#D9D9D9",
-  running: "#FAC800",
-  done: "#35C759",
-  gatePending: "#FF5C60",
-} as const;
-
-function getStatusColor(status: NodeStatus) {
-  const statusColors: Record<NodeStatus, string> = {
-    pending: colors.pending,
-    running: colors.running,
-    done: colors.done,
-  };
-
-  return statusColors[status];
-}
-
-function getGateColor(status: GateStatus) {
-  const statusColors: Record<GateStatus, string> = {
-    pending: colors.gatePending,
-    approved: colors.done,
-  };
-
-  return statusColors[status];
-}
-
-function toXPercent(x: number) {
-  return `${(x / 1076) * 100}%`;
-}
-
-function toYPercent(y: number) {
-  return `${(y / 120) * 100}%`;
-}
-
+// ─── COMPONENT ───────────────────────────────────────────────────
 export function PipelineDiagram({
   pipelineState = mockState,
 }: PipelineDiagramProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const refs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [paths, setPaths] = useState<
+    { d: string; running: boolean; key: string }[]
+  >([]);
+
+  const recalculate = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const RADIUS = 8;
+
+    // Pre-calcular posiciones de todos los nodos
+    const positions: Record<
+      string,
+      {
+        left: number;
+        right: number;
+        top: number;
+        bottom: number;
+        centerY: number;
+      }
+    > = {};
+    Object.entries(refs.current).forEach(([key, el]) => {
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      positions[key] = {
+        left: rect.left - containerRect.left,
+        right: rect.right - containerRect.left,
+        top: rect.top - containerRect.top,
+        bottom: rect.bottom - containerRect.top,
+        centerY: rect.top + rect.height / 2 - containerRect.top,
+      };
+    });
+
+    // Calcular midX compartido por destino: el midX se ubica a una distancia fija del nodo destino
+    // Esto asegura que conectores que entran al mismo nodo curven en el mismo punto X
+    function getSharedMidX(
+      toKey: string,
+      toSide: string,
+      fromX: number,
+    ): number {
+      const toPos = positions[toKey];
+      if (!toPos) return (fromX + 0) / 2;
+
+      const targetX = toSide === "L" ? toPos.left : toPos.right;
+      // El midX está a 16px del nodo destino, pero nunca más cerca al origen que la mitad
+      const offset = 16;
+      const direction = targetX > fromX ? -1 : 1;
+      return targetX + direction * offset;
+    }
+
+    const newPaths = CONNECTORS.map((connector, i) => {
+      const [fromKey, fromSide] = connector.from.split(":");
+      const [toKey, toSide] = connector.to.split(":");
+
+      const fromPos = positions[fromKey];
+      const toPos = positions[toKey];
+
+      if (!fromPos || !toPos) return null;
+
+      const x1 = fromSide === "R" ? fromPos.right : fromPos.left;
+      const y1 = fromPos.centerY;
+      const x2 = toSide === "L" ? toPos.left : toPos.right;
+      const y2 = toPos.centerY;
+
+      let d: string;
+
+      if (Math.abs(y1 - y2) < 1) {
+        d = `M${x1} ${y1} L${x2} ${y2}`;
+      } else {
+        const midX = getSharedMidX(toKey, toSide, x1);
+        const goingDown = y2 > y1;
+        const r = Math.min(RADIUS, Math.abs(midX - x1), Math.abs(y2 - y1) / 2);
+
+        if (goingDown) {
+          d = [
+            `M${x1} ${y1}`,
+            `L${midX - r} ${y1}`,
+            `Q${midX} ${y1} ${midX} ${y1 + r}`,
+            `L${midX} ${y2 - r}`,
+            `Q${midX} ${y2} ${midX + r} ${y2}`,
+            `L${x2} ${y2}`,
+          ].join(" ");
+        } else {
+          d = [
+            `M${x1} ${y1}`,
+            `L${midX - r} ${y1}`,
+            `Q${midX} ${y1} ${midX} ${y1 - r}`,
+            `L${midX} ${y2 + r}`,
+            `Q${midX} ${y2} ${midX + r} ${y2}`,
+            `L${x2} ${y2}`,
+          ].join(" ");
+        }
+      }
+
+      const running = connector.fromNode
+        ? pipelineState[connector.fromNode] === "running"
+        : false;
+
+      return { d, running, key: `${connector.from}->${connector.to}-${i}` };
+    }).filter(
+      (p): p is { d: string; running: boolean; key: string } => p !== null,
+    );
+
+    setPaths(newPaths);
+  }, [pipelineState]);
+
+  useLayoutEffect(() => {
+    recalculate();
+  }, [recalculate]);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => recalculate());
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [recalculate]);
+
+  function setRef(key: string) {
+    return (el: HTMLDivElement | null) => {
+      refs.current[key] = el;
+    };
+  }
+
   return (
     <div
-      className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base"
-      style={{ height: "96px" }}
+      ref={containerRef}
+      className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base px-4 py-2"
     >
+      {/* SVG layer de conectores */}
       <svg
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        width="100%"
-        height="100%"
-        viewBox="0 0 1076 120"
-        preserveAspectRatio="none"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        style={{ overflow: "visible" }}
       >
-        {connectorPaths.map((path) => (
+        {paths.map((p) => (
           <path
-            key={path}
-            d={path}
-            stroke={colors.ink}
-            strokeWidth="1"
+            key={p.key}
+            d={p.d}
+            stroke={p.running ? "#FAC800" : "#111111"}
+            strokeWidth="1.5"
             fill="none"
-          />
-        ))}
-
-        {nodes.map((node) => (
-          <rect
-            key={node.id}
-            x={node.x}
-            y={node.y}
-            width={node.width}
-            height="24"
-            rx="3.5"
-            fill={colors.white}
-            stroke={colors.ink}
-            strokeWidth="1"
+            className={p.running ? "pipeline-flow" : undefined}
           />
         ))}
       </svg>
 
-      <div style={{ position: "absolute", inset: 0 }}>
-        {nodes.map((node) => (
-          <div key={node.id}>
-            <span
-              className="absolute whitespace-nowrap font-ui text-[11px] font-medium leading-none text-admin-ink"
-              style={{
-                left: toXPercent(node.x + 8),
-                top: toYPercent(node.y + 12),
-                transform: "translateY(-50%)",
-              }}
-            >
-              {node.label}
-            </span>
-            <span
-              className={`absolute h-[8px] w-[8px] rounded-full ${pipelineState[node.id] === "running" ? "animate-pulse" : ""}`}
-              style={{
-                left: toXPercent(node.x + node.width - 14),
-                top: toYPercent(node.y + 12),
-                transform: "translate(-50%, -50%)",
-                backgroundColor: getStatusColor(pipelineState[node.id]),
-              }}
-            />
-          </div>
-        ))}
+      <div className="relative flex items-center justify-between">
+        {/* Relevamiento */}
+        <div ref={setRef("relevamiento")}>
+          <PipelineNode
+            label="Relevamiento"
+            status={pipelineState.relevamiento}
+          />
+        </div>
 
-        {gates.map((gate) => (
-          <div
-            key={gate.id}
-            className="absolute"
-            style={{
-              left: toXPercent(gate.cx),
-              top: toYPercent(gate.cy),
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <IconR
-              width={20}
-              height={20}
-              color={getGateColor(pipelineState[gate.id])}
+        {/* relevamientoGate */}
+        <div ref={setRef("relevamientoGate")}>
+          <PipelineGate status={pipelineState.relevamientoGate} />
+        </div>
+
+        {/* Títulos y Resúmenes */}
+        <div ref={setRef("titulosResumenes")}>
+          <PipelineNode
+            label="Títulos y Resúmenes"
+            status={pipelineState.titulosResumenes}
+          />
+        </div>
+
+        {/* titulosGate */}
+        <div ref={setRef("titulosGate")}>
+          <PipelineGate status={pipelineState.titulosGate} />
+        </div>
+
+        {/* Portada + Ventana de Opinión (stack vertical) */}
+        <div className="flex flex-col gap-5 items-start">
+          <div ref={setRef("portada")}>
+            <PipelineNode label="Portada" status={pipelineState.portada} />
+          </div>
+          <div ref={setRef("ventanaOpinion")}>
+            <PipelineNode
+              label="Ventana de opinión"
+              status={pipelineState.ventanaOpinion}
             />
           </div>
-        ))}
+        </div>
+
+        {/* portadaGate (alineado con Portada arriba) */}
+        <div className="flex flex-col gap-5 items-start">
+          <div ref={setRef("portadaGate")} className="ml-2">
+            <PipelineGate status={pipelineState.portadaGate} />
+          </div>
+          {/* Spacer invisible para que tenga la misma altura que el grupo Portada+Ventana */}
+          <div className="h-[24px] w-[20px]" />
+        </div>
+
+        {/* El Pulso */}
+        <div ref={setRef("elPulso")}>
+          <PipelineNode label="El Pulso" status={pipelineState.elPulso} />
+        </div>
+
+        {/* Web/Instagram/Twitter (stack vertical) */}
+        <div className="flex flex-col gap-1 items-start">
+          <div ref={setRef("web")}>
+            <PipelineNode label="Web" status={pipelineState.web} />
+          </div>
+          <div ref={setRef("instagram")}>
+            <PipelineNode label="Instagram" status={pipelineState.instagram} />
+          </div>
+          <div ref={setRef("twitter")}>
+            <PipelineNode label="X (Twitter)" status={pipelineState.twitter} />
+          </div>
+        </div>
+
+        {/* Publicación */}
+        <div ref={setRef("publicacion")}>
+          <PipelineNode
+            label="Publicación"
+            status={pipelineState.publicacion}
+          />
+        </div>
       </div>
     </div>
   );
