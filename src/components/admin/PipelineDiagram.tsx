@@ -36,6 +36,7 @@ export type PipelineNodeId =
 
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
+  onAutorizar?: () => void;
 };
 
 // ─── MOCK STATES ─────────────────────────────────────────────────
@@ -217,9 +218,28 @@ const CONNECTORS: ConnectorDef[] = [
   { from: "twitter:R", to: "publicacion:L", fromNode: "twitter" },
 ];
 
+export const REVIEW_GATES: Array<{
+  gateId: keyof PipelineState;
+  nodeId: PipelineNodeId;
+  label: string;
+}> = [
+  {
+    gateId: "relevamientoGate",
+    nodeId: "relevamiento",
+    label: "Relevamiento",
+  },
+  {
+    gateId: "titulosGate",
+    nodeId: "titulosResumenes",
+    label: "Títulos y Resúmenes",
+  },
+  { gateId: "portadaGate", nodeId: "portada", label: "Portada" },
+];
+
 // ─── COMPONENT ───────────────────────────────────────────────────
 export function PipelineDiagram({
   pipelineState = mockState,
+  onAutorizar,
 }: PipelineDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -347,112 +367,148 @@ export function PipelineDiagram({
     };
   }
 
+  // Detectar si hay revisión activa: gate pending + nodo origen done
+  const activeReview = REVIEW_GATES.find(
+    (gate) =>
+      pipelineState[gate.gateId] === "pending" &&
+      pipelineState[gate.nodeId] === "done",
+  );
+
   return (
     <div
-      ref={containerRef}
-      className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base px-4 py-2"
+      className={`flex w-full flex-col rounded-lg ${
+        activeReview ? "bg-admin-ink" : ""
+      }`}
     >
-      {/* SVG layer de conectores */}
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        style={{ overflow: "visible" }}
+      {/* Pipeline */}
+      <div
+        ref={containerRef}
+        className="relative w-full rounded-lg border-2 border-admin-ink bg-bg-base px-4 py-2"
       >
-        {paths.map((p) => (
-          <path
-            key={p.key}
-            d={p.d}
-            stroke={p.running ? "#FAC800" : "#111111"}
-            strokeWidth="1.5"
-            fill="none"
-            className={p.running ? "pipeline-flow" : undefined}
-          />
-        ))}
-      </svg>
+        {/* SVG layer de conectores */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          style={{ overflow: "visible" }}
+        >
+          {paths.map((p) => (
+            <path
+              key={p.key}
+              d={p.d}
+              stroke={p.running ? "#FAC800" : "#111111"}
+              strokeWidth="1.5"
+              fill="none"
+              className={p.running ? "pipeline-flow" : undefined}
+            />
+          ))}
+        </svg>
 
-      <div className="relative flex items-center justify-between">
-        {/* Relevamiento */}
-        <div ref={setRef("relevamiento")}>
-          <PipelineNode
-            label="Relevamiento"
-            status={pipelineState.relevamiento}
-          />
-        </div>
-
-        {/* relevamientoGate */}
-        <div ref={setRef("relevamientoGate")}>
-          <PipelineGate
-            status={pipelineState.relevamientoGate}
-            nodeStatus={pipelineState.relevamiento}
-          />
-        </div>
-
-        {/* Títulos y Resúmenes */}
-        <div ref={setRef("titulosResumenes")}>
-          <PipelineNode
-            label="Títulos y Resúmenes"
-            status={pipelineState.titulosResumenes}
-          />
-        </div>
-
-        {/* titulosGate */}
-        <div ref={setRef("titulosGate")}>
-          <PipelineGate
-            status={pipelineState.titulosGate}
-            nodeStatus={pipelineState.titulosResumenes}
-          />
-        </div>
-
-        {/* Portada + Ventana de Opinión (stack vertical) */}
-        <div className="flex flex-col gap-5 items-start">
-          <div ref={setRef("portada")}>
-            <PipelineNode label="Portada" status={pipelineState.portada} />
-          </div>
-          <div ref={setRef("ventanaOpinion")}>
+        <div className="relative flex items-center justify-between">
+          {/* Relevamiento */}
+          <div ref={setRef("relevamiento")}>
             <PipelineNode
-              label="Ventana de opinión"
-              status={pipelineState.ventanaOpinion}
+              label="Relevamiento"
+              status={pipelineState.relevamiento}
             />
           </div>
-        </div>
 
-        {/* portadaGate (alineado con Portada arriba) */}
-        <div className="flex flex-col gap-5 items-start">
-          <div ref={setRef("portadaGate")} className="ml-2">
+          {/* relevamientoGate */}
+          <div ref={setRef("relevamientoGate")}>
             <PipelineGate
-              status={pipelineState.portadaGate}
-              nodeStatus={pipelineState.portada}
+              status={pipelineState.relevamientoGate}
+              nodeStatus={pipelineState.relevamiento}
             />
           </div>
-          {/* Spacer invisible para que tenga la misma altura que el grupo Portada+Ventana */}
-          <div className="h-[24px] w-[20px]" />
-        </div>
 
-        {/* El Pulso */}
-        <div ref={setRef("elPulso")}>
-          <PipelineNode label="El Pulso" status={pipelineState.elPulso} />
-        </div>
+          {/* Títulos y Resúmenes */}
+          <div ref={setRef("titulosResumenes")}>
+            <PipelineNode
+              label="Títulos y Resúmenes"
+              status={pipelineState.titulosResumenes}
+            />
+          </div>
 
-        {/* Web/Instagram/Twitter (stack vertical) */}
-        <div className="flex flex-col gap-1 items-start">
-          <div ref={setRef("web")}>
-            <PipelineNode label="Web" status={pipelineState.web} />
+          {/* titulosGate */}
+          <div ref={setRef("titulosGate")}>
+            <PipelineGate
+              status={pipelineState.titulosGate}
+              nodeStatus={pipelineState.titulosResumenes}
+            />
           </div>
-          <div ref={setRef("instagram")}>
-            <PipelineNode label="Instagram" status={pipelineState.instagram} />
-          </div>
-          <div ref={setRef("twitter")}>
-            <PipelineNode label="X (Twitter)" status={pipelineState.twitter} />
-          </div>
-        </div>
 
-        {/* Publicación */}
-        <div ref={setRef("publicacion")}>
-          <PipelineNode
-            label="Publicación"
-            status={pipelineState.publicacion}
-          />
+          {/* Portada + Ventana de Opinión (stack vertical) */}
+          <div className="flex flex-col gap-5 items-start">
+            <div ref={setRef("portada")}>
+              <PipelineNode label="Portada" status={pipelineState.portada} />
+            </div>
+            <div ref={setRef("ventanaOpinion")}>
+              <PipelineNode
+                label="Ventana de opinión"
+                status={pipelineState.ventanaOpinion}
+              />
+            </div>
+          </div>
+
+          {/* portadaGate (alineado con Portada arriba) */}
+          <div className="flex flex-col gap-5 items-start">
+            <div ref={setRef("portadaGate")} className="ml-2">
+              <PipelineGate
+                status={pipelineState.portadaGate}
+                nodeStatus={pipelineState.portada}
+              />
+            </div>
+            {/* Spacer invisible para que tenga la misma altura que el grupo Portada+Ventana */}
+            <div className="h-[24px] w-[20px]" />
+          </div>
+
+          {/* El Pulso */}
+          <div ref={setRef("elPulso")}>
+            <PipelineNode label="El Pulso" status={pipelineState.elPulso} />
+          </div>
+
+          {/* Web/Instagram/Twitter (stack vertical) */}
+          <div className="flex flex-col gap-1 items-start">
+            <div ref={setRef("web")}>
+              <PipelineNode label="Web" status={pipelineState.web} />
+            </div>
+            <div ref={setRef("instagram")}>
+              <PipelineNode label="Instagram" status={pipelineState.instagram} />
+            </div>
+            <div ref={setRef("twitter")}>
+              <PipelineNode label="X (Twitter)" status={pipelineState.twitter} />
+            </div>
+          </div>
+
+          {/* Publicación */}
+          <div ref={setRef("publicacion")}>
+            <PipelineNode
+              label="Publicación"
+              status={pipelineState.publicacion}
+            />
+          </div>
         </div>
       </div>
+      {/* Bandeja de revisión activa (sin borde ni fondo propio) */}
+      {activeReview && (
+        <div className="flex w-full items-center justify-between px-3 py-3">
+          <div className="flex items-center gap-2">
+            <PipelineGate
+              status={pipelineState[activeReview.gateId] as GateStatus}
+              nodeStatus={pipelineState[activeReview.nodeId]}
+            />
+            <PipelineNode
+              label={activeReview.label}
+              status={pipelineState[activeReview.nodeId]}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={onAutorizar}
+            className="inline-flex h-[32px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-admin-ink px-4 font-ui text-sm font-bold text-white"
+          >
+            Autorizar
+          </button>
+        </div>
+      )}
     </div>
   );
 }
