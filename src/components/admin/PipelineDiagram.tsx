@@ -38,6 +38,7 @@ export type PipelineNodeId =
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
   onAutorizar?: () => void;
+  onPublicar?: () => void;
 };
 
 // ─── MOCK STATES ─────────────────────────────────────────────────
@@ -241,6 +242,7 @@ export const REVIEW_GATES: Array<{
 export function PipelineDiagram({
   pipelineState = mockState,
   onAutorizar,
+  onPublicar,
 }: PipelineDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -374,11 +376,12 @@ export function PipelineDiagram({
       pipelineState[gate.gateId] === "pending" &&
       pipelineState[gate.nodeId] === "done",
   );
+  const isPublicacionRunning = pipelineState.publicacion === "running";
 
   return (
     <div
       className={`flex w-full flex-col rounded-lg ${
-        activeReview ? "bg-admin-ink" : ""
+        activeReview || isPublicacionRunning ? "bg-admin-ink" : ""
       }`}
     >
       {/* Pipeline */}
@@ -505,6 +508,25 @@ export function PipelineDiagram({
             className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
           >
             Autorizar
+          </button>
+        </div>
+      )}
+      {/* Bandeja de publicación (sin R, botón Publicar) */}
+      {isPublicacionRunning && (
+        <div className="flex w-full items-center justify-between px-3 py-2">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-1.5">
+              <span className="font-ui text-[11px] font-medium leading-none text-admin-ink whitespace-nowrap">
+                Publicación
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onPublicar}
+            className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
+          >
+            Publicar
           </button>
         </div>
       )}

@@ -143,7 +143,11 @@ export default function AdminPage() {
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <PipelineDiagram pipelineState={pipelineState} />
+      <PipelineDiagram
+        pipelineState={pipelineState}
+        onAutorizar={() => console.log("Autorizar (mock)")}
+        onPublicar={() => console.log("Publicar (mock)")}
+      />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         {forcedNodeId ? (
           <ActivePanel nodeId={forcedNodeId} />
