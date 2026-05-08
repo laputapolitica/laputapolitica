@@ -5,7 +5,7 @@ import { useState } from "react";
 import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
 import {
   DataPill,
-  EditableField,
+  TextField,
   IconButton,
   LoadingText,
 } from "@/components/admin/shared";
@@ -147,7 +147,7 @@ export function TitulosResumenesPanel({
             TÍTULO
           </span>
           <div className="flex items-center gap-2">
-            <EditableField
+            <TextField
               value={activeNoticia.titulo}
               onSave={(val) => updateActiveNoticia("titulo", val)}
             />
@@ -167,7 +167,7 @@ export function TitulosResumenesPanel({
             RESUMEN
           </span>
           <div className="flex items-start gap-2">
-            <EditableField
+            <TextField
               value={activeNoticia.resumen}
               onSave={(val) => updateActiveNoticia("resumen", val)}
               multiline

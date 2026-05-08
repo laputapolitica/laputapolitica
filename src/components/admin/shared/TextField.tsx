@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type EditableFieldProps = {
+type TextFieldProps = {
   value: string;
   onSave?: (newValue: string) => void;
   multiline?: boolean;
@@ -10,12 +10,12 @@ type EditableFieldProps = {
   className?: string;
 };
 
-export function EditableField({
+export function TextField({
   value,
   onSave,
   multiline = false,
   className = "",
-}: EditableFieldProps) {
+}: TextFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [current, setCurrent] = useState(value);
@@ -109,4 +109,4 @@ export function EditableField({
 }
 
 // Expone el setter para que el padre pueda activar edición externamente si necesita
-export type { EditableFieldProps };
+export type { TextFieldProps };
