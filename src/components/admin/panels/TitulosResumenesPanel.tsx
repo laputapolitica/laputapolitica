@@ -8,8 +8,8 @@ import {
   TextField,
   IconButton,
   LoadingText,
+  TabSecondary,
 } from "@/components/admin/shared";
-import { TabButton } from "@/components/admin/panels/PublicacionPanel/shared/TabButton";
 
 interface TitulosResumenesPanelProps {
   status: "running" | "ready";
@@ -130,14 +130,13 @@ export function TitulosResumenesPanel({
 
       <div className="mb-6 flex gap-2">
         {noticias.map((noticia, index) => (
-          <TabButton
+          <TabSecondary
             key={noticia.id}
             isActive={index === activeIndex}
             onClick={() => setActiveIndex(index)}
-            size="small"
           >
             Noticia {String(index + 1).padStart(2, "0")}
-          </TabButton>
+          </TabSecondary>
         ))}
       </div>
 

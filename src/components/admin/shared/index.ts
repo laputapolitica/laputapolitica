@@ -7,3 +7,5 @@ export { TextField } from "./TextField";
 export { IconButton } from "./IconButton";
 export { LoadingText, LoadingTextGrid } from "./LoadingText";
 export { PanelLayout } from "./PanelLayout";
+export { TabPrimary } from "./TabPrimary";
+export { TabSecondary } from "./TabSecondary";

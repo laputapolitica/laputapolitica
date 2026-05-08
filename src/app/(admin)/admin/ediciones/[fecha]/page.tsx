@@ -4,13 +4,17 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { IconAtras, IconWeb } from "@/components/admin/icons";
-import { TabButton } from "@/components/admin/panels/PublicacionPanel/shared/TabButton";
 import { InterpretacionGeneral } from "@/components/admin/panels/PublicacionPanel/WebChannel/InterpretacionGeneral";
 import { mockEdiciones } from "@/lib/mock-ediciones";
 import { noticias } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { ElPulsoChannel } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel";
 import { getStatusColor } from "@/lib/colors";
-import { DataPill, AdminButton } from "@/components/admin/shared";
+import {
+  DataPill,
+  AdminButton,
+  TabPrimary,
+  TabSecondary,
+} from "@/components/admin/shared";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 
 type TabDetalle = "web" | "elpulso";
@@ -160,13 +164,13 @@ export default function EdicionDetallePage() {
       {/* Tabs — Web + El Pulso */}
       <div className="shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TabButton
+          <TabPrimary
             isActive={activeTab === "web"}
             onClick={() => { setActiveTab("web"); setActiveSlide(1); setSelectedOpinador(null); setNoticiaIndex(0); }}
           >
             <IconWeb width={14} height={14} />
             Web
-          </TabButton>
+          </TabPrimary>
         </div>
         <button
           type="button"
@@ -236,14 +240,13 @@ export default function EdicionDetallePage() {
       {activeTab === "web" && (
         <div className="shrink-0 flex gap-2">
           {Array.from({ length: 7 }, (_, i) => i + 1).map((slide) => (
-            <TabButton
+            <TabSecondary
               key={slide}
               isActive={activeSlide === slide}
               onClick={() => setActiveSlide(slide)}
-              size="small"
             >
               {`Slide ${String(slide).padStart(2, "0")}`}
-            </TabButton>
+            </TabSecondary>
           ))}
         </div>
       )}

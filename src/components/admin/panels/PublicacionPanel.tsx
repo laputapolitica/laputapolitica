@@ -5,9 +5,12 @@ import { useState } from "react";
 import { IconAtras } from "@/components/admin/icons";
 import type { Canal, MockOpinador } from "./PublicacionPanel/types";
 import { canales, mockOpiniones, noticias } from "./PublicacionPanel/mocks";
-import { LoadingTextGrid } from "@/components/admin/shared";
+import {
+  LoadingTextGrid,
+  TabPrimary,
+  TabSecondary,
+} from "@/components/admin/shared";
 import { CanalIcon } from "./PublicacionPanel/shared/CanalIcon";
-import { TabButton } from "./PublicacionPanel/shared/TabButton";
 import { getStatusColor } from "@/lib/colors";
 import { PortadaSlide } from "./PublicacionPanel/WebChannel/PortadaSlide";
 import { NoticiaSlide } from "./PublicacionPanel/WebChannel/NoticiaSlide";
@@ -90,7 +93,7 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
         <div className="mb-2 flex items-center justify-between">
           <div className="flex gap-2">
             {canales.map((canal) => (
-              <TabButton
+              <TabPrimary
                 key={canal.id}
                 isActive={activeCanal === canal.id}
                 onClick={() => {
@@ -100,7 +103,7 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
               >
                 <CanalIcon canal={canal.id} />
                 {canal.label}
-              </TabButton>
+              </TabPrimary>
             ))}
           </div>
           <button
@@ -178,16 +181,15 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
           <div className="mb-2 flex gap-2">
             {Array.from({ length: slideCount }, (_, index) => index + 1).map(
               (slide) => (
-                <TabButton
+                <TabSecondary
                   key={slide}
                   isActive={activeSlide === slide}
                   onClick={() => setActiveSlide(slide)}
-                  size="small"
                 >
                   {activeCanal === "twitter"
                     ? `Hilo ${String(slide).padStart(2, "0")}`
                     : `Slide ${String(slide).padStart(2, "0")}`}
-                </TabButton>
+                </TabSecondary>
               ),
             )}
           </div>
