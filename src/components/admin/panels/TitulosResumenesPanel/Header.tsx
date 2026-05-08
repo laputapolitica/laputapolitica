@@ -10,7 +10,11 @@ type HeaderProps = {
   onSelect: (index: number) => void;
 };
 
-export function Header({ noticias, activeIndex, onSelect }: HeaderProps) {
+export function TitulosResumenesHeader({
+  noticias,
+  activeIndex,
+  onSelect,
+}: HeaderProps) {
   return (
     <div className="flex gap-2 pb-4">
       {noticias.map((noticia, index) => (
