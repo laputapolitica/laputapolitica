@@ -27,7 +27,7 @@ export function IconButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[3.5px] border bg-white px-2 font-ui text-xs font-medium ${variantClasses} ${disabled ? "cursor-not-allowed opacity-30" : ""} ${className}`}
+      className={`inline-flex h-[20px] cursor-pointer items-center gap-1.5 rounded-[3.5px] border bg-white px-1.5 font-ui text-xs font-medium ${variantClasses} ${disabled ? "cursor-not-allowed opacity-30" : ""} ${className}`}
     >
       {children}
     </button>
