@@ -36,7 +36,7 @@ function ListaOpinadores({
       <SectionPanel className="shrink-0 flex items-center justify-between">
         <DataPill>{mockOpinadores.length} Opinadores</DataPill>
         <div className="flex items-center gap-2">
-          <AdminButton variant="danger" onClick={onRechazados}>
+          <AdminButton variant="default" onClick={onRechazados}>
             Rechazados
           </AdminButton>
           <button
@@ -89,7 +89,7 @@ function DetalleOpinador({
             <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
             <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
           </div>
-          <AdminButton variant="danger">
+          <AdminButton variant="default">
             Eliminar
           </AdminButton>
         </div>
@@ -160,7 +160,7 @@ function OpinionesEnEdicion({
             <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
             <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
           </div>
-          <AdminButton variant="danger">
+          <AdminButton variant="default">
             Eliminar
           </AdminButton>
         </div>
@@ -284,7 +284,7 @@ function ListaRechazados({ onVolver }: { onVolver: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       <SectionPanel className="shrink-0 flex items-center justify-between">
-        <AdminButton variant="danger" onClick={onVolver}>
+        <AdminButton variant="default" onClick={onVolver}>
           Rechazados
         </AdminButton>
         <DataPill>{mockRechazados.length} rechazados</DataPill>
@@ -314,7 +314,7 @@ function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion;
             {postulacion.nombre}
           </div>
           <div className="flex items-center gap-2">
-            <AdminButton variant="danger" onClick={onBack}>
+            <AdminButton variant="default" onClick={onBack}>
               Rechazar
             </AdminButton>
             <button
@@ -340,7 +340,7 @@ function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion;
 
       {/* Motivación */}
       <div className="min-h-0 flex-1 overflow-y-auto space-y-3">
-        <DataPill size="lg">¿Por qué quiere ser opinador?</DataPill>
+        <DataPill>¿Por qué quiere ser opinador?</DataPill>
         <div className="rounded-[4px] border border-admin-ink bg-white px-3 py-2" style={{ maxWidth: "480px" }}>
           <p className="font-ui text-sm font-medium text-admin-ink">{postulacion.motivacion}</p>
         </div>

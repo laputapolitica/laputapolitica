@@ -157,8 +157,8 @@ export default function EdicionDetallePage() {
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header — fecha + título */}
       <div className="shrink-0 flex items-center gap-2">
-        <DataPill size="lg">{edicion.fecha}</DataPill>
-        <DataPill size="lg">{edicion.titulo}</DataPill>
+        <DataPill>{edicion.fecha}</DataPill>
+        <DataPill>{edicion.titulo}</DataPill>
       </div>
 
       {/* Tabs — Web + El Pulso */}

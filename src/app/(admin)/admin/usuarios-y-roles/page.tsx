@@ -7,7 +7,7 @@ import type { Usuario } from "@/lib/mock-usuarios";
 
 function getRolPill(rol: Usuario["rol"]) {
   return (
-    <DataPill variant={rol === "Admin" ? "filled" : "outline"}>
+    <DataPill variant="default">
       {rol === "Admin" ? "ADMIN" : rol}
     </DataPill>
   );

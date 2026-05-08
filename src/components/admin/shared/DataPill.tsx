@@ -2,32 +2,25 @@ import { type ReactNode } from "react";
 
 type DataPillProps = {
   children: ReactNode;
-  variant?: "outline" | "filled" | "danger" | "secondary";
-  size?: "sm" | "lg";
+  variant?: "default" | "subtle";
   className?: string;
 };
 
 export function DataPill({
   children,
-  variant = "outline",
-  size = "sm",
+  variant = "default",
   className = "",
 }: DataPillProps) {
-  const height = size === "lg" ? "h-[28px]" : "h-[24px]";
-  const text = size === "lg" ? "text-sm" : "text-xs";
-
   const variantClasses = {
-    outline: "border border-admin-ink bg-white text-admin-ink",
-    filled: "bg-admin-ink text-white border border-admin-ink",
-    danger: "border border-[#E85A4F] bg-white text-[#E85A4F]",
-    secondary: "border border-border-default bg-white text-text-secondary",
+    default: "border border-admin-ink bg-white text-admin-ink",
+    subtle: "border border-admin-ink bg-transparent text-admin-ink",
   }[variant];
 
   return (
     <div
-      className={`inline-flex ${height} items-center rounded-[3.5px] px-2 outline outline-2 outline-fuchsia-500 ${variantClasses} ${className}`}
+      className={`inline-flex h-[20px] items-center rounded-[3.5px] px-2 ${variantClasses} ${className}`}
     >
-      <span className={`font-ui ${text} font-medium whitespace-nowrap`}>
+      <span className="font-ui text-xs font-medium whitespace-nowrap">
         {children}
       </span>
     </div>

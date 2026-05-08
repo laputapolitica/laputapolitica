@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 
-import { IconEditar, IconR, IconRehacer } from "@/components/admin/icons";
+import { IconEditar, IconRehacer } from "@/components/admin/icons";
 import {
   DataPill,
   TextField,
   IconButton,
   LoadingText,
-  TabSecondary,
+  PanelLayout,
 } from "@/components/admin/shared";
+
+import { Header } from "./Header";
 
 interface TitulosResumenesPanelProps {
   status: "running" | "ready";
@@ -83,7 +85,6 @@ function FuenteIcon() {
 
 export function TitulosResumenesPanel({
   status,
-  onAutorizar,
 }: TitulosResumenesPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [noticias, setNoticias] = useState(mockNoticias);
@@ -110,93 +111,85 @@ export function TitulosResumenesPanel({
   }
 
   return (
-    <div className="w-full font-ui">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <IconR width={20} height={20} color="#35C759" />
-          <DataPill className="h-[22px] text-[11px]">
-            Títulos y Resúmenes
-          </DataPill>
-        </div>
+    <PanelLayout
+      header={
+        <Header
+          noticias={noticias}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
+      }
+      legacy={
+        <div className="w-full font-ui">
+          <div className="mb-6 flex flex-col gap-4">
+            <section>
+              <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
+                TÍTULO
+              </span>
+              <div className="flex items-center gap-2">
+                <TextField
+                  value={activeNoticia.titulo}
+                  onSave={(val) => updateActiveNoticia("titulo", val)}
+                />
+                <IconButton
+                  onClick={() =>
+                    navigator.clipboard.writeText(activeNoticia.titulo)
+                  }
+                >
+                  <IconRehacer width={11} height={11} />
+                  Copiar
+                </IconButton>
+                <IconButton onClick={() => {}}>
+                  <IconEditar width={11} height={11} />
+                  Editar
+                </IconButton>
+              </div>
+            </section>
 
-        <button
-          type="button"
-          onClick={onAutorizar}
-          className="flex h-[28px] items-center rounded-[5px] border-2 border-admin-success bg-white px-3 font-ui text-sm font-semibold text-admin-ink"
-        >
-          Autorizar
-        </button>
-      </div>
-
-      <div className="mb-6 flex gap-2">
-        {noticias.map((noticia, index) => (
-          <TabSecondary
-            key={noticia.id}
-            isActive={index === activeIndex}
-            onClick={() => setActiveIndex(index)}
-          >
-            Noticia {String(index + 1).padStart(2, "0")}
-          </TabSecondary>
-        ))}
-      </div>
-
-      <div className="mb-6 flex flex-col gap-4">
-        <section>
-          <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
-            TÍTULO
-          </span>
-          <div className="flex items-center gap-2">
-            <TextField
-              value={activeNoticia.titulo}
-              onSave={(val) => updateActiveNoticia("titulo", val)}
-            />
-            <IconButton onClick={() => navigator.clipboard.writeText(activeNoticia.titulo)}>
-              <IconRehacer width={11} height={11} />
-              Copiar
-            </IconButton>
-            <IconButton onClick={() => {}}>
-              <IconEditar width={11} height={11} />
-              Editar
-            </IconButton>
+            <section>
+              <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
+                RESUMEN
+              </span>
+              <div className="flex items-start gap-2">
+                <TextField
+                  value={activeNoticia.resumen}
+                  onSave={(val) => updateActiveNoticia("resumen", val)}
+                  multiline
+                />
+                <div className="flex flex-col gap-1.5">
+                  <IconButton
+                    onClick={() =>
+                      navigator.clipboard.writeText(activeNoticia.resumen)
+                    }
+                  >
+                    <IconRehacer width={11} height={11} />
+                    Copiar
+                  </IconButton>
+                  <IconButton onClick={() => {}}>
+                    <IconEditar width={11} height={11} />
+                    Editar
+                  </IconButton>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
 
-        <section>
-          <span className="mb-2 block font-ui text-xs font-semibold tracking-wider text-text-secondary">
-            RESUMEN
-          </span>
-          <div className="flex items-start gap-2">
-            <TextField
-              value={activeNoticia.resumen}
-              onSave={(val) => updateActiveNoticia("resumen", val)}
-              multiline
-            />
-            <div className="flex flex-col gap-1.5">
-              <IconButton onClick={() => navigator.clipboard.writeText(activeNoticia.resumen)}>
-                <IconRehacer width={11} height={11} />
-                Copiar
-              </IconButton>
-              <IconButton onClick={() => {}}>
-                <IconEditar width={11} height={11} />
-                Editar
-              </IconButton>
+          <div>
+            <div className="mb-2 flex items-center gap-1.5 font-ui text-sm font-semibold text-admin-ink">
+              <FuenteIcon />
+              Fuentes
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {activeNoticia.fuentes.map((fuente) => (
+                <DataPill key={fuente} variant="subtle">
+                  {fuente}
+                </DataPill>
+              ))}
             </div>
           </div>
-        </section>
-      </div>
-
-      <div>
-        <div className="mb-2 flex items-center gap-1.5 font-ui text-sm font-semibold text-admin-ink">
-          <FuenteIcon />
-          Fuentes
         </div>
-        <div className="flex flex-wrap gap-2">
-          {activeNoticia.fuentes.map((fuente) => (
-            <DataPill key={fuente} variant="secondary">{fuente}</DataPill>
-          ))}
-        </div>
-      </div>
-    </div>
+      }
+    />
   );
 }
 

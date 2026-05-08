@@ -4,6 +4,7 @@ export { AdminButton } from "./AdminButton";
 export { RowCard } from "./RowCard";
 export { SectionPanel } from "./SectionPanel";
 export { TextField } from "./TextField";
+export { TextArea } from "./TextArea";
 export { IconButton } from "./IconButton";
 export { LoadingText, LoadingTextGrid } from "./LoadingText";
 export { PanelLayout } from "./PanelLayout";

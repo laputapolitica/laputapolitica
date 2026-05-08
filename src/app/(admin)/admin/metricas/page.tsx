@@ -35,8 +35,8 @@ function KPICard({ label, valor, descripcion }: { label: string; valor: string; 
 function GraficoParticipacion() {
   return (
     <SectionPanel thick className="flex flex-col gap-1.5">
-      <DataPill size="lg" className="w-fit">Participación por edición</DataPill>
-      <DataPill size="lg" className="w-fit">Opinadores que opinaron sobre el total — últimos 20 días</DataPill>
+      <DataPill className="w-fit">Participación por edición</DataPill>
+      <DataPill className="w-fit">Opinadores que opinaron sobre el total — últimos 20 días</DataPill>
 
       <div className="flex items-center gap-2">
         <div className="inline-flex h-[28px] items-center gap-2 rounded-[6px] border border-admin-ink bg-white px-2">
@@ -99,8 +99,8 @@ function GraficoParticipacion() {
 function GraficoVisitas() {
   return (
     <SectionPanel thick className="flex flex-col gap-1.5">
-      <DataPill size="lg" className="w-fit">Visitas por edición</DataPill>
-      <DataPill size="lg" className="w-fit">Últimas 15 ediciones</DataPill>
+      <DataPill className="w-fit">Visitas por edición</DataPill>
+      <DataPill className="w-fit">Últimas 15 ediciones</DataPill>
 
       <div className="rounded-lg border border-admin-ink bg-white p-3">
         <ResponsiveContainer width="100%" height={120}>
