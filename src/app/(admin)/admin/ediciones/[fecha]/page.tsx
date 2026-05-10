@@ -7,7 +7,8 @@ import { IconAtras, IconWeb } from "@/components/admin/icons";
 import { InterpretacionGeneral } from "@/components/admin/panels/PublicacionPanel/WebChannel/InterpretacionGeneral";
 import { mockEdiciones } from "@/lib/mock-ediciones";
 import { noticias } from "@/components/admin/panels/PublicacionPanel/mocks";
-import { ElPulsoChannel } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel";
+import { OpinadoresEdicionList, OpinadorOpinionView } from "@/components/admin/sections/opinadores";
+import { mockOpinadores } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { getStatusColor } from "@/lib/colors";
 import {
   DataPill,
@@ -257,10 +258,14 @@ export default function EdicionDetallePage() {
           activeSlide === 1 ? <PortadaSlideDetalle /> :
           activeSlide === 7 ? <ClimaSlideDetalle /> :
           <NoticiaSlideDetalle noticiaIndex={activeSlide - 2} />
-        ) : (
-          <ElPulsoChannel
-            selectedOpinador={selectedOpinador}
+        ) : selectedOpinador ? (
+          <OpinadorOpinionView
+            opinador={selectedOpinador}
             noticiaIndex={noticiaIndex}
+          />
+        ) : (
+          <OpinadoresEdicionList
+            opinadores={mockOpinadores}
             onSelect={setSelectedOpinador}
           />
         )}

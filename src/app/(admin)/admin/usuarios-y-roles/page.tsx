@@ -5,22 +5,10 @@ import { mockUsuarios } from "@/lib/mock-usuarios";
 import {
   DataPill,
   AdminButton,
-  RowCard,
-  RowCardCell,
-  RowCardLeft,
-  RowCardRight,
-  RowCardList,
   SectionPanel,
 } from "@/components/admin/shared";
+import { UsuariosList } from "@/components/admin/sections/usuarios";
 import type { Usuario } from "@/lib/mock-usuarios";
-
-function getRolPill(rol: Usuario["rol"]) {
-  return (
-    <RowCardCell>
-      {rol === "Admin" ? "ADMIN" : rol}
-    </RowCardCell>
-  );
-}
 
 export default function AdminUsuariosYRolesPage() {
   const [usuarios] = useState<Usuario[]>(mockUsuarios);
@@ -77,29 +65,7 @@ export default function AdminUsuariosYRolesPage() {
       </SectionPanel>
 
       {/* Sección 2: Lista de usuarios */}
-      <RowCardList>
-        {usuarios.map((usuario) => {
-          const esAdmin = usuario.rol === "Admin";
-          return (
-            <RowCard key={usuario.id}>
-              <RowCardLeft>
-                <RowCardCell>{usuario.nombre}</RowCardCell>
-                <RowCardCell>{usuario.email}</RowCardCell>
-                <RowCardCell>Desde {usuario.fechaDesde}</RowCardCell>
-                {getRolPill(usuario.rol)}
-              </RowCardLeft>
-              <RowCardRight>
-                <AdminButton disabled={esAdmin}>
-                  Cambiar rol
-                </AdminButton>
-                <AdminButton variant={esAdmin ? "default" : "danger"} disabled={esAdmin}>
-                  Eliminar
-                </AdminButton>
-              </RowCardRight>
-            </RowCard>
-          );
-        })}
-      </RowCardList>
+      <UsuariosList usuarios={usuarios} />
     </div>
   );
 }

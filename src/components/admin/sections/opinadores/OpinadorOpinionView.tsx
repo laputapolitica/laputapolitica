@@ -1,15 +1,16 @@
-import type { MockOpinador } from "../types";
-import { mockOpiniones } from "../mocks";
+"use client";
 
-export function ElPulsoDetailView({
-  opinador,
-  noticiaIndex,
-}: {
+import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
+import { mockOpiniones } from "@/components/admin/panels/PublicacionPanel/mocks";
+
+type OpinadorOpinionViewProps = {
   opinador: MockOpinador;
   noticiaIndex: number;
-}) {
+};
+
+export function OpinadorOpinionView({ opinador, noticiaIndex }: OpinadorOpinionViewProps) {
   const opinion = mockOpiniones[noticiaIndex];
-  // Nota: el voto del opinador para esta noticia se muestra en el header del panel,
+  // El voto del opinador para esta noticia se muestra en el header del panel,
   // no acá adentro. Igual lo dejamos referenciado para mantener el shape original.
   void opinador;
 

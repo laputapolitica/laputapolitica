@@ -1,14 +1,5 @@
-import Link from "next/link";
-
 import { PipelineDiagram, mockState } from "@/components/admin";
-import {
-  RatioPill,
-  RowCard,
-  RowCardCell,
-  RowCardLeft,
-  RowCardRight,
-  RowCardList,
-} from "@/components/admin/shared";
+import { EdicionesList } from "@/components/admin/sections/ediciones";
 import { mockEdiciones } from "@/lib/mock-ediciones";
 
 export default function AdminEdicionesPage() {
@@ -20,26 +11,7 @@ export default function AdminEdicionesPage() {
       </div>
 
       {/* Listado de ediciones — scrolleable */}
-      <RowCardList>
-        {mockEdiciones.map((edicion) => (
-          <Link
-            key={edicion.fechaISO}
-            href={`/admin/ediciones/${edicion.fechaISO}`}
-            className="block"
-          >
-            <RowCard className="cursor-pointer transition-colors hover:bg-[#F0EDE6]">
-              <RowCardLeft>
-                <RowCardCell>{edicion.fecha}</RowCardCell>
-                <RowCardCell>{edicion.titulo}</RowCardCell>
-                <RatioPill valor={edicion.opiniones} total={edicion.totalOpinadores} sufijo="opiniones" />
-              </RowCardLeft>
-              <RowCardRight>
-                <RowCardCell>{edicion.horaPublicacion}</RowCardCell>
-              </RowCardRight>
-            </RowCard>
-          </Link>
-        ))}
-      </RowCardList>
+      <EdicionesList ediciones={mockEdiciones} />
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { IconAtras } from "@/components/admin/icons";
-import { ElPulsoDetailView } from "@/components/admin/panels/PublicacionPanel/ElPulsoChannel/DetailView";
 import {
   mockOpinadores,
   mockPendientes,
@@ -16,11 +15,12 @@ import {
   RowCard,
   RowCardCell,
   RowCardLeft,
-  RowCardRight,
   RowCardList,
   RowCardListHeader,
   SectionPanel,
 } from "@/components/admin/shared";
+import { OpinadorOpinionView, OpinadoresList } from "@/components/admin/sections/opinadores";
+import { EdicionesOpinadorList } from "@/components/admin/sections/ediciones";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
@@ -61,23 +61,7 @@ function ListaOpinadores({
       </RowCardListHeader>
 
       {/* Listado scrolleable */}
-      <RowCardList>
-        {mockOpinadores.map((op) => (
-          <RowCard
-            key={op.id}
-            onClick={() => onSelect(op)}
-          >
-            <RowCardLeft>
-              <RowCardCell>{op.nombre}</RowCardCell>
-              <RowCardCell>{op.email}</RowCardCell>
-              <RowCardCell>{op.ciudad}</RowCardCell>
-            </RowCardLeft>
-            <RowCardRight>
-              <RatioPill valor={op.diasParticipados} total={op.totalDias} sufijo="d/o" />
-            </RowCardRight>
-          </RowCard>
-        ))}
-      </RowCardList>
+      <OpinadoresList opinadores={mockOpinadores} onSelect={onSelect} />
     </div>
   );
 }
@@ -125,27 +109,10 @@ function DetalleOpinador({
       </SectionPanel>
 
       {/* Listado de ediciones scrolleable */}
-      <RowCardList>
-        {opinador.ediciones.map((ed) => (
-          <RowCard
-            key={ed.fechaISO}
-            onClick={() => onSelectEdicion({ fecha: ed.fecha, fechaISO: ed.fechaISO, titulo: ed.titulo })}
-          >
-            <RowCardLeft>
-              <RowCardCell>{ed.fecha}</RowCardCell>
-              <RowCardCell>{ed.titulo}</RowCardCell>
-            </RowCardLeft>
-            <RowCardRight>
-              <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
-                ))}
-              </div>
-              <RatioPill valor={ed.completadas} total={ed.total} />
-            </RowCardRight>
-          </RowCard>
-        ))}
-      </RowCardList>
+      <EdicionesOpinadorList
+        ediciones={opinador.ediciones}
+        onSelect={(ed) => onSelectEdicion({ fecha: ed.fecha, fechaISO: ed.fechaISO, titulo: ed.titulo })}
+      />
     </div>
   );
 }
@@ -245,7 +212,7 @@ function OpinionesEnEdicion({
 
       {/* Opinión del opinador en la noticia actual */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <ElPulsoDetailView
+        <OpinadorOpinionView
           opinador={mockOpinadorParaDetalle(opinador)}
           noticiaIndex={noticiaIndex}
         />
@@ -255,7 +222,7 @@ function OpinionesEnEdicion({
 }
 
 // Helper: convierte OpinadorAdmin (de mock-opinadores) al shape de MockOpinador
-// que espera ElPulsoDetailView. Solo necesita los campos básicos.
+// que espera OpinadorOpinionView. Solo necesita los campos básicos.
 function mockOpinadorParaDetalle(op: OpinadorAdmin): MockOpinador {
   return {
     id: op.id,

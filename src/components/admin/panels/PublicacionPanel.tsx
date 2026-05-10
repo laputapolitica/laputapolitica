@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { IconAtras } from "@/components/admin/icons";
 import type { Canal, MockOpinador } from "./PublicacionPanel/types";
-import { canales, mockOpiniones, noticias } from "./PublicacionPanel/mocks";
+import { canales, mockOpiniones, mockOpinadores, noticias } from "./PublicacionPanel/mocks";
 import {
   LoadingTextGrid,
   TabPrimary,
@@ -17,7 +17,7 @@ import { NoticiaSlide } from "./PublicacionPanel/WebChannel/NoticiaSlide";
 import { ClimaSlide } from "./PublicacionPanel/WebChannel/ClimaSlide";
 import { InstagramSlideContent } from "./PublicacionPanel/InstagramChannel";
 import { TwitterSlideContent } from "./PublicacionPanel/TwitterChannel";
-import { ElPulsoChannel } from "./PublicacionPanel/ElPulsoChannel";
+import { OpinadoresEdicionList, OpinadorOpinionView } from "@/components/admin/sections/opinadores";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 
 interface PublicacionPanelProps {
@@ -198,11 +198,17 @@ export function PublicacionPanel({ status, onPublicar }: PublicacionPanelProps) 
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {activeCanal === "elpulso" ? (
-          <ElPulsoChannel
-            selectedOpinador={selectedOpinador}
-            noticiaIndex={noticiaIndex}
-            onSelect={setSelectedOpinador}
-          />
+          selectedOpinador ? (
+            <OpinadorOpinionView
+              opinador={selectedOpinador}
+              noticiaIndex={noticiaIndex}
+            />
+          ) : (
+            <OpinadoresEdicionList
+              opinadores={mockOpinadores}
+              onSelect={setSelectedOpinador}
+            />
+          )
         ) : (
           <SlideContent activeCanal={activeCanal} activeSlide={activeSlide} />
         )}
