@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 import { mockUsuarios } from "@/lib/mock-usuarios";
-import { DataPill, AdminButton, RowCard, SectionPanel } from "@/components/admin/shared";
+import {
+  DataPill,
+  AdminButton,
+  RowCard,
+  RowCardCell,
+  RowCardLeft,
+  RowCardRight,
+  RowCardList,
+  SectionPanel,
+} from "@/components/admin/shared";
 import type { Usuario } from "@/lib/mock-usuarios";
 
 function getRolPill(rol: Usuario["rol"]) {
   return (
-    <DataPill variant="default">
+    <RowCardCell>
       {rol === "Admin" ? "ADMIN" : rol}
-    </DataPill>
+    </RowCardCell>
   );
 }
 
@@ -68,39 +77,29 @@ export default function AdminUsuariosYRolesPage() {
       </SectionPanel>
 
       {/* Sección 2: Lista de usuarios */}
-      <div className="flex flex-col gap-3">
+      <RowCardList>
         {usuarios.map((usuario) => {
           const esAdmin = usuario.rol === "Admin";
           return (
-            <RowCard
-              key={usuario.id}
-            >
-              {/* Nombre */}
-              <DataPill>{usuario.nombre}</DataPill>
-
-              {/* Email */}
-              <DataPill>{usuario.email}</DataPill>
-
-              {/* Fecha */}
-              <DataPill>Desde {usuario.fechaDesde}</DataPill>
-
-              {/* Rol */}
-              {getRolPill(usuario.rol)}
-
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* Acciones */}
-              <AdminButton disabled={esAdmin}>
-                Cambiar rol
-              </AdminButton>
-              <AdminButton variant={esAdmin ? "default" : "danger"} disabled={esAdmin}>
-                Eliminar
-              </AdminButton>
+            <RowCard key={usuario.id}>
+              <RowCardLeft>
+                <RowCardCell>{usuario.nombre}</RowCardCell>
+                <RowCardCell>{usuario.email}</RowCardCell>
+                <RowCardCell>Desde {usuario.fechaDesde}</RowCardCell>
+                {getRolPill(usuario.rol)}
+              </RowCardLeft>
+              <RowCardRight>
+                <AdminButton disabled={esAdmin}>
+                  Cambiar rol
+                </AdminButton>
+                <AdminButton variant={esAdmin ? "default" : "danger"} disabled={esAdmin}>
+                  Eliminar
+                </AdminButton>
+              </RowCardRight>
             </RowCard>
           );
         })}
-      </div>
+      </RowCardList>
     </div>
   );
 }

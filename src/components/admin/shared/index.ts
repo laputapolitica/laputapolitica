@@ -10,3 +10,12 @@ export { LoadingText, LoadingTextGrid } from "./LoadingText";
 export { PanelLayout } from "./PanelLayout";
 export { TabPrimary } from "./TabPrimary";
 export { TabSecondary } from "./TabSecondary";
+export {
+  RowCardList,
+  RowCardListHeader,
+  RowCardHeader,
+  RowCardHeaderCell,
+  RowCardLeft,
+  RowCardRight,
+  RowCardCell,
+} from "./table";

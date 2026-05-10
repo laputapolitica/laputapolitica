@@ -9,7 +9,18 @@ import {
   mockPendientes,
   mockRechazados,
 } from "@/lib/mock-opinadores";
-import { DataPill, RatioPill, AdminButton, RowCard, SectionPanel } from "@/components/admin/shared";
+import {
+  DataPill,
+  RatioPill,
+  AdminButton,
+  RowCard,
+  RowCardCell,
+  RowCardLeft,
+  RowCardRight,
+  RowCardList,
+  RowCardListHeader,
+  SectionPanel,
+} from "@/components/admin/shared";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
@@ -33,7 +44,7 @@ function ListaOpinadores({
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
       {/* Header */}
-      <SectionPanel className="shrink-0 flex items-center justify-between">
+      <RowCardListHeader>
         <DataPill>{mockOpinadores.length} Opinadores</DataPill>
         <div className="flex items-center gap-2">
           <AdminButton variant="default" onClick={onRechazados}>
@@ -47,23 +58,26 @@ function ListaOpinadores({
             Pendientes
           </button>
         </div>
-      </SectionPanel>
+      </RowCardListHeader>
 
       {/* Listado scrolleable */}
-      <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
+      <RowCardList>
         {mockOpinadores.map((op) => (
           <RowCard
             key={op.id}
             onClick={() => onSelect(op)}
           >
-            <DataPill>{op.nombre}</DataPill>
-            <DataPill>{op.email}</DataPill>
-            <DataPill>{op.ciudad}</DataPill>
-            <div className="flex-1" />
-            <RatioPill valor={op.diasParticipados} total={op.totalDias} sufijo="d/o" />
+            <RowCardLeft>
+              <RowCardCell>{op.nombre}</RowCardCell>
+              <RowCardCell>{op.email}</RowCardCell>
+              <RowCardCell>{op.ciudad}</RowCardCell>
+            </RowCardLeft>
+            <RowCardRight>
+              <RatioPill valor={op.diasParticipados} total={op.totalDias} sufijo="d/o" />
+            </RowCardRight>
           </RowCard>
         ))}
-      </div>
+      </RowCardList>
     </div>
   );
 }
@@ -111,24 +125,27 @@ function DetalleOpinador({
       </SectionPanel>
 
       {/* Listado de ediciones scrolleable */}
-      <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
+      <RowCardList>
         {opinador.ediciones.map((ed) => (
           <RowCard
             key={ed.fechaISO}
             onClick={() => onSelectEdicion({ fecha: ed.fecha, fechaISO: ed.fechaISO, titulo: ed.titulo })}
           >
-            <DataPill>{ed.fecha}</DataPill>
-            <DataPill>{ed.titulo}</DataPill>
-            <div className="flex-1" />
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
-              ))}
-            </div>
-            <RatioPill valor={ed.completadas} total={ed.total} />
+            <RowCardLeft>
+              <RowCardCell>{ed.fecha}</RowCardCell>
+              <RowCardCell>{ed.titulo}</RowCardCell>
+            </RowCardLeft>
+            <RowCardRight>
+              <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
+                ))}
+              </div>
+              <RatioPill valor={ed.completadas} total={ed.total} />
+            </RowCardRight>
           </RowCard>
         ))}
-      </div>
+      </RowCardList>
     </div>
   );
 }
@@ -254,7 +271,7 @@ function mockOpinadorParaDetalle(op: OpinadorAdmin): MockOpinador {
 function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) => void; onVolver: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <SectionPanel className="shrink-0 flex items-center justify-between">
+      <RowCardListHeader>
         <button
           type="button"
           onClick={onVolver}
@@ -263,19 +280,21 @@ function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) =>
           Pendientes
         </button>
         <DataPill>{mockPendientes.length} postulaciones</DataPill>
-      </SectionPanel>
-      <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
+      </RowCardListHeader>
+      <RowCardList>
         {mockPendientes.map((p) => (
           <RowCard
             key={p.id}
             onClick={() => onSelect(p)}
           >
-            <DataPill>{p.nombre}</DataPill>
-            <DataPill>{p.email}</DataPill>
-            <DataPill>{p.ciudad}</DataPill>
+            <RowCardLeft>
+              <RowCardCell>{p.nombre}</RowCardCell>
+              <RowCardCell>{p.email}</RowCardCell>
+              <RowCardCell>{p.ciudad}</RowCardCell>
+            </RowCardLeft>
           </RowCard>
         ))}
-      </div>
+      </RowCardList>
     </div>
   );
 }
@@ -283,23 +302,25 @@ function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) =>
 function ListaRechazados({ onVolver }: { onVolver: () => void }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <SectionPanel className="shrink-0 flex items-center justify-between">
+      <RowCardListHeader>
         <AdminButton variant="default" onClick={onVolver}>
           Rechazados
         </AdminButton>
         <DataPill>{mockRechazados.length} rechazados</DataPill>
-      </SectionPanel>
-      <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-3">
+      </RowCardListHeader>
+      <RowCardList>
         {mockRechazados.map((p) => (
           <RowCard
             key={p.id}
           >
-            <DataPill>{p.nombre}</DataPill>
-            <DataPill>{p.email}</DataPill>
-            <DataPill>{p.ciudad}</DataPill>
+            <RowCardLeft>
+              <RowCardCell>{p.nombre}</RowCardCell>
+              <RowCardCell>{p.email}</RowCardCell>
+              <RowCardCell>{p.ciudad}</RowCardCell>
+            </RowCardLeft>
           </RowCard>
         ))}
-      </div>
+      </RowCardList>
     </div>
   );
 }
