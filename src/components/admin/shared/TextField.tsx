@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 type TextFieldProps = {
   value: string;
   onSave?: (newValue: string) => void;
   multiline?: boolean;
   readOnly?: boolean;
+  variant?: "default" | "subtle";
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
+  style?: CSSProperties;
   className?: string;
 };
 
@@ -14,12 +18,29 @@ export function TextField({
   value,
   onSave,
   multiline = false,
+  readOnly = false,
+  variant = "default",
+  isEditing: controlledIsEditing,
+  onEditingChange,
+  style,
   className = "",
 }: TextFieldProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [internalIsEditing, setInternalIsEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [current, setCurrent] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  // Soporta tanto controlado (isEditing prop) como interno
+  const isControlled = controlledIsEditing !== undefined;
+  const isEditing = isControlled ? controlledIsEditing : internalIsEditing;
+
+  function setIsEditing(value: boolean) {
+    if (isControlled) {
+      onEditingChange?.(value);
+    } else {
+      setInternalIsEditing(value);
+    }
+  }
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -43,8 +64,8 @@ export function TextField({
     if (e.key === "Escape") handleCancel();
   }
 
-  // Modo edición
-  if (isEditing) {
+  // Modo edición (solo si NO es readOnly)
+  if (isEditing && !readOnly) {
     return (
       <div className={`flex items-start gap-2 ${className}`}>
         {multiline ? (
@@ -86,27 +107,33 @@ export function TextField({
     );
   }
 
-  // Modo lectura — solo el pill, sin botones
+  // Modo lectura
   if (multiline) {
     return (
       <div
         className={`h-[100px] w-full overflow-y-auto rounded-[4px] border border-admin-ink bg-white px-3 py-2 ${className}`}
+        style={style}
       >
         <p className="font-ui text-sm font-medium text-admin-ink">{current}</p>
       </div>
     );
   }
 
+  const variantClasses = {
+    default: "border border-admin-ink bg-white text-admin-ink",
+    subtle: "border border-admin-ink bg-transparent text-admin-ink",
+  }[variant];
+
   return (
     <div
-      className={`inline-flex h-[28px] items-center rounded-[3.5px] border border-admin-ink bg-white px-2 ${className}`}
+      className={`inline-flex h-[28px] items-center rounded-[3.5px] px-2 ${variantClasses} ${className}`}
+      style={style}
     >
-      <span className="font-ui text-sm font-medium text-admin-ink whitespace-nowrap">
+      <span className="font-ui text-sm font-medium whitespace-nowrap">
         {current}
       </span>
     </div>
   );
 }
 
-// Expone el setter para que el padre pueda activar edición externamente si necesita
 export type { TextFieldProps };

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
@@ -9,6 +10,8 @@ type PortadaContentProps = {
 };
 
 export function PortadaContent({ titulo, onSaveTitulo }: PortadaContentProps) {
+  const [isEditingTitulo, setIsEditingTitulo] = useState(false);
+
   return (
     <div className="flex flex-col gap-6 font-ui">
       {/* TÍTULO */}
@@ -17,8 +20,13 @@ export function PortadaContent({ titulo, onSaveTitulo }: PortadaContentProps) {
           TÍTULO
         </span>
         <div className="flex items-center gap-2">
-          <TextField value={titulo} onSave={onSaveTitulo} />
-          <IconButton onClick={() => {}}>
+          <TextField
+            value={titulo}
+            onSave={onSaveTitulo}
+            isEditing={isEditingTitulo}
+            onEditingChange={setIsEditingTitulo}
+          />
+          <IconButton onClick={() => setIsEditingTitulo(true)}>
             <IconEditar width={11} height={11} />
             Editar
           </IconButton>

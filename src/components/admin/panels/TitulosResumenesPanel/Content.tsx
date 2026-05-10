@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { IconEditar, IconRehacer } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
 
@@ -19,6 +22,15 @@ export function TitulosResumenesContent({
   onSaveTitulo,
   onSaveResumen,
 }: ContentProps) {
+  const [isEditingTitulo, setIsEditingTitulo] = useState(false);
+  const [isEditingResumen, setIsEditingResumen] = useState(false);
+
+  // Reset edición cuando cambia la noticia
+  useEffect(() => {
+    setIsEditingTitulo(false);
+    setIsEditingResumen(false);
+  }, [noticia.id]);
+
   return (
     <div className="flex h-full flex-col gap-4 font-ui">
       {/* TÍTULO */}
@@ -27,8 +39,13 @@ export function TitulosResumenesContent({
           TÍTULO
         </span>
         <div className="flex items-center gap-2">
-          <TextField value={noticia.titulo} onSave={onSaveTitulo} />
-          <IconButton onClick={() => {}}>
+          <TextField
+            value={noticia.titulo}
+            onSave={onSaveTitulo}
+            isEditing={isEditingTitulo}
+            onEditingChange={setIsEditingTitulo}
+          />
+          <IconButton onClick={() => setIsEditingTitulo(true)}>
             <IconEditar width={11} height={11} />
             Editar
           </IconButton>
@@ -48,10 +65,12 @@ export function TitulosResumenesContent({
           <TextArea
             value={noticia.resumen}
             onSave={onSaveResumen}
+            isEditing={isEditingResumen}
+            onEditingChange={setIsEditingResumen}
             className="h-[160px]"
           />
           <div className="flex w-fit flex-col items-start gap-1.5">
-            <IconButton onClick={() => {}}>
+            <IconButton onClick={() => setIsEditingResumen(true)}>
               <IconEditar width={11} height={11} />
               Editar
             </IconButton>

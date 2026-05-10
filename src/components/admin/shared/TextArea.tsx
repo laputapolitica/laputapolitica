@@ -7,6 +7,8 @@ type TextAreaProps = {
   onSave?: (newValue: string) => void;
   fullWidth?: boolean;
   readOnly?: boolean;
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
   className?: string;
 };
 
@@ -15,12 +17,25 @@ export function TextArea({
   onSave,
   fullWidth = false,
   readOnly = false,
+  isEditing: controlledIsEditing,
+  onEditingChange,
   className = "",
 }: TextAreaProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [internalIsEditing, setInternalIsEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [current, setCurrent] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const isControlled = controlledIsEditing !== undefined;
+  const isEditing = isControlled ? controlledIsEditing : internalIsEditing;
+
+  function setIsEditing(value: boolean) {
+    if (isControlled) {
+      onEditingChange?.(value);
+    } else {
+      setInternalIsEditing(value);
+    }
+  }
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -45,7 +60,7 @@ export function TextArea({
 
   const widthClass = fullWidth ? "w-full" : "w-[480px]";
 
-  if (isEditing) {
+  if (isEditing && !readOnly) {
     return (
       <div className="flex items-start gap-2">
         <textarea
