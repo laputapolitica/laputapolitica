@@ -48,26 +48,33 @@ function SlideContent({
 export function PublicacionContent({ state, onChange }: PublicacionContentProps) {
   const { activeCanal, activeSlide, selectedOpinador, noticiaIndex } = state;
 
-  function setSelectedOpinador(opinador: MockOpinador) {
+  function setSelectedOpinador(opinador: MockOpinador | null) {
     onChange({ ...state, selectedOpinador: opinador });
   }
 
-  if (activeCanal === "elpulso") {
-    if (selectedOpinador) {
-      return (
-        <OpinadorOpinionView
-          opinador={selectedOpinador}
-          noticiaIndex={noticiaIndex}
-        />
-      );
-    }
-    return (
-      <OpinadoresEdicionList
-        opinadores={mockOpinadores}
-        onSelect={setSelectedOpinador}
-      />
-    );
+  function setNoticiaIndex(index: number) {
+    onChange({ ...state, noticiaIndex: index });
   }
 
-  return <SlideContent activeCanal={activeCanal} activeSlide={activeSlide} />;
+  return (
+    <div className="h-full min-h-0 overflow-y-auto">
+      {activeCanal === "elpulso" ? (
+        selectedOpinador ? (
+          <OpinadorOpinionView
+            opinador={selectedOpinador}
+            noticiaIndex={noticiaIndex}
+            onNoticiaIndexChange={setNoticiaIndex}
+            onBack={() => setSelectedOpinador(null)}
+          />
+        ) : (
+          <OpinadoresEdicionList
+            opinadores={mockOpinadores}
+            onSelect={setSelectedOpinador}
+          />
+        )
+      ) : (
+        <SlideContent activeCanal={activeCanal} activeSlide={activeSlide} />
+      )}
+    </div>
+  );
 }

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
-import { EditButton } from "../shared/ActionButtons";
+import { IconEditar, IconRehacer } from "@/components/admin/icons";
+import { IconButton, TextArea, TextField } from "@/components/admin/shared";
 import { InterpretacionGeneral } from "./InterpretacionGeneral";
 import type { NoticiaPublicacion } from "../types";
 
@@ -13,58 +14,64 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div>
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-              TÍTULO NOTICIA
-            </span>
-            <EditButton />
+      {/* Columna izquierda: noticia */}
+      <div className="flex flex-col gap-4">
+        {/* TÍTULO NOTICIA */}
+        <section className="flex flex-col gap-2">
+          <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            TÍTULO NOTICIA
+          </span>
+          <div className="flex items-center gap-2">
+            <TextField value={titulo} onSave={setTitulo} />
+            <IconButton onClick={() => {}}>
+              <IconEditar width={11} height={11} />
+              Editar
+            </IconButton>
           </div>
-          <input
-            type="text"
-            value={titulo}
-            onChange={(event) => setTitulo(event.target.value)}
-            className="w-full rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
-          />
-        </div>
+        </section>
 
-        <div className="mt-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-              RESUMEN
-            </span>
-            <EditButton />
+        {/* RESUMEN */}
+        <section className="flex flex-col gap-2">
+          <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            RESUMEN
+          </span>
+          <div className="flex items-start gap-2">
+            <TextArea value={resumen} onSave={setResumen} fullWidth className="h-[130px]" />
+            <div className="flex w-fit flex-col items-start gap-1.5">
+              <IconButton onClick={() => {}}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+            </div>
           </div>
-          <textarea
-            value={resumen}
-            onChange={(event) => setResumen(event.target.value)}
-            className="min-h-[130px] w-full resize-none rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
-          />
-        </div>
+        </section>
       </div>
 
-      <div>
-        <div>
-          <div className="mb-4">
-            <ElPulsoLogo className="block" width={80} height={20} />
+      {/* Columna derecha: El Pulso */}
+      <div className="flex flex-col gap-4">
+        {/* RESUMEN DE EL PULSO */}
+        <section className="flex flex-col gap-2">
+          <ElPulsoLogo className="block" width={80} height={20} />
+          <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            RESUMEN DE EL PULSO
+          </span>
+          <div className="flex items-start gap-2">
+            <TextArea value={pulso} onSave={setPulso} fullWidth className="h-[130px]" />
+            <div className="flex w-fit flex-col items-start gap-1.5">
+              <IconButton onClick={() => {}}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+              <IconButton onClick={() => {}}>
+                <IconRehacer width={11} height={11} />
+                Rehacer
+              </IconButton>
+            </div>
           </div>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
-              RESUMEN DE EL PULSO
-            </p>
-            <EditButton />
-          </div>
-          <textarea
-            value={pulso}
-            onChange={(event) => setPulso(event.target.value)}
-            className="min-h-[130px] w-full resize-none rounded-[4px] border border-admin-ink bg-white px-3 py-2 font-ui text-sm font-medium text-admin-ink outline-none"
-          />
-        </div>
+        </section>
 
-        <div className="mt-4">
-          <InterpretacionGeneral interpretacion={noticia.interpretacion} />
-        </div>
+        {/* INTERPRETACIÓN GENERAL */}
+        <InterpretacionGeneral interpretacion={noticia.interpretacion} />
       </div>
     </div>
   );

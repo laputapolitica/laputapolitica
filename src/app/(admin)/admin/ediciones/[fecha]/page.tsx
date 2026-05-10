@@ -262,6 +262,8 @@ export default function EdicionDetallePage() {
           <OpinadorOpinionView
             opinador={selectedOpinador}
             noticiaIndex={noticiaIndex}
+            onNoticiaIndexChange={setNoticiaIndex}
+            onBack={() => setSelectedOpinador(null)}
           />
         ) : (
           <OpinadoresEdicionList

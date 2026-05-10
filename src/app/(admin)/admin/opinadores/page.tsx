@@ -215,6 +215,8 @@ function OpinionesEnEdicion({
         <OpinadorOpinionView
           opinador={mockOpinadorParaDetalle(opinador)}
           noticiaIndex={noticiaIndex}
+          onNoticiaIndexChange={setNoticiaIndex}
+          onBack={onBack}
         />
       </div>
     </div>
