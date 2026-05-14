@@ -45,14 +45,20 @@ export function TitulosResumenesContent({
             isEditing={isEditingTitulo}
             onEditingChange={setIsEditingTitulo}
           />
-          <IconButton onClick={() => setIsEditingTitulo(true)}>
-            <IconEditar width={11} height={11} />
-            Editar
-          </IconButton>
-          <IconButton onClick={() => navigator.clipboard.writeText(noticia.titulo)}>
-            <IconRehacer width={11} height={11} />
-            Rehacer
-          </IconButton>
+          {!isEditingTitulo && (
+            <>
+              <IconButton onClick={() => setIsEditingTitulo(true)}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+              <IconButton
+                onClick={() => navigator.clipboard.writeText(noticia.titulo)}
+              >
+                <IconRehacer width={11} height={11} />
+                Rehacer
+              </IconButton>
+            </>
+          )}
         </div>
       </section>
 
@@ -69,18 +75,20 @@ export function TitulosResumenesContent({
             onEditingChange={setIsEditingResumen}
             className="h-[160px]"
           />
-          <div className="flex w-fit flex-col items-start gap-1.5">
-            <IconButton onClick={() => setIsEditingResumen(true)}>
-              <IconEditar width={11} height={11} />
-              Editar
-            </IconButton>
-            <IconButton
-              onClick={() => navigator.clipboard.writeText(noticia.resumen)}
-            >
-              <IconRehacer width={11} height={11} />
-              Rehacer
-            </IconButton>
-          </div>
+          {!isEditingResumen && (
+            <div className="flex w-fit flex-col items-start gap-1.5">
+              <IconButton onClick={() => setIsEditingResumen(true)}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+              <IconButton
+                onClick={() => navigator.clipboard.writeText(noticia.resumen)}
+              >
+                <IconRehacer width={11} height={11} />
+                Rehacer
+              </IconButton>
+            </div>
+          )}
         </div>
       </section>
 

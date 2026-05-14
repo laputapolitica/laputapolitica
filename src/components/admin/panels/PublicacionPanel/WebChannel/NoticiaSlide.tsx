@@ -42,10 +42,12 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
               isEditing={isEditingTitulo}
               onEditingChange={setIsEditingTitulo}
             />
-            <IconButton onClick={() => setIsEditingTitulo(true)}>
-              <IconEditar width={11} height={11} />
-              Editar
-            </IconButton>
+            {!isEditingTitulo && (
+              <IconButton onClick={() => setIsEditingTitulo(true)}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+            )}
           </div>
         </section>
 
@@ -63,12 +65,14 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
               fullWidth
               className="h-[130px]"
             />
-            <div className="flex w-fit flex-col items-start gap-1.5">
-              <IconButton onClick={() => setIsEditingResumen(true)}>
-                <IconEditar width={11} height={11} />
-                Editar
-              </IconButton>
-            </div>
+            {!isEditingResumen && (
+              <div className="flex w-fit flex-col items-start gap-1.5">
+                <IconButton onClick={() => setIsEditingResumen(true)}>
+                  <IconEditar width={11} height={11} />
+                  Editar
+                </IconButton>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -90,16 +94,18 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
               fullWidth
               className="h-[130px]"
             />
-            <div className="flex w-fit flex-col items-start gap-1.5">
-              <IconButton onClick={() => setIsEditingPulso(true)}>
-                <IconEditar width={11} height={11} />
-                Editar
-              </IconButton>
-              <IconButton onClick={() => {}}>
-                <IconRehacer width={11} height={11} />
-                Rehacer
-              </IconButton>
-            </div>
+            {!isEditingPulso && (
+              <div className="flex w-fit flex-col items-start gap-1.5">
+                <IconButton onClick={() => setIsEditingPulso(true)}>
+                  <IconEditar width={11} height={11} />
+                  Editar
+                </IconButton>
+                <IconButton onClick={() => {}}>
+                  <IconRehacer width={11} height={11} />
+                  Rehacer
+                </IconButton>
+              </div>
+            )}
           </div>
         </section>
 
