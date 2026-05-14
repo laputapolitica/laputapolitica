@@ -62,13 +62,13 @@ export function TextArea({
 
   if (isEditing && !readOnly) {
     return (
-      <div className="flex items-start gap-2">
+      <div className="flex w-full min-w-0 items-start gap-2">
         <textarea
           ref={inputRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
-          className={`${widthClass} h-[80px] resize-none rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none ${className}`}
+          className={`min-h-[200px] min-w-0 w-full resize-y rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none ${className}`}
         />
         <div className="flex shrink-0 flex-col gap-1.5">
           <button

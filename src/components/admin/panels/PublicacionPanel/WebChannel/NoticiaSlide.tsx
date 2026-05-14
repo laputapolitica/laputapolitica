@@ -27,11 +27,11 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
   }, [noticia]);
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid min-w-0 grid-cols-2 gap-4">
       {/* Columna izquierda: noticia */}
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         {/* TÍTULO NOTICIA */}
-        <section className="flex flex-col gap-2">
+        <section className="flex min-w-0 flex-col gap-2">
           <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
             TÍTULO NOTICIA
           </span>
@@ -54,7 +54,7 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
           <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
             RESUMEN
           </span>
-          <div className="flex items-start gap-2">
+          <div className="flex min-w-0 items-start gap-2">
             <TextArea
               value={resumen}
               onSave={setResumen}
@@ -74,14 +74,14 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
       </div>
 
       {/* Columna derecha: El Pulso */}
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         {/* RESUMEN DE EL PULSO */}
-        <section className="flex flex-col gap-2">
+        <section className="flex min-w-0 flex-col gap-2">
           <ElPulsoLogo className="block" width={80} height={20} />
           <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
             RESUMEN DE EL PULSO
           </span>
-          <div className="flex items-start gap-2">
+          <div className="flex min-w-0 items-start gap-2">
             <TextArea
               value={pulso}
               onSave={setPulso}

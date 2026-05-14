@@ -32,13 +32,13 @@ export function TitulosResumenesContent({
   }, [noticia.id]);
 
   return (
-    <div className="flex h-full flex-col gap-4 font-ui">
+    <div className="flex h-full min-w-0 flex-col gap-4 font-ui">
       {/* TÍTULO */}
-      <section className="flex flex-col gap-2">
+      <section className="flex min-w-0 flex-col gap-2">
         <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
           TÍTULO
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <TextField
             value={noticia.titulo}
             onSave={onSaveTitulo}

@@ -67,7 +67,7 @@ export function TextField({
   // Modo edición (solo si NO es readOnly)
   if (isEditing && !readOnly) {
     return (
-      <div className={`flex items-start gap-2 ${className}`}>
+      <div className={`flex w-full min-w-0 items-start gap-2 ${className}`}>
         {multiline ? (
           <textarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
@@ -83,8 +83,7 @@ export function TextField({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="h-[28px] rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-sm font-medium text-admin-ink outline-none"
-            style={{ width: `${Math.max(draft.length + 4, 20)}ch` }}
+            className="h-[28px] min-w-0 w-full rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-sm font-medium text-admin-ink outline-none"
           />
         )}
         <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
