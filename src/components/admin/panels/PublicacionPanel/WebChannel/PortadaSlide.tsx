@@ -22,10 +22,12 @@ export function PortadaSlide() {
             isEditing={isEditingTitulo}
             onEditingChange={setIsEditingTitulo}
           />
-          <IconButton onClick={() => setIsEditingTitulo(true)}>
-            <IconEditar width={11} height={11} />
-            Editar
-          </IconButton>
+          {!isEditingTitulo && (
+            <IconButton onClick={() => setIsEditingTitulo(true)}>
+              <IconEditar width={11} height={11} />
+              Editar
+            </IconButton>
+          )}
         </div>
       </section>
 

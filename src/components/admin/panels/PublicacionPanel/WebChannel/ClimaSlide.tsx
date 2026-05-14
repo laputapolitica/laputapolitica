@@ -63,10 +63,12 @@ function DiaClima({ dia, min, max }: { dia: string; min: number; max: number }) 
           isEditing={isEditingMin}
           onEditingChange={setIsEditingMin}
         />
-        <IconButton onClick={() => setIsEditingMin(true)}>
-          <IconEditar width={11} height={11} />
-          Editar
-        </IconButton>
+        {!isEditingMin && (
+          <IconButton onClick={() => setIsEditingMin(true)}>
+            <IconEditar width={11} height={11} />
+            Editar
+          </IconButton>
+        )}
       </div>
 
       {/* Max */}
@@ -83,10 +85,12 @@ function DiaClima({ dia, min, max }: { dia: string; min: number; max: number }) 
           isEditing={isEditingMax}
           onEditingChange={setIsEditingMax}
         />
-        <IconButton onClick={() => setIsEditingMax(true)}>
-          <IconEditar width={11} height={11} />
-          Editar
-        </IconButton>
+        {!isEditingMax && (
+          <IconButton onClick={() => setIsEditingMax(true)}>
+            <IconEditar width={11} height={11} />
+            Editar
+          </IconButton>
+        )}
       </div>
     </article>
   );
