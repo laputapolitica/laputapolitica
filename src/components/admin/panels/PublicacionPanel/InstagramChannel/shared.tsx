@@ -13,7 +13,13 @@ export function InstagramEditablePill({ value }: { value: string }) {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="flex w-fit items-center gap-2">
+    <div
+      className={
+        isEditing
+          ? "flex w-full items-center gap-2"
+          : "flex w-fit items-center gap-2"
+      }
+    >
       <TextField
         value={pillValue}
         onSave={setPillValue}
@@ -49,6 +55,7 @@ export function InstagramBulletRow({ bullet }: { bullet: string }) {
           isEditing
           onEditingChange={setIsEditing}
           fullWidth
+          autoResize
         />
       ) : (
         <>

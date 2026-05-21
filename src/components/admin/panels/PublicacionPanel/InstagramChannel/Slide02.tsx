@@ -1,6 +1,5 @@
-import { StaticPillRow } from "../shared/StaticPillRow";
-import { InstagramBulletRows } from "./shared";
 import { noticias } from "../mocks";
+import { InstagramBulletRows, InstagramEditablePill } from "./shared";
 
 export function InstagramSlide02() {
   const noticia = noticias[0];
@@ -14,10 +13,10 @@ export function InstagramSlide02() {
 
   return (
     <div className="space-y-5">
-      <StaticPillRow value="EXPEDIENTE Nº: 2026_080-AR-01" />
-      <StaticPillRow value={noticia.titulo} />
+      <InstagramEditablePill value="EXPEDIENTE Nº: 2026_080-AR-01" />
+      <InstagramEditablePill value={noticia.titulo} />
       <InstagramBulletRows bullets={bullets} />
-      <StaticPillRow value="21 MAR 2026" />
+      <InstagramEditablePill value="21 MAR 2026" />
     </div>
   );
 }

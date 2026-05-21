@@ -7,6 +7,7 @@ type TextAreaProps = {
   onSave?: (newValue: string) => void;
   fullWidth?: boolean;
   readOnly?: boolean;
+  autoResize?: boolean;
   isEditing?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
   className?: string;
@@ -17,6 +18,7 @@ export function TextArea({
   onSave,
   fullWidth = false,
   readOnly = false,
+  autoResize = false,
   isEditing: controlledIsEditing,
   onEditingChange,
   className = "",
@@ -43,6 +45,13 @@ export function TextArea({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (!autoResize || !isEditing || !inputRef.current) return;
+
+    inputRef.current.style.height = "auto";
+    inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+  }, [autoResize, draft, isEditing]);
+
   function handleSave() {
     setCurrent(draft);
     onSave?.(draft);
@@ -59,6 +68,9 @@ export function TextArea({
   }
 
   const widthClass = fullWidth ? "w-full" : "w-[480px]";
+  const editingTextAreaClass = autoResize
+    ? "min-w-0 w-full resize-none overflow-hidden rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none"
+    : "min-h-[200px] min-w-0 w-full resize-y rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none";
 
   if (isEditing && !readOnly) {
     return (
@@ -68,7 +80,7 @@ export function TextArea({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
-          className={`min-h-[200px] min-w-0 w-full resize-y rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none ${className}`}
+          className={`${editingTextAreaClass} ${className}`}
         />
         <div className="flex shrink-0 flex-col gap-1.5">
           <button
