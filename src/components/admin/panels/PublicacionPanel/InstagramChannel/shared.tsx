@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState } from "react";
 import { IconCopiar, IconEditar } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
 
@@ -131,57 +131,39 @@ export function InstagramVoteRow({
 
 export function InstagramTitularRow({ titulo }: { titulo: string }) {
   const [tituloValue, setTituloValue] = useState(titulo.toUpperCase());
-  const [draft, setDraft] = useState(titulo.toUpperCase());
   const [isEditing, setIsEditing] = useState(false);
 
-  function startEditing() {
-    setDraft(tituloValue);
-    setIsEditing(true);
-  }
-
-  function save() {
-    setTituloValue(draft);
-    setIsEditing(false);
-  }
-
-  function cancel() {
-    setDraft(tituloValue);
-    setIsEditing(false);
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") save();
-    if (event.key === "Escape") cancel();
-  }
+  const customStyle = {
+    letterSpacing: "8px",
+    maxWidth: "calc(12 * (1ch + 8px))",
+    wordBreak: "keep-all" as const,
+    overflowWrap: "break-word" as const,
+    whiteSpace: "normal" as const,
+    textTransform: "uppercase" as const,
+    fontFamily:
+      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    boxSizing: "content-box" as const,
+  };
 
   return (
-    <div className="flex w-fit items-start gap-2">
-      {isEditing ? (
-        <input
-          type="text"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value.toUpperCase())}
-          onKeyDown={handleKeyDown}
-          className="w-[14ch] rounded-[4px] border-2 border-admin-ink bg-white px-2 py-1 font-ui text-sm font-medium text-admin-ink outline-none"
-          style={{
-            letterSpacing: "8px",
-            textTransform: "uppercase",
-            wordBreak: "keep-all",
-          }}
-        />
-      ) : (
-        <div className="w-[14ch] rounded-[3.5px] border border-admin-ink bg-white px-2 py-1">
-          <span
-            className="font-ui text-sm font-medium uppercase whitespace-normal leading-normal"
-            style={{ letterSpacing: "8px", wordBreak: "keep-all" }}
-          >
-            {tituloValue}
-          </span>
-        </div>
-      )}
+    <div
+      className={
+        isEditing ? "flex items-start gap-2" : "flex w-fit items-start gap-2"
+      }
+    >
+      <TextField
+        value={tituloValue}
+        onSave={(newValue) => setTituloValue(newValue.toUpperCase())}
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+        wrap
+        multiline
+        autoResize
+        textStyle={customStyle}
+      />
       {!isEditing && (
         <>
-          <IconButton onClick={startEditing}>
+          <IconButton onClick={() => setIsEditing(true)}>
             <IconEditar width={12} height={12} />
             Editar
           </IconButton>
