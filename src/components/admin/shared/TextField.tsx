@@ -8,6 +8,7 @@ type TextFieldProps = {
   multiline?: boolean;
   readOnly?: boolean;
   variant?: "default" | "subtle";
+  wrap?: boolean;
   isEditing?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
   style?: CSSProperties;
@@ -20,6 +21,7 @@ export function TextField({
   multiline = false,
   readOnly = false,
   variant = "default",
+  wrap = false,
   isEditing: controlledIsEditing,
   onEditingChange,
   style,
@@ -122,6 +124,19 @@ export function TextField({
     default: "border border-admin-ink bg-white text-admin-ink",
     subtle: "border border-admin-ink bg-transparent text-admin-ink",
   }[variant];
+
+  if (wrap) {
+    return (
+      <div
+        className={`flex w-full min-h-[28px] items-start rounded-[3.5px] px-2 py-1 ${variantClasses} ${className}`}
+        style={style}
+      >
+        <span className="font-ui text-sm font-medium whitespace-normal leading-snug">
+          {current}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
