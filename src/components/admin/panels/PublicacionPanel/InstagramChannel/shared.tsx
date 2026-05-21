@@ -115,22 +115,12 @@ export function InstagramVoteRow({
           {label}
         </span>
       </div>
-      <TextField
-        value={pxValue}
-        variant="subtle"
-        readOnly
-        style={{ color: borderColor, borderColor }}
-      />
+      <TextField value={pxValue} variant="default" readOnly />
       <IconButton onClick={() => copyToClipboard(pxValue)}>
         <IconCopiar width={12} height={12} />
         Copiar
       </IconButton>
-      <TextField
-        value={percentValue}
-        variant="subtle"
-        readOnly
-        style={{ color: borderColor, borderColor }}
-      />
+      <TextField value={percentValue} variant="default" readOnly />
       <IconButton onClick={() => copyToClipboard(percentValue)}>
         <IconCopiar width={12} height={12} />
         Copiar

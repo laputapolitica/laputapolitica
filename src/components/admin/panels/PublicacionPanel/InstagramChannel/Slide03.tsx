@@ -1,6 +1,10 @@
 import { VOTE_COLORS } from "@/lib/constants";
 import { noticias } from "../mocks";
-import { InstagramBulletRows, InstagramEditablePill, InstagramVoteRow } from "./shared";
+import {
+  InstagramBulletRows,
+  InstagramEditablePill,
+  InstagramVoteRow,
+} from "./shared";
 
 export function InstagramSlide03() {
   const noticia = noticias[0];
@@ -36,7 +40,7 @@ export function InstagramSlide03() {
     <div className="space-y-5">
       <InstagramEditablePill value="ANEXO SOCIAL: 2026_080-AR-01-S" />
       <InstagramBulletRows bullets={bullets} />
-      <div className="inline-flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         {votes.map((vote) => (
           <InstagramVoteRow
             key={vote.label}
