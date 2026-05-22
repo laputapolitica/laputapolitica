@@ -15,7 +15,7 @@ export function RatioPill({
 }: RatioPillProps) {
   return (
     <div
-      className={`inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2 outline outline-2 outline-fuchsia-500 ${className}`}
+      className={`inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2 ${className}`}
     >
       <span className="font-ui text-xs font-semibold text-admin-ink whitespace-nowrap">
         {valor}/{total}{sufijo ? ` ${sufijo}` : ""}

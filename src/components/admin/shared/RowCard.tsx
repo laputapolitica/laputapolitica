@@ -12,7 +12,7 @@ export function RowCard({ children, onClick, className = "" }: RowCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 outline outline-2 outline-fuchsia-500 ${isClickable ? "cursor-pointer transition-colors hover:bg-[#F0EDE6]" : ""} ${className}`}
+      className={`flex items-center gap-2 rounded-lg border border-admin-ink px-3 py-2 ${isClickable ? "cursor-pointer transition-colors hover:bg-[#F0EDE6]" : ""} ${className}`}
     >
       {children}
     </div>
