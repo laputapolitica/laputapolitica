@@ -12,6 +12,7 @@ import {
   DataPill,
   RatioPill,
   AdminButton,
+  PanelLayout,
   RowCard,
   RowCardCell,
   RowCardLeft,
@@ -19,7 +20,10 @@ import {
   RowCardListHeader,
   SectionPanel,
 } from "@/components/admin/shared";
-import { OpinadorOpinionView, OpinadoresList } from "@/components/admin/sections/opinadores";
+import {
+  OpinadorOpinionView,
+  OpinadoresList,
+} from "@/components/admin/sections/opinadores";
 import { EdicionesOpinadorList } from "@/components/admin/sections/ediciones";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
@@ -42,27 +46,26 @@ function ListaOpinadores({
   onRechazados: () => void;
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      {/* Header */}
-      <RowCardListHeader>
-        <DataPill>{mockOpinadores.length} Opinadores</DataPill>
-        <div className="flex items-center gap-2">
-          <AdminButton variant="default" onClick={onRechazados}>
-            Rechazados
-          </AdminButton>
-          <button
-            type="button"
-            onClick={onPendientes}
-            className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
-          >
-            Pendientes
-          </button>
-        </div>
-      </RowCardListHeader>
-
-      {/* Listado scrolleable */}
-      <OpinadoresList opinadores={mockOpinadores} onSelect={onSelect} />
-    </div>
+    <PanelLayout
+      header={
+        <RowCardListHeader>
+          <DataPill>{mockOpinadores.length} Opinadores</DataPill>
+          <div className="flex items-center gap-2">
+            <AdminButton variant="default" onClick={onRechazados}>
+              Rechazados
+            </AdminButton>
+            <button
+              type="button"
+              onClick={onPendientes}
+              className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
+            >
+              Pendientes
+            </button>
+          </div>
+        </RowCardListHeader>
+      }
+      content={<OpinadoresList opinadores={mockOpinadores} onSelect={onSelect} />}
+    />
   );
 }
 
@@ -75,45 +78,58 @@ function DetalleOpinador({
   onSelectEdicion: (ed: EdicionSeleccionada) => void;
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      {/* Header del opinador */}
-      <SectionPanel className="shrink-0 space-y-2">
-        {/* Fila 1: nombre + ratios + eliminar */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-              {opinador.nombre}
+    <PanelLayout
+      header={
+        <SectionPanel className="space-y-2">
+          {/* Fila 1: nombre + ratios + eliminar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                {opinador.nombre}
+              </div>
+              <RatioPill
+                valor={opinador.diasParticipados}
+                total={opinador.totalDias}
+                sufijo="d/o"
+              />
+              <RatioPill
+                valor={opinador.noticiasOpinadas}
+                total={opinador.totalNoticias}
+                sufijo="n/o"
+              />
             </div>
-            <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
-            <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
+            <AdminButton variant="default">Eliminar</AdminButton>
           </div>
-          <AdminButton variant="default">
-            Eliminar
-          </AdminButton>
-        </div>
 
-        {/* Fila 2: email + teléfono */}
-        <div className="flex items-center gap-2">
-          <DataPill>{opinador.email}</DataPill>
-          <DataPill>{opinador.telefono}</DataPill>
-        </div>
-
-        {/* Fila 3: ciudad + edad + fecha de inicio */}
-        <div className="flex items-center justify-between">
+          {/* Fila 2: email + teléfono */}
           <div className="flex items-center gap-2">
-            <DataPill>{opinador.ciudad}</DataPill>
-            <DataPill>{opinador.edad} años</DataPill>
+            <DataPill>{opinador.email}</DataPill>
+            <DataPill>{opinador.telefono}</DataPill>
           </div>
-          <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
-        </div>
-      </SectionPanel>
 
-      {/* Listado de ediciones scrolleable */}
-      <EdicionesOpinadorList
-        ediciones={opinador.ediciones}
-        onSelect={(ed) => onSelectEdicion({ fecha: ed.fecha, fechaISO: ed.fechaISO, titulo: ed.titulo })}
-      />
-    </div>
+          {/* Fila 3: ciudad + edad + fecha de inicio */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <DataPill>{opinador.ciudad}</DataPill>
+              <DataPill>{opinador.edad} años</DataPill>
+            </div>
+            <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
+          </div>
+        </SectionPanel>
+      }
+      content={
+        <EdicionesOpinadorList
+          ediciones={opinador.ediciones}
+          onSelect={(ed) =>
+            onSelectEdicion({
+              fecha: ed.fecha,
+              fechaISO: ed.fechaISO,
+              titulo: ed.titulo,
+            })
+          }
+        />
+      }
+    />
   );
 }
 
@@ -133,93 +149,104 @@ function OpinionesEnEdicion({
   // (En la integración real, esto vendrá de Supabase filtrado por opinador + edición.)
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      {/* Header del opinador (igual que en DetalleOpinador) */}
-      <SectionPanel className="shrink-0 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-              {opinador.nombre}
+    <PanelLayout
+      header={
+        <div className="flex flex-col gap-4">
+          {/* Header del opinador (igual que en DetalleOpinador) */}
+          <SectionPanel className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                  {opinador.nombre}
+                </div>
+                <RatioPill
+                  valor={opinador.diasParticipados}
+                  total={opinador.totalDias}
+                  sufijo="d/o"
+                />
+                <RatioPill
+                  valor={opinador.noticiasOpinadas}
+                  total={opinador.totalNoticias}
+                  sufijo="n/o"
+                />
+              </div>
+              <AdminButton variant="default">Eliminar</AdminButton>
             </div>
-            <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
-            <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
+
+            <div className="flex items-center gap-2">
+              <DataPill>{opinador.email}</DataPill>
+              <DataPill>{opinador.telefono}</DataPill>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <DataPill>{opinador.ciudad}</DataPill>
+                <DataPill>{opinador.edad} años</DataPill>
+              </div>
+              <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
+            </div>
+          </SectionPanel>
+
+          {/* Header de edición seleccionada con navegación */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onBack}
+                className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
+              >
+                <IconAtras width={10} height={10} />
+                Atras
+              </button>
+              <DataPill>{edicion.fecha}</DataPill>
+              <DataPill>{edicion.titulo}</DataPill>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setNoticiaIndex((i) => Math.max(0, i - 1))}
+                disabled={noticiaIndex === 0}
+                className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
+              >
+                <span style={{ paddingBottom: "1px" }}>←</span>
+              </button>
+              <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+                Noticia {noticiaIndex + 1}/5
+              </div>
+              <button
+                type="button"
+                onClick={() => setNoticiaIndex((i) => Math.min(4, i + 1))}
+                disabled={noticiaIndex === 4}
+                className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 4 ? "opacity-30" : ""}`}
+              >
+                <span style={{ paddingBottom: "1px" }}>→</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]"
+                  />
+                ))}
+              </div>
+              <RatioPill valor={5} total={5} />
+            </div>
           </div>
-          <AdminButton variant="default">
-            Eliminar
-          </AdminButton>
         </div>
-
-        <div className="flex items-center gap-2">
-          <DataPill>{opinador.email}</DataPill>
-          <DataPill>{opinador.telefono}</DataPill>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <DataPill>{opinador.ciudad}</DataPill>
-            <DataPill>{opinador.edad} años</DataPill>
-          </div>
-          <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
-        </div>
-      </SectionPanel>
-
-      {/* Header de edición seleccionada con navegación */}
-      <div className="shrink-0 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
-          >
-            <IconAtras width={10} height={10} />
-            Atras
-          </button>
-          <DataPill>{edicion.fecha}</DataPill>
-          <DataPill>{edicion.titulo}</DataPill>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setNoticiaIndex((i) => Math.max(0, i - 1))}
-            disabled={noticiaIndex === 0}
-            className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
-          >
-            <span style={{ paddingBottom: "1px" }}>←</span>
-          </button>
-          <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-            Noticia {noticiaIndex + 1}/5
-          </div>
-          <button
-            type="button"
-            onClick={() => setNoticiaIndex((i) => Math.min(4, i + 1))}
-            disabled={noticiaIndex === 4}
-            className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 4 ? "opacity-30" : ""}`}
-          >
-            <span style={{ paddingBottom: "1px" }}>→</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
-            ))}
-          </div>
-          <RatioPill valor={5} total={5} />
-        </div>
-      </div>
-
-      {/* Opinión del opinador en la noticia actual */}
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      }
+      content={
         <OpinadorOpinionView
           opinador={mockOpinadorParaDetalle(opinador)}
           noticiaIndex={noticiaIndex}
           onNoticiaIndexChange={setNoticiaIndex}
           onBack={onBack}
         />
-      </div>
-    </div>
+      }
+    />
   );
 }
 
@@ -237,113 +264,139 @@ function mockOpinadorParaDetalle(op: OpinadorAdmin): MockOpinador {
   };
 }
 
-function ListaPendientes({ onSelect, onVolver }: { onSelect: (p: Postulacion) => void; onVolver: () => void }) {
+function ListaPendientes({
+  onSelect,
+  onVolver,
+}: {
+  onSelect: (p: Postulacion) => void;
+  onVolver: () => void;
+}) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      <RowCardListHeader>
-        <button
-          type="button"
-          onClick={onVolver}
-          className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
-        >
-          Pendientes
-        </button>
-        <DataPill>{mockPendientes.length} postulaciones</DataPill>
-      </RowCardListHeader>
-      <RowCardList>
-        {mockPendientes.map((p) => (
-          <RowCard
-            key={p.id}
-            onClick={() => onSelect(p)}
+    <PanelLayout
+      header={
+        <RowCardListHeader>
+          <button
+            type="button"
+            onClick={onVolver}
+            className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
           >
-            <RowCardLeft>
-              <RowCardCell>{p.nombre}</RowCardCell>
-              <RowCardCell>{p.email}</RowCardCell>
-              <RowCardCell>{p.ciudad}</RowCardCell>
-            </RowCardLeft>
-          </RowCard>
-        ))}
-      </RowCardList>
-    </div>
+            Pendientes
+          </button>
+          <DataPill>{mockPendientes.length} postulaciones</DataPill>
+        </RowCardListHeader>
+      }
+      content={
+        <RowCardList>
+          {mockPendientes.map((p) => (
+            <RowCard key={p.id} onClick={() => onSelect(p)}>
+              <RowCardLeft>
+                <RowCardCell>{p.nombre}</RowCardCell>
+                <RowCardCell>{p.email}</RowCardCell>
+                <RowCardCell>{p.ciudad}</RowCardCell>
+              </RowCardLeft>
+            </RowCard>
+          ))}
+        </RowCardList>
+      }
+    />
   );
 }
 
 function ListaRechazados({ onVolver }: { onVolver: () => void }) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      <RowCardListHeader>
-        <AdminButton variant="default" onClick={onVolver}>
-          Rechazados
-        </AdminButton>
-        <DataPill>{mockRechazados.length} rechazados</DataPill>
-      </RowCardListHeader>
-      <RowCardList>
-        {mockRechazados.map((p) => (
-          <RowCard
-            key={p.id}
-          >
-            <RowCardLeft>
-              <RowCardCell>{p.nombre}</RowCardCell>
-              <RowCardCell>{p.email}</RowCardCell>
-              <RowCardCell>{p.ciudad}</RowCardCell>
-            </RowCardLeft>
-          </RowCard>
-        ))}
-      </RowCardList>
-    </div>
+    <PanelLayout
+      header={
+        <RowCardListHeader>
+          <AdminButton variant="default" onClick={onVolver}>
+            Rechazados
+          </AdminButton>
+          <DataPill>{mockRechazados.length} rechazados</DataPill>
+        </RowCardListHeader>
+      }
+      content={
+        <RowCardList>
+          {mockRechazados.map((p) => (
+            <RowCard key={p.id}>
+              <RowCardLeft>
+                <RowCardCell>{p.nombre}</RowCardCell>
+                <RowCardCell>{p.email}</RowCardCell>
+                <RowCardCell>{p.ciudad}</RowCardCell>
+              </RowCardLeft>
+            </RowCard>
+          ))}
+        </RowCardList>
+      }
+    />
   );
 }
 
-function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion; onBack: () => void }) {
+function DetallePostulacion({
+  postulacion,
+  onBack,
+}: {
+  postulacion: Postulacion;
+  onBack: () => void;
+}) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      {/* Header */}
-      <SectionPanel className="shrink-0 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-            {postulacion.nombre}
+    <PanelLayout
+      header={
+        <SectionPanel className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+              {postulacion.nombre}
+            </div>
+            <div className="flex items-center gap-2">
+              <AdminButton variant="default" onClick={onBack}>
+                Rechazar
+              </AdminButton>
+              <button
+                type="button"
+                className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#35C759] bg-white px-2 font-ui text-xs font-medium text-[#35C759]"
+              >
+                Aceptar
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <AdminButton variant="default" onClick={onBack}>
-              Rechazar
-            </AdminButton>
-            <button
-              type="button"
-              className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#35C759] bg-white px-2 font-ui text-xs font-medium text-[#35C759]"
-            >
-              Aceptar
-            </button>
+            <DataPill>{postulacion.email}</DataPill>
+            <DataPill>{postulacion.telefono}</DataPill>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <DataPill>{postulacion.ciudad}</DataPill>
+              <DataPill>{postulacion.edad} años</DataPill>
+            </div>
+            <DataPill>
+              Postulacion enviada {postulacion.fechaPostulacion}
+            </DataPill>
+          </div>
+        </SectionPanel>
+      }
+      content={
+        <div className="space-y-3">
+          <DataPill>¿Por qué quiere ser opinador?</DataPill>
+          <div
+            className="rounded-[4px] border border-admin-ink bg-white px-3 py-2"
+            style={{ maxWidth: "480px" }}
+          >
+            <p className="font-ui text-sm font-medium text-admin-ink">
+              {postulacion.motivacion}
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <DataPill>{postulacion.email}</DataPill>
-          <DataPill>{postulacion.telefono}</DataPill>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <DataPill>{postulacion.ciudad}</DataPill>
-            <DataPill>{postulacion.edad} años</DataPill>
-          </div>
-          <DataPill>Postulacion enviada {postulacion.fechaPostulacion}</DataPill>
-        </div>
-      </SectionPanel>
-
-      {/* Motivación */}
-      <div className="min-h-0 flex-1 overflow-y-auto space-y-3">
-        <DataPill>¿Por qué quiere ser opinador?</DataPill>
-        <div className="rounded-[4px] border border-admin-ink bg-white px-3 py-2" style={{ maxWidth: "480px" }}>
-          <p className="font-ui text-sm font-medium text-admin-ink">{postulacion.motivacion}</p>
-        </div>
-      </div>
-    </div>
+      }
+    />
   );
 }
 
 export default function AdminOpinadoresPage() {
   const [vista, setVista] = useState<VistaOpinadores>("lista");
-  const [selectedOpinador, setSelectedOpinador] = useState<OpinadorAdmin | null>(null);
-  const [selectedEdicion, setSelectedEdicion] = useState<EdicionSeleccionada | null>(null);
-  const [selectedPostulacion, setSelectedPostulacion] = useState<Postulacion | null>(null);
+  const [selectedOpinador, setSelectedOpinador] =
+    useState<OpinadorAdmin | null>(null);
+  const [selectedEdicion, setSelectedEdicion] =
+    useState<EdicionSeleccionada | null>(null);
+  const [selectedPostulacion, setSelectedPostulacion] =
+    useState<Postulacion | null>(null);
 
   const searchParams = useSearchParams();
 
@@ -372,11 +425,7 @@ export default function AdminOpinadoresPage() {
   }
 
   if (vista === "rechazados") {
-    return (
-      <ListaRechazados
-        onVolver={() => setVista("lista")}
-      />
-    );
+    return <ListaRechazados onVolver={() => setVista("lista")} />;
   }
 
   if (selectedEdicion && selectedOpinador) {

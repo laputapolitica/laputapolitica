@@ -39,6 +39,7 @@ export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
   onAutorizar?: () => void;
   onPublicar?: () => void;
+  diagramOnly?: boolean;
 };
 
 // ─── MOCK STATES ─────────────────────────────────────────────────
@@ -243,6 +244,7 @@ export function PipelineDiagram({
   pipelineState = mockState,
   onAutorizar,
   onPublicar,
+  diagramOnly = false,
 }: PipelineDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -381,7 +383,7 @@ export function PipelineDiagram({
   return (
     <div
       className={`flex w-full flex-col rounded-lg ${
-        activeReview || isPublicacionRunning ? "bg-admin-ink" : ""
+        !diagramOnly && (activeReview || isPublicacionRunning) ? "bg-admin-ink" : ""
       }`}
     >
       {/* Pipeline */}
@@ -492,7 +494,7 @@ export function PipelineDiagram({
         </div>
       </div>
       {/* Bandeja de revisión activa (sin borde ni fondo propio) */}
-      {activeReview && (
+      {!diagramOnly && activeReview && (
         <div className="flex w-full items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
             <IconR width={20} height={20} color="#FF5C60" />
@@ -512,7 +514,7 @@ export function PipelineDiagram({
         </div>
       )}
       {/* Bandeja de publicación (sin R, botón Publicar) */}
-      {isPublicacionRunning && (
+      {!diagramOnly && isPublicacionRunning && (
         <div className="flex w-full items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
             <div className="inline-flex h-[24px] items-center rounded-[3.5px] border border-admin-ink bg-white px-1.5">

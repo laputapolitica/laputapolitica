@@ -8,7 +8,7 @@ export default function AdminEdicionesPage() {
     <PanelLayout
       header={
         edicionDelDia.enCurso ? (
-          <PipelineDiagram pipelineState={mockState} />
+          <PipelineDiagram pipelineState={mockState} diagramOnly />
         ) : null
       }
       content={<EdicionesList ediciones={mockEdiciones} />}
