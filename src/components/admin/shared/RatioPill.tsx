@@ -1,4 +1,5 @@
 import { getStatusColor } from "@/lib/colors";
+import { RowCardCell } from "./table/RowCardCell";
 
 type RatioPillProps = {
   valor: number;
@@ -14,16 +15,12 @@ export function RatioPill({
   className = "",
 }: RatioPillProps) {
   return (
-    <div
-      className={`inline-flex h-[20px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2 ${className}`}
-    >
-      <span className="font-ui text-xs font-semibold text-admin-ink whitespace-nowrap">
-        {valor}/{total}{sufijo ? ` ${sufijo}` : ""}
-      </span>
+    <RowCardCell className={className}>
+      {valor}/{total}{sufijo ? ` ${sufijo}` : ""}
       <span
         className="h-[8px] w-[8px] rounded-full shrink-0"
         style={{ backgroundColor: getStatusColor(valor, total) }}
       />
-    </div>
+    </RowCardCell>
   );
 }
