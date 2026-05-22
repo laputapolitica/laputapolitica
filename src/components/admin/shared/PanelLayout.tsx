@@ -14,9 +14,9 @@ export function PanelLayout({
   className = "",
 }: PanelLayoutProps) {
   return (
-    <div className={`flex h-full min-h-0 flex-col ${className}`}>
+    <div className={`flex h-full min-h-0 flex-col gap-4 ${className}`}>
       {header && <div className="shrink-0">{header}</div>}
-      {content && <div className="flex-1 min-h-0">{content}</div>}
+      {content && <div className="flex-1 min-h-0 flex flex-col">{content}</div>}
       {legacy && <div className="shrink-0">{legacy}</div>}
     </div>
   );
