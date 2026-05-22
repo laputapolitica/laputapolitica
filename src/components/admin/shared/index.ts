@@ -1,6 +1,7 @@
 export { DataPill } from "./DataPill";
 export { RatioPill } from "./RatioPill";
 export { AdminButton } from "./AdminButton";
+export { HeaderPill } from "./HeaderPill";
 export { RowCard } from "./RowCard";
 export { SectionPanel } from "./SectionPanel";
 export { TextField } from "./TextField";

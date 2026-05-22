@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 type TextFieldProps = {
   value: string;
@@ -14,6 +20,7 @@ type TextFieldProps = {
   onEditingChange?: (isEditing: boolean) => void;
   style?: CSSProperties;
   textStyle?: CSSProperties;
+  endAdornment?: ReactNode;
   className?: string;
 };
 
@@ -29,12 +36,18 @@ export function TextField({
   onEditingChange,
   style,
   textStyle,
+  endAdornment,
   className = "",
 }: TextFieldProps) {
   const [internalIsEditing, setInternalIsEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [current, setCurrent] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setCurrent(value);
+    setDraft(value);
+  }, [value]);
 
   // Soporta tanto controlado (isEditing prop) como interno
   const isControlled = controlledIsEditing !== undefined;
@@ -134,7 +147,7 @@ export function TextField({
   if (wrap) {
     return (
       <div
-        className={`flex w-full min-h-[28px] items-start rounded-[3.5px] px-2 py-1 ${variantClasses} ${className}`}
+        className={`flex w-full min-h-[28px] items-start gap-1.5 rounded-[3.5px] px-2 py-1 ${variantClasses} ${className}`}
         style={style}
       >
         <span
@@ -143,6 +156,7 @@ export function TextField({
         >
           {current}
         </span>
+        {endAdornment}
       </div>
     );
   }
@@ -160,7 +174,7 @@ export function TextField({
 
   return (
     <div
-      className={`inline-flex h-[28px] items-center rounded-[3.5px] px-2 ${variantClasses} ${className}`}
+      className={`inline-flex h-[28px] items-center gap-1.5 rounded-[3.5px] px-2 ${variantClasses} ${className}`}
       style={style}
     >
       <span
@@ -169,6 +183,7 @@ export function TextField({
       >
         {current}
       </span>
+      {endAdornment}
     </div>
   );
 }

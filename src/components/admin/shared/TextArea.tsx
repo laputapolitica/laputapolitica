@@ -28,6 +28,11 @@ export function TextArea({
   const [current, setCurrent] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    setCurrent(value);
+    setDraft(value);
+  }, [value]);
+
   const isControlled = controlledIsEditing !== undefined;
   const isEditing = isControlled ? controlledIsEditing : internalIsEditing;
 

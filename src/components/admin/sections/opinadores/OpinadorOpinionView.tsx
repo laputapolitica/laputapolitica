@@ -3,6 +3,12 @@
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import { mockOpiniones } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { IconAtras } from "@/components/admin/icons";
+import {
+  AdminButton,
+  HeaderPill,
+  TextArea,
+  TextField,
+} from "@/components/admin/shared";
 import { getStatusColor } from "@/lib/colors";
 
 type OpinadorOpinionViewProps = {
@@ -24,51 +30,41 @@ export function OpinadorOpinionView({
 
   return (
     <div className="flex h-full min-h-0 flex-col font-ui">
-      {/* Header interno fijo */}
       <div className="shrink-0 mb-4 flex items-center justify-between">
-        {/* Izquierda: Atrás + Nombre */}
         <div className="flex items-center gap-2">
           {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
-            >
+            <AdminButton onClick={onBack} className="gap-1.5">
               <IconAtras width={10} height={10} />
               Atras
-            </button>
+            </AdminButton>
           )}
-          <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-            {opinador.nombre}
-          </div>
+          <HeaderPill>{opinador.nombre}</HeaderPill>
         </div>
 
-        {/* Centro: navegación de noticias */}
         <div className="flex items-center gap-3">
-          <button
-            type="button"
+          <AdminButton
             onClick={() => onNoticiaIndexChange(Math.max(0, noticiaIndex - 1))}
             disabled={noticiaIndex === 0}
-            className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
           >
-            <span style={{ paddingBottom: "1px" }}>←</span>
-          </button>
-          <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
+            ←
+          </AdminButton>
+          <HeaderPill>
             Noticia {noticiaIndex + 1}/{totalNoticias}
-          </div>
-          <button
-            type="button"
-            onClick={() => onNoticiaIndexChange(Math.min(totalNoticias - 1, noticiaIndex + 1))}
+          </HeaderPill>
+          <AdminButton
+            onClick={() =>
+              onNoticiaIndexChange(
+                Math.min(totalNoticias - 1, noticiaIndex + 1),
+              )
+            }
             disabled={noticiaIndex === totalNoticias - 1}
-            className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === totalNoticias - 1 ? "opacity-30" : ""}`}
           >
-            <span style={{ paddingBottom: "1px" }}>→</span>
-          </button>
+            →
+          </AdminButton>
         </div>
 
-        {/* Derecha: votos + completadas */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+          <HeaderPill>
             {opinador.votos.map((color, i) => (
               <span
                 key={i}
@@ -76,37 +72,43 @@ export function OpinadorOpinionView({
                 style={{ backgroundColor: color ?? "#E5E3DD" }}
               />
             ))}
-          </div>
-          <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-xs font-semibold text-admin-ink">
-              {opinador.completadas}/{totalNoticias}
-            </span>
+          </HeaderPill>
+          <HeaderPill>
+            {opinador.completadas}/{totalNoticias}
             <span
               className="h-[8px] w-[8px] rounded-full"
-              style={{ backgroundColor: getStatusColor(opinador.completadas, totalNoticias) }}
+              style={{
+                backgroundColor: getStatusColor(
+                  opinador.completadas,
+                  totalNoticias,
+                ),
+              }}
             />
-          </div>
+          </HeaderPill>
         </div>
       </div>
 
-      {/* Content scrolleable */}
       <div className="min-h-0 flex-1 overflow-y-auto space-y-4">
-        <div className="inline-flex items-center rounded-[3.5px] border border-admin-ink px-2 py-1">
-          <span className="font-ui text-sm font-medium text-admin-ink">{opinion.noticia}</span>
+        <div>
+          <TextField value={opinion.noticia} variant="subtle" readOnly />
         </div>
-
-        <div className="flex items-start rounded-[3.5px] border border-admin-ink bg-white px-2 py-1" style={{ maxWidth: '480px' }}>
-          <span className="font-ui text-sm font-medium text-admin-ink">{opinion.texto}</span>
+        <div>
+          <TextArea value={opinion.texto} readOnly className="h-[160px]" />
         </div>
-
-        <div className="inline-flex flex-col gap-2">
-          <div className="inline-flex items-center rounded-[3.5px] border border-admin-ink px-2 py-1">
-            <span className="font-ui text-sm font-medium text-admin-ink">Interpretación</span>
-          </div>
-          <div className="inline-flex h-[28px] w-fit items-center gap-2 rounded-[3.5px] border border-admin-ink bg-white px-2">
-            <span className="font-ui text-sm font-medium text-admin-ink">{opinion.interpretacion}</span>
-            <span className="h-[8px] w-[8px] rounded-full" style={{ backgroundColor: opinion.color }} />
-          </div>
+        <div>
+          <TextField value="Interpretación" variant="subtle" readOnly />
+        </div>
+        <div>
+          <TextField
+            value={opinion.interpretacion}
+            readOnly
+            endAdornment={
+              <span
+                className="h-[8px] w-[8px] rounded-full"
+                style={{ backgroundColor: opinion.color }}
+              />
+            }
+          />
         </div>
       </div>
     </div>
