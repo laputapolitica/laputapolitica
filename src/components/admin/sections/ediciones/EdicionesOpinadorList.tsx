@@ -33,11 +33,11 @@ export function EdicionesOpinadorList({ ediciones, onSelect }: EdicionesOpinador
           </RowCardLeft>
           <RowCardRight>
             {/* Dots de votos (placeholder hasta tener data real) */}
-            <div className="inline-flex h-[20px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+            <RowCardCell>
               {Array.from({ length: 5 }).map((_, i) => (
                 <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
               ))}
-            </div>
+            </RowCardCell>
             <RatioPill valor={ed.completadas} total={ed.total} />
           </RowCardRight>
         </RowCard>

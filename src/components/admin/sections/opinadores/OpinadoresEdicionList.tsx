@@ -27,7 +27,7 @@ export function OpinadoresEdicionList({ opinadores, onSelect }: OpinadoresEdicio
           </RowCardLeft>
           <RowCardRight>
             {/* Dots de votos en cada noticia */}
-            <div className="inline-flex h-[20px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
+            <RowCardCell>
               {op.votos.map((color, i) => (
                 <span
                   key={i}
@@ -35,17 +35,15 @@ export function OpinadoresEdicionList({ opinadores, onSelect }: OpinadoresEdicio
                   style={{ backgroundColor: color ?? "#E5E3DD" }}
                 />
               ))}
-            </div>
+            </RowCardCell>
             {/* Completadas/5 con dot de status */}
-            <div className="inline-flex h-[20px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium whitespace-nowrap text-admin-ink">
-                {op.completadas}/5
-              </span>
+            <RowCardCell>
+              {op.completadas}/5
               <span
                 className="h-[8px] w-[8px] rounded-full"
                 style={{ backgroundColor: getStatusColor(op.completadas, 5) }}
               />
-            </div>
+            </RowCardCell>
           </RowCardRight>
         </RowCard>
       ))}

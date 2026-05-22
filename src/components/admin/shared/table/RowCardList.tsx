@@ -9,7 +9,7 @@ type RowCardListProps = {
 
 export function RowCardList({ children, className = "" }: RowCardListProps) {
   return (
-    <div className={`flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto ${className}`}>
+    <div className={`flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto ${className}`}>
       {children}
     </div>
   );
