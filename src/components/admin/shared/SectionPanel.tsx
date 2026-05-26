@@ -8,7 +8,7 @@ type SectionPanelProps = {
 
 export function SectionPanel({
   children,
-  thick = false,
+  thick = true,
   className = "",
 }: SectionPanelProps) {
   const border = thick ? "border-2" : "border";

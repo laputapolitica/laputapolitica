@@ -31,7 +31,7 @@ export function PublicacionHeader({ state, onChange }: PublicacionHeaderProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 pb-4">
+    <div className="flex flex-col gap-2">
       {/* Tabs canales + logo El Pulso */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2">

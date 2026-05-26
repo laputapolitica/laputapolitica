@@ -12,13 +12,13 @@ import {
   DataPill,
   RatioPill,
   AdminButton,
+  HeaderPanel,
   PanelLayout,
   RowCard,
   RowCardCell,
   RowCardLeft,
   RowCardList,
   RowCardListHeader,
-  SectionPanel,
 } from "@/components/admin/shared";
 import {
   OpinadorOpinionView,
@@ -80,7 +80,7 @@ function DetalleOpinador({
   return (
     <PanelLayout
       header={
-        <SectionPanel className="space-y-2">
+        <HeaderPanel>
           {/* Fila 1: nombre + ratios + eliminar */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ function DetalleOpinador({
             </div>
             <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
           </div>
-        </SectionPanel>
+        </HeaderPanel>
       }
       content={
         <EdicionesOpinadorList
@@ -153,7 +153,7 @@ function OpinionesEnEdicion({
       header={
         <div className="flex flex-col gap-4">
           {/* Header del opinador (igual que en DetalleOpinador) */}
-          <SectionPanel className="space-y-2">
+          <HeaderPanel>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
@@ -185,7 +185,7 @@ function OpinionesEnEdicion({
               </div>
               <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
             </div>
-          </SectionPanel>
+          </HeaderPanel>
 
           {/* Header de edición seleccionada con navegación */}
           <div className="flex items-center justify-between">
@@ -340,7 +340,7 @@ function DetallePostulacion({
   return (
     <PanelLayout
       header={
-        <SectionPanel className="space-y-2">
+        <HeaderPanel>
           <div className="flex items-center justify-between">
             <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
               {postulacion.nombre}
@@ -370,7 +370,7 @@ function DetallePostulacion({
               Postulacion enviada {postulacion.fechaPostulacion}
             </DataPill>
           </div>
-        </SectionPanel>
+        </HeaderPanel>
       }
       content={
         <div className="space-y-3">

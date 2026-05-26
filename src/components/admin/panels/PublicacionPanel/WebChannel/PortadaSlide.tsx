@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconBajar, IconEditar } from "@/components/admin/icons";
+import { IconBajar, IconEditar, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
 export function PortadaSlide() {
@@ -42,6 +42,10 @@ export function PortadaSlide() {
             <IconButton onClick={() => {}}>
               <IconBajar width={11} height={11} />
               Descargar
+            </IconButton>
+            <IconButton onClick={() => {}}>
+              <IconSubir width={11} height={11} />
+              Subir portada
             </IconButton>
           </div>
         </div>
