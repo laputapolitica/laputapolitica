@@ -12,6 +12,7 @@ export { LoadingText, LoadingTextGrid } from "./LoadingText";
 export { PanelLayout } from "./PanelLayout";
 export { TabPrimary } from "./TabPrimary";
 export { TabSecondary } from "./TabSecondary";
+export { TitlePill } from "./TitlePill";
 export {
   RowCardList,
   RowCardListHeader,

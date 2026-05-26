@@ -1,5 +1,6 @@
 "use client";
 
+import { type ReactNode } from "react";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 import { mockOpiniones } from "@/components/admin/panels/PublicacionPanel/mocks";
 import { IconAtras } from "@/components/admin/icons";
@@ -17,6 +18,7 @@ type OpinadorOpinionViewProps = {
   onNoticiaIndexChange: (index: number) => void;
   totalNoticias?: number;
   onBack?: () => void;
+  leftHeader?: ReactNode;
 };
 
 export function OpinadorOpinionView({
@@ -25,6 +27,7 @@ export function OpinadorOpinionView({
   onNoticiaIndexChange,
   totalNoticias = 5,
   onBack,
+  leftHeader,
 }: OpinadorOpinionViewProps) {
   const opinion = mockOpiniones[noticiaIndex];
 
@@ -38,7 +41,7 @@ export function OpinadorOpinionView({
               Atras
             </AdminButton>
           )}
-          <HeaderPill>{opinador.nombre}</HeaderPill>
+          {leftHeader ?? <HeaderPill>{opinador.nombre}</HeaderPill>}
         </div>
 
         <div className="flex items-center gap-3">

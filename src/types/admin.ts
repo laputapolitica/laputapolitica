@@ -44,8 +44,7 @@ export type OpinadorAdmin = {
     fecha: string;
     fechaISO: string;
     titulo: string;
-    completadas: number;
-    total: number;
+    votos: (string | null)[];
   }[];
 };
 

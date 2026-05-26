@@ -13,8 +13,7 @@ type EdicionOpinador = {
   fecha: string;
   fechaISO: string;
   titulo: string;
-  completadas: number;
-  total: number;
+  votos: (string | null)[];
 };
 
 type EdicionesOpinadorListProps = {
@@ -32,13 +31,16 @@ export function EdicionesOpinadorList({ ediciones, onSelect }: EdicionesOpinador
             <RowCardCell>{ed.titulo}</RowCardCell>
           </RowCardLeft>
           <RowCardRight>
-            {/* Dots de votos (placeholder hasta tener data real) */}
             <RowCardCell>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]" />
+              {ed.votos.map((color, i) => (
+                <span
+                  key={i}
+                  className="h-[8px] w-[8px] rounded-full"
+                  style={{ backgroundColor: color ?? "#E5E3DD" }}
+                />
               ))}
             </RowCardCell>
-            <RatioPill valor={ed.completadas} total={ed.total} />
+            <RatioPill valor={ed.votos.filter(v => v !== null).length} total={5} />
           </RowCardRight>
         </RowCard>
       ))}

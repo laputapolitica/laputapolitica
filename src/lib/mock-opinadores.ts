@@ -1,8 +1,69 @@
-import { getStatusColor } from "@/lib/colors";
+import {
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_POSITIVO,
+  getStatusColor,
+} from "@/lib/colors";
 export type { OpinadorAdmin, Postulacion } from "@/types/admin";
 import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 export const getParticipacionColor = getStatusColor;
+
+const votosPositivos = [
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_POSITIVO,
+];
+
+const votosMixtos = [
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_NEGATIVO,
+];
+
+const votosConPendiente = [
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_POSITIVO,
+  null,
+];
+
+const votosTensos = [
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_INCIERTO,
+  null,
+  COLOR_VOTO_POSITIVO,
+];
+
+const votosIncompletos = [
+  COLOR_VOTO_INCIERTO,
+  null,
+  COLOR_VOTO_NEGATIVO,
+  null,
+  COLOR_VOTO_POSITIVO,
+];
+
+const votosMinimos = [
+  COLOR_VOTO_POSITIVO,
+  null,
+  null,
+  null,
+  null,
+];
+
+const votosCompletosInciertos = [
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_POSITIVO,
+  COLOR_VOTO_INCIERTO,
+  COLOR_VOTO_NEGATIVO,
+  COLOR_VOTO_POSITIVO,
+];
 
 export const mockOpinadores: OpinadorAdmin[] = [
   {
@@ -18,16 +79,16 @@ export const mockOpinadores: OpinadorAdmin[] = [
     noticiasOpinadas: 84,
     totalNoticias: 185,
     ediciones: [
-      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", completadas: 5, total: 5 },
-      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", completadas: 5, total: 5 },
-      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", completadas: 4, total: 5 },
-      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", completadas: 5, total: 5 },
-      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", completadas: 3, total: 5 },
-      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", completadas: 5, total: 5 },
-      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", completadas: 5, total: 5 },
-      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", completadas: 2, total: 5 },
-      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", completadas: 5, total: 5 },
-      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", completadas: 5, total: 5 },
+      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", votos: votosPositivos },
+      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", votos: votosCompletosInciertos },
+      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", votos: votosConPendiente },
+      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", votos: votosMixtos },
+      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", votos: votosTensos },
+      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", votos: votosPositivos },
+      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", votos: votosMixtos },
+      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", votos: votosIncompletos },
+      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", votos: votosCompletosInciertos },
+      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", votos: votosPositivos },
     ],
   },
   {
@@ -43,16 +104,16 @@ export const mockOpinadores: OpinadorAdmin[] = [
     noticiasOpinadas: 120,
     totalNoticias: 185,
     ediciones: [
-      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", completadas: 5, total: 5 },
-      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", completadas: 5, total: 5 },
-      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", completadas: 5, total: 5 },
-      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", completadas: 4, total: 5 },
-      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", completadas: 5, total: 5 },
-      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", completadas: 5, total: 5 },
-      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", completadas: 5, total: 5 },
-      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", completadas: 5, total: 5 },
-      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", completadas: 5, total: 5 },
-      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", completadas: 5, total: 5 },
+      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", votos: votosCompletosInciertos },
+      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", votos: votosPositivos },
+      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", votos: votosMixtos },
+      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", votos: votosConPendiente },
+      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", votos: votosCompletosInciertos },
+      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", votos: votosMixtos },
+      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", votos: votosPositivos },
+      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", votos: votosCompletosInciertos },
+      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", votos: votosMixtos },
+      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", votos: votosPositivos },
     ],
   },
   {
@@ -68,11 +129,11 @@ export const mockOpinadores: OpinadorAdmin[] = [
     noticiasOpinadas: 45,
     totalNoticias: 185,
     ediciones: [
-      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", completadas: 2, total: 5 },
-      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", completadas: 5, total: 5 },
-      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", completadas: 3, total: 5 },
-      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", completadas: 1, total: 5 },
-      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", completadas: 5, total: 5 },
+      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", votos: votosIncompletos },
+      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", votos: votosMixtos },
+      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", votos: votosTensos },
+      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", votos: votosMinimos },
+      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", votos: votosCompletosInciertos },
     ],
   },
   {
@@ -88,16 +149,16 @@ export const mockOpinadores: OpinadorAdmin[] = [
     noticiasOpinadas: 158,
     totalNoticias: 185,
     ediciones: [
-      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", completadas: 5, total: 5 },
-      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", completadas: 5, total: 5 },
-      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", completadas: 5, total: 5 },
-      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", completadas: 5, total: 5 },
-      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", completadas: 5, total: 5 },
-      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", completadas: 5, total: 5 },
-      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", completadas: 5, total: 5 },
-      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", completadas: 5, total: 5 },
-      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", completadas: 4, total: 5 },
-      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", completadas: 5, total: 5 },
+      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", votos: votosPositivos },
+      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", votos: votosCompletosInciertos },
+      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", votos: votosMixtos },
+      { fecha: "01 MAY 2026", fechaISO: "2026-05-01", titulo: "El Precio del Orden", votos: votosPositivos },
+      { fecha: "30 ABR 2026", fechaISO: "2026-04-30", titulo: "Fuego Cruzado", votos: votosCompletosInciertos },
+      { fecha: "29 ABR 2026", fechaISO: "2026-04-29", titulo: "Sin Red", votos: votosMixtos },
+      { fecha: "28 ABR 2026", fechaISO: "2026-04-28", titulo: "La Hora del Ajuste", votos: votosPositivos },
+      { fecha: "27 ABR 2026", fechaISO: "2026-04-27", titulo: "Pulso Incierto", votos: votosCompletosInciertos },
+      { fecha: "26 ABR 2026", fechaISO: "2026-04-26", titulo: "El Tablero Roto", votos: votosConPendiente },
+      { fecha: "25 ABR 2026", fechaISO: "2026-04-25", titulo: "Tensión en el Margen", votos: votosMixtos },
     ],
   },
   {
@@ -113,9 +174,9 @@ export const mockOpinadores: OpinadorAdmin[] = [
     noticiasOpinadas: 22,
     totalNoticias: 185,
     ediciones: [
-      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", completadas: 1, total: 5 },
-      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", completadas: 5, total: 5 },
-      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", completadas: 2, total: 5 },
+      { fecha: "04 MAY 2026", fechaISO: "2026-05-04", titulo: "Equilibrio Ciego", votos: votosMinimos },
+      { fecha: "03 MAY 2026", fechaISO: "2026-05-03", titulo: "La Línea del Frente", votos: votosPositivos },
+      { fecha: "02 MAY 2026", fechaISO: "2026-05-02", titulo: "Manos Atadas", votos: votosIncompletos },
     ],
   },
 ];

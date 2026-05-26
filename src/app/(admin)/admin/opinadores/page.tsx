@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { IconAtras } from "@/components/admin/icons";
 import {
   mockOpinadores,
   mockPendientes,
@@ -11,14 +10,17 @@ import {
 import {
   DataPill,
   RatioPill,
-  AdminButton,
   HeaderPanel,
+  HeaderPill,
   PanelLayout,
   RowCard,
   RowCardCell,
   RowCardLeft,
   RowCardList,
   RowCardListHeader,
+  TextArea,
+  TextField,
+  TitlePill,
 } from "@/components/admin/shared";
 import {
   OpinadorOpinionView,
@@ -49,18 +51,14 @@ function ListaOpinadores({
     <PanelLayout
       header={
         <RowCardListHeader>
-          <DataPill>{mockOpinadores.length} Opinadores</DataPill>
+          <TitlePill>{mockOpinadores.length} Opinadores</TitlePill>
           <div className="flex items-center gap-2">
-            <AdminButton variant="default" onClick={onRechazados}>
+            <TitlePill onClick={onRechazados} borderColor="#FF5C60">
               Rechazados
-            </AdminButton>
-            <button
-              type="button"
-              onClick={onPendientes}
-              className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
-            >
+            </TitlePill>
+            <TitlePill onClick={onPendientes} borderColor="#FAC800">
               Pendientes
-            </button>
+            </TitlePill>
           </div>
         </RowCardListHeader>
       }
@@ -81,12 +79,23 @@ function DetalleOpinador({
     <PanelLayout
       header={
         <HeaderPanel>
-          {/* Fila 1: nombre + ratios + eliminar */}
+          {/* Fila 1: identidad + acción */}
+          <div className="flex items-center justify-between">
+            <TitlePill>{opinador.nombre}</TitlePill>
+            <TitlePill onClick={() => {}} borderColor="#FF5C60">Eliminar</TitlePill>
+          </div>
+
+          {/* Fila 2: contacto + atributos */}
+          <div className="flex items-center gap-2">
+            <DataPill>{opinador.email}</DataPill>
+            <DataPill>{opinador.telefono}</DataPill>
+            <DataPill>{opinador.ciudad}</DataPill>
+            <DataPill>{opinador.edad} años</DataPill>
+          </div>
+
+          {/* Fila 3: métricas + histórico */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-                {opinador.nombre}
-              </div>
               <RatioPill
                 valor={opinador.diasParticipados}
                 total={opinador.totalDias}
@@ -98,22 +107,7 @@ function DetalleOpinador({
                 sufijo="n/o"
               />
             </div>
-            <AdminButton variant="default">Eliminar</AdminButton>
-          </div>
-
-          {/* Fila 2: email + teléfono */}
-          <div className="flex items-center gap-2">
-            <DataPill>{opinador.email}</DataPill>
-            <DataPill>{opinador.telefono}</DataPill>
-          </div>
-
-          {/* Fila 3: ciudad + edad + fecha de inicio */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DataPill>{opinador.ciudad}</DataPill>
-              <DataPill>{opinador.edad} años</DataPill>
-            </div>
-            <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
+            <DataPill>Inicio {opinador.fechaInicio}</DataPill>
           </div>
         </HeaderPanel>
       }
@@ -144,122 +138,69 @@ function OpinionesEnEdicion({
 }) {
   const [noticiaIndex, setNoticiaIndex] = useState(0);
 
-  // Mock: el opinador opinó sobre las 5 noticias de la edición.
-  // Reutilizamos mockOpiniones de PublicacionPanel para no duplicar contenido.
-  // (En la integración real, esto vendrá de Supabase filtrado por opinador + edición.)
-
   return (
     <PanelLayout
       header={
-        <div className="flex flex-col gap-4">
-          {/* Header del opinador (igual que en DetalleOpinador) */}
-          <HeaderPanel>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-                  {opinador.nombre}
-                </div>
-                <RatioPill
-                  valor={opinador.diasParticipados}
-                  total={opinador.totalDias}
-                  sufijo="d/o"
-                />
-                <RatioPill
-                  valor={opinador.noticiasOpinadas}
-                  total={opinador.totalNoticias}
-                  sufijo="n/o"
-                />
-              </div>
-              <AdminButton variant="default">Eliminar</AdminButton>
-            </div>
+        <HeaderPanel>
+          {/* Fila 1: identidad + acción */}
+          <div className="flex items-center justify-between">
+            <TitlePill>{opinador.nombre}</TitlePill>
+            <TitlePill onClick={() => {}} borderColor="#FF5C60">Eliminar</TitlePill>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <DataPill>{opinador.email}</DataPill>
-              <DataPill>{opinador.telefono}</DataPill>
-            </div>
+          {/* Fila 2: contacto + atributos */}
+          <div className="flex items-center gap-2">
+            <DataPill>{opinador.email}</DataPill>
+            <DataPill>{opinador.telefono}</DataPill>
+            <DataPill>{opinador.ciudad}</DataPill>
+            <DataPill>{opinador.edad} años</DataPill>
+          </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <DataPill>{opinador.ciudad}</DataPill>
-                <DataPill>{opinador.edad} años</DataPill>
-              </div>
-              <DataPill>Fecha de inicio {opinador.fechaInicio}</DataPill>
-            </div>
-          </HeaderPanel>
-
-          {/* Header de edición seleccionada con navegación */}
+          {/* Fila 3: métricas + histórico */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onBack}
-                className="inline-flex h-[24px] cursor-pointer items-center gap-1.5 rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink"
-              >
-                <IconAtras width={10} height={10} />
-                Atras
-              </button>
-              <DataPill>{edicion.fecha}</DataPill>
-              <DataPill>{edicion.titulo}</DataPill>
+              <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
+              <RatioPill valor={opinador.noticiasOpinadas} total={opinador.totalNoticias} sufijo="n/o" />
             </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setNoticiaIndex((i) => Math.max(0, i - 1))}
-                disabled={noticiaIndex === 0}
-                className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 0 ? "opacity-30" : ""}`}
-              >
-                <span style={{ paddingBottom: "1px" }}>←</span>
-              </button>
-              <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-                Noticia {noticiaIndex + 1}/5
-              </div>
-              <button
-                type="button"
-                onClick={() => setNoticiaIndex((i) => Math.min(4, i + 1))}
-                disabled={noticiaIndex === 4}
-                className={`cursor-pointer inline-flex h-[24px] items-center rounded-[4px] border border-admin-ink bg-white px-3 font-ui text-sm font-medium text-admin-ink ${noticiaIndex === 4 ? "opacity-30" : ""}`}
-              >
-                <span style={{ paddingBottom: "1px" }}>→</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="h-[8px] w-[8px] rounded-full bg-[#E5E3DD]"
-                  />
-                ))}
-              </div>
-              <RatioPill valor={5} total={5} />
-            </div>
+            <DataPill>Inicio {opinador.fechaInicio}</DataPill>
           </div>
-        </div>
+        </HeaderPanel>
       }
       content={
         <OpinadorOpinionView
-          opinador={mockOpinadorParaDetalle(opinador)}
+          opinador={mockOpinadorParaDetalle(opinador, edicion)}
           noticiaIndex={noticiaIndex}
           onNoticiaIndexChange={setNoticiaIndex}
           onBack={onBack}
+          leftHeader={
+            <>
+              <HeaderPill>{edicion.fecha}</HeaderPill>
+              <HeaderPill>{edicion.titulo}</HeaderPill>
+            </>
+          }
         />
       }
     />
   );
 }
 
-// Helper: convierte OpinadorAdmin (de mock-opinadores) al shape de MockOpinador
-// que espera OpinadorOpinionView. Solo necesita los campos básicos.
-function mockOpinadorParaDetalle(op: OpinadorAdmin): MockOpinador {
+function mockOpinadorParaDetalle(
+  op: OpinadorAdmin,
+  edicion?: EdicionSeleccionada
+): MockOpinador {
+  const edicionData = edicion
+    ? op.ediciones.find(e => e.fechaISO === edicion.fechaISO)
+    : undefined;
+  const votos = edicionData?.votos ?? [];
+  const completadas = votos.filter(v => v !== null).length;
+
   return {
     id: op.id,
     nombre: op.nombre,
     email: op.email,
     ciudad: op.ciudad,
-    votos: [],
-    completadas: 5,
+    votos,
+    completadas,
     ultimaRespuesta: "00:00",
   };
 }
@@ -275,14 +216,10 @@ function ListaPendientes({
     <PanelLayout
       header={
         <RowCardListHeader>
-          <button
-            type="button"
-            onClick={onVolver}
-            className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#FAC800] bg-white px-2 font-ui text-xs font-medium text-[#FAC800]"
-          >
+          <TitlePill onClick={onVolver} borderColor="#FAC800">
             Pendientes
-          </button>
-          <DataPill>{mockPendientes.length} postulaciones</DataPill>
+          </TitlePill>
+          <TitlePill>{mockPendientes.length} postulaciones</TitlePill>
         </RowCardListHeader>
       }
       content={
@@ -307,10 +244,10 @@ function ListaRechazados({ onVolver }: { onVolver: () => void }) {
     <PanelLayout
       header={
         <RowCardListHeader>
-          <AdminButton variant="default" onClick={onVolver}>
+          <TitlePill onClick={onVolver} borderColor="#FF5C60">
             Rechazados
-          </AdminButton>
-          <DataPill>{mockRechazados.length} rechazados</DataPill>
+          </TitlePill>
+          <TitlePill>{mockRechazados.length} rechazados</TitlePill>
         </RowCardListHeader>
       }
       content={
@@ -330,58 +267,39 @@ function ListaRechazados({ onVolver }: { onVolver: () => void }) {
   );
 }
 
-function DetallePostulacion({
-  postulacion,
-  onBack,
-}: {
-  postulacion: Postulacion;
-  onBack: () => void;
-}) {
+function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion; onBack: () => void }) {
   return (
     <PanelLayout
       header={
         <HeaderPanel>
+          {/* Fila 1: identidad + acciones */}
           <div className="flex items-center justify-between">
-            <div className="inline-flex h-[24px] items-center rounded-[3.5px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-              {postulacion.nombre}
-            </div>
+            <TitlePill>{postulacion.nombre}</TitlePill>
             <div className="flex items-center gap-2">
-              <AdminButton variant="default" onClick={onBack}>
-                Rechazar
-              </AdminButton>
-              <button
-                type="button"
-                className="inline-flex h-[24px] cursor-pointer items-center rounded-[3.5px] border border-[#35C759] bg-white px-2 font-ui text-xs font-medium text-[#35C759]"
-              >
-                Aceptar
-              </button>
+              <TitlePill onClick={onBack} borderColor="#FF5C60">Rechazar</TitlePill>
+              <TitlePill onClick={() => {}} borderColor="#35C759">Aceptar</TitlePill>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <DataPill>{postulacion.email}</DataPill>
-            <DataPill>{postulacion.telefono}</DataPill>
-          </div>
+
+          {/* Fila 2: contacto + atributos + histórico */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <DataPill>{postulacion.email}</DataPill>
+              <DataPill>{postulacion.telefono}</DataPill>
               <DataPill>{postulacion.ciudad}</DataPill>
               <DataPill>{postulacion.edad} años</DataPill>
             </div>
-            <DataPill>
-              Postulacion enviada {postulacion.fechaPostulacion}
-            </DataPill>
+            <DataPill>Postulación enviada {postulacion.fechaPostulacion}</DataPill>
           </div>
         </HeaderPanel>
       }
       content={
-        <div className="space-y-3">
-          <DataPill>¿Por qué quiere ser opinador?</DataPill>
-          <div
-            className="rounded-[4px] border border-admin-ink bg-white px-3 py-2"
-            style={{ maxWidth: "480px" }}
-          >
-            <p className="font-ui text-sm font-medium text-admin-ink">
-              {postulacion.motivacion}
-            </p>
+        <div className="space-y-4">
+          <div>
+            <TextField value="¿Por qué quiere ser opinador?" variant="subtle" readOnly />
+          </div>
+          <div>
+            <TextArea value={postulacion.motivacion} readOnly className="h-[160px]" />
           </div>
         </div>
       }

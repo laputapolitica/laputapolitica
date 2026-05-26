@@ -26,14 +26,18 @@ export function PortadaContent({ titulo, onSaveTitulo }: PortadaContentProps) {
             isEditing={isEditingTitulo}
             onEditingChange={setIsEditingTitulo}
           />
-          <IconButton onClick={() => setIsEditingTitulo(true)}>
-            <IconEditar width={11} height={11} />
-            Editar
-          </IconButton>
-          <IconButton onClick={() => {}}>
-            <IconRehacer width={11} height={11} />
-            Rehacer
-          </IconButton>
+          {!isEditingTitulo && (
+            <>
+              <IconButton onClick={() => setIsEditingTitulo(true)}>
+                <IconEditar width={11} height={11} />
+                Editar
+              </IconButton>
+              <IconButton onClick={() => {}}>
+                <IconRehacer width={11} height={11} />
+                Rehacer
+              </IconButton>
+            </>
+          )}
         </div>
       </section>
 
