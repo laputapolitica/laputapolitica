@@ -20,12 +20,10 @@ export function DataPill({
 
   return (
     <div
-      className={`inline-flex h-[20px] items-center rounded-[3.5px] px-2 ${variantClasses} ${className}`}
+      className={`inline-flex h-[20px] items-center gap-1.5 rounded-[3.5px] px-2 font-ui text-xs font-medium whitespace-nowrap ${variantClasses} ${className}`}
       style={style}
     >
-      <span className="font-ui text-xs font-medium whitespace-nowrap">
-        {children}
-      </span>
+      {children}
     </div>
   );
 }

@@ -18,46 +18,49 @@ import {
   mockEdicionesMasVistas,
 } from "@/lib/mock-metricas";
 import { getSentimientoColor } from "@/lib/colors";
-import { DataPill, SectionPanel } from "@/components/admin/shared";
+import {
+  DataPill,
+  SectionPanel,
+} from "@/components/admin/shared";
 
 function KPICard({ label, valor, descripcion }: { label: string; valor: string; descripcion: string }) {
   return (
-    <SectionPanel thick className="flex flex-col items-start gap-2">
+    <SectionPanel className="flex flex-col items-start gap-2">
       <DataPill>{label}</DataPill>
       <span className="font-ui text-2xl font-semibold leading-none text-admin-ink">
         {valor}
       </span>
-      <DataPill>{descripcion}</DataPill>
+      <DataPill variant="subtle">{descripcion}</DataPill>
     </SectionPanel>
   );
 }
 
 function GraficoParticipacion() {
   return (
-    <SectionPanel thick className="flex flex-col gap-1.5">
+    <SectionPanel className="flex h-full min-h-0 flex-col gap-1.5">
       <DataPill className="w-fit">Participación por edición</DataPill>
-      <DataPill className="w-fit">Opinadores que opinaron sobre el total — últimos 20 días</DataPill>
+      <DataPill variant="subtle" className="w-fit">Opinadores que opinaron sobre el total — últimos 20 días</DataPill>
 
       <div className="flex items-center gap-2">
-        <div className="inline-flex h-[28px] items-center gap-2 rounded-[6px] border border-admin-ink bg-white px-2">
-          <span className="h-[10px] w-[10px] rounded-sm" style={{ backgroundColor: "#A8D5BA" }} />
-          <span className="font-ui text-sm font-medium text-admin-ink">Participaron</span>
-        </div>
-        <div className="inline-flex h-[28px] items-center gap-2 rounded-[6px] border border-admin-ink bg-white px-2">
-          <span className="h-[10px] w-[10px] rounded-sm" style={{ backgroundColor: "#E6A8A1" }} />
-          <span className="font-ui text-sm font-medium text-admin-ink">No Participaron</span>
-        </div>
+        <DataPill variant="subtle">
+          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: "#8EDFA1" }} />
+          Participaron
+        </DataPill>
+        <DataPill variant="subtle">
+          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: "#FFA3A6" }} />
+          No Participaron
+        </DataPill>
       </div>
 
-      <div className="rounded-lg border border-admin-ink bg-white p-3">
-        <ResponsiveContainer width="100%" height={120}>
+      <div className="min-h-[120px] flex-1 rounded-lg border border-admin-ink bg-white p-2">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={mockParticipacion}
-            margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+            margin={{ top: 8, right: 0, left: 0, bottom: 0 }}
             barSize={13}
             barCategoryGap="22%"
           >
-            <CartesianGrid strokeDasharray="0" stroke="#E5E3DD" vertical={false} />
+            <CartesianGrid strokeDasharray="0" stroke="#E5E3DD" vertical={false} syncWithTicks />
             <Tooltip
               contentStyle={{
                 fontFamily: "var(--font-ui)",
@@ -82,13 +85,14 @@ function GraficoParticipacion() {
             <YAxis
               domain={[0, 25]}
               ticks={[0, 5, 10, 15, 20, 25]}
+              interval={0}
               tick={{ fontFamily: "var(--font-ui)", fontSize: 11, fill: "#9A968D" }}
               axisLine={false}
               tickLine={false}
               width={24}
             />
-            <Bar dataKey="participaron" stackId="a" fill="#A8D5BA" radius={0} />
-            <Bar dataKey="noParticiparon" stackId="a" fill="#E6A8A1" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="participaron" stackId="a" fill="#8EDFA1" radius={0} />
+            <Bar dataKey="noParticiparon" stackId="a" fill="#FFA3A6" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -98,15 +102,15 @@ function GraficoParticipacion() {
 
 function GraficoVisitas() {
   return (
-    <SectionPanel thick className="flex flex-col gap-1.5">
+    <SectionPanel className="flex h-full min-h-0 flex-col gap-1.5">
       <DataPill className="w-fit">Visitas por edición</DataPill>
-      <DataPill className="w-fit">Últimas 15 ediciones</DataPill>
+      <DataPill variant="subtle" className="w-fit">Últimas 15 ediciones</DataPill>
 
-      <div className="rounded-lg border border-admin-ink bg-white p-3">
-        <ResponsiveContainer width="100%" height={120}>
+      <div className="min-h-[120px] flex-1 rounded-lg border border-admin-ink bg-white p-2">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={mockVisitas}
-            margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+            margin={{ top: 8, right: 0, left: 0, bottom: 0 }}
           >
             <defs>
               <linearGradient id="visitasGradient" x1="0" y1="0" x2="0" y2="1">
@@ -114,7 +118,7 @@ function GraficoVisitas() {
                 <stop offset="100%" stopColor="#1A1A1A" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="0" stroke="#E5E3DD" vertical={false} />
+            <CartesianGrid strokeDasharray="0" stroke="#E5E3DD" vertical={false} syncWithTicks />
             <XAxis
               dataKey="fecha"
               tick={{ fontFamily: "var(--font-ui)", fontSize: 10, fill: "#9A968D" }}
@@ -127,8 +131,9 @@ function GraficoVisitas() {
               padding={{ left: 12, right: 12 }}
             />
             <YAxis
-              domain={[150, 320]}
-              ticks={[160, 180, 200, 220, 240, 260, 280, 300, 320]}
+              domain={[160, 320]}
+              ticks={[160, 200, 240, 280, 320]}
+              interval={0}
               tick={{ fontFamily: "var(--font-ui)", fontSize: 11, fill: "#9A968D" }}
               axisLine={false}
               tickLine={false}
@@ -161,29 +166,28 @@ function GraficoVisitas() {
 }
 
 function TablaEdicionesMasVistas() {
-  return (
-    <SectionPanel className="flex min-h-0 flex-1 flex-col gap-2 py-2.5">
-      <DataPill className="shrink-0 w-fit">Ediciones más vistas</DataPill>
+  const top3 = mockEdicionesMasVistas.slice(0, 3);
 
-      <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-2">
-        {mockEdicionesMasVistas.map((ed) => (
-          <div
-            key={ed.ranking}
-            className="flex items-center gap-2"
-          >
-            <div className="inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[3.5px] border border-admin-ink bg-white">
-              <span className="font-ui text-xs font-medium text-admin-ink">{ed.ranking}</span>
-            </div>
+  return (
+    <SectionPanel className="flex flex-col gap-2">
+      <DataPill className="w-fit">Ediciones más vistas</DataPill>
+
+      <div className="flex flex-col gap-3">
+        {top3.map((ed) => (
+          <div key={ed.ranking} className="flex items-center gap-1.5">
+            <DataPill variant="subtle" style={{ fontFamily: "ui-monospace, monospace" }}>
+              {ed.ranking}
+            </DataPill>
             <DataPill>{ed.fecha}</DataPill>
             <DataPill>{ed.titulo}</DataPill>
             <DataPill>{ed.opiniones}/{ed.totalOpinadores} opiniones</DataPill>
-            <div className="inline-flex h-[24px] items-center gap-1.5 rounded-[3.5px] border border-admin-ink bg-white px-2">
-              <span className="font-ui text-xs font-medium text-admin-ink">El Pulso</span>
+            <DataPill>
+              El Pulso
               <span
                 className="h-[8px] w-[8px] rounded-full shrink-0"
                 style={{ backgroundColor: getSentimientoColor(ed.pulsoSentimiento) }}
               />
-            </div>
+            </DataPill>
             <div className="flex-1" />
             <DataPill>{ed.visitas} visitas</DataPill>
           </div>
@@ -195,7 +199,7 @@ function TablaEdicionesMasVistas() {
 
 export default function AdminMetricasPage() {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="shrink-0 grid grid-cols-4 gap-3">
         {mockKPIs.map((kpi) => (
           <KPICard
@@ -207,12 +211,14 @@ export default function AdminMetricasPage() {
         ))}
       </div>
 
-      <div className="shrink-0 grid grid-cols-2 gap-3">
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
         <GraficoParticipacion />
         <GraficoVisitas />
       </div>
 
-      <TablaEdicionesMasVistas />
+      <div className="shrink-0">
+        <TablaEdicionesMasVistas />
+      </div>
     </div>
   );
 }
