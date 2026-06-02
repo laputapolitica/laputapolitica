@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 
 type AdminButtonProps = {
   children: ReactNode;
@@ -8,6 +8,7 @@ type AdminButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
+  style?: CSSProperties;
 };
 
 export function AdminButton({
@@ -18,6 +19,7 @@ export function AdminButton({
   onClick,
   type = "button",
   className = "",
+  style,
 }: AdminButtonProps) {
   const height = size === "md" ? "h-[32px]" : "h-[24px]";
   const text = size === "md" ? "text-sm" : "text-xs";
@@ -33,6 +35,7 @@ export function AdminButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      style={style}
       className={`inline-flex ${height} cursor-pointer items-center rounded-[3.5px] px-2 font-ui ${text} font-medium ${variantClasses} ${disabled ? "cursor-not-allowed opacity-30" : ""} ${className}`}
     >
       {children}

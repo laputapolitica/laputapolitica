@@ -1,6 +1,8 @@
 export { DataPill } from "./DataPill";
 export { RatioPill } from "./RatioPill";
 export { AdminButton } from "./AdminButton";
+export { AdminInput } from "./AdminInput";
+export { AdminSelect } from "./AdminSelect";
 export { HeaderPanel } from "./HeaderPanel";
 export { HeaderPill } from "./HeaderPill";
 export { RowCard } from "./RowCard";
@@ -21,4 +23,6 @@ export {
   RowCardLeft,
   RowCardRight,
   RowCardCell,
+  RowCardButton,
+  RowCardSelect,
 } from "./table";

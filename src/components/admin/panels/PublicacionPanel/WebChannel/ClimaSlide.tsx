@@ -2,21 +2,26 @@
 
 import { useState } from "react";
 import { IconEditar } from "@/components/admin/icons";
-import { IconButton, TextField } from "@/components/admin/shared";
+import { AdminSelect, IconButton, TextField } from "@/components/admin/shared";
 import { clima } from "../mocks";
 
 export function ClimaSlide() {
+  const [ciudad, setCiudad] = useState("Buenos Aires");
+
   return (
     <div className="flex flex-col gap-4 font-ui">
       {/* Selector de ciudad */}
-      <div className="relative inline-flex w-fit">
-        <select className="h-[24px] appearance-none rounded-[4px] border border-admin-ink bg-white pl-2 pr-6 font-ui text-xs font-medium text-admin-ink outline-none cursor-pointer">
-          <option>Buenos Aires</option>
-          <option>Córdoba</option>
-          <option>Santa Fe</option>
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-admin-ink text-[10px]">↓</span>
-      </div>
+      <AdminSelect
+        value={ciudad}
+        onChange={setCiudad}
+        size="sm"
+        className="w-fit"
+        options={[
+          { value: "Buenos Aires", label: "Buenos Aires" },
+          { value: "Córdoba", label: "Córdoba" },
+          { value: "Santa Fe", label: "Santa Fe" },
+        ]}
+      />
 
       {/* Días */}
       <div className="flex gap-6 items-start">

@@ -3,62 +3,86 @@
 import { useState } from "react";
 import { mockUsuarios } from "@/lib/mock-usuarios";
 import {
-  DataPill,
   AdminButton,
+  AdminInput,
+  AdminSelect,
+  DataPill,
+  HeaderPanel,
   PanelLayout,
-  SectionPanel,
 } from "@/components/admin/shared";
 import { UsuariosList } from "@/components/admin/sections/usuarios";
 import type { Usuario } from "@/lib/mock-usuarios";
 
 export default function AdminUsuariosYRolesPage() {
   const [usuarios] = useState<Usuario[]>(mockUsuarios);
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [rol, setRol] = useState("");
+
+  // El botón "Enviar invitación" se habilita solo si los 3 campos están llenos
+  const isReady = nombre.trim() !== "" && email.trim() !== "" && rol !== "";
 
   return (
     <PanelLayout
       header={
-        <SectionPanel>
+        <HeaderPanel>
           <div className="flex items-end gap-3">
-            {/* Nombre completo */}
+            {/* Col 1: Nombre completo */}
             <div className="flex flex-col gap-1.5">
-              <DataPill className="w-fit">Nombre completo</DataPill>
-              <input
-                type="text"
+              <DataPill variant="subtle" className="w-fit">Nombre completo</DataPill>
+              <AdminInput
+                value={nombre}
+                onChange={setNombre}
                 placeholder="Juan Perez"
-                className="h-[32px] w-[180px] rounded-[4px] border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink placeholder:text-[#9A968D] outline-none"
+                className="w-[180px]"
               />
             </div>
 
-            {/* Email */}
+            {/* Col 2: Email */}
             <div className="flex flex-col gap-1.5">
-              <DataPill className="w-fit">Email</DataPill>
-              <input
+              <DataPill variant="subtle" className="w-fit">Email</DataPill>
+              <AdminInput
+                value={email}
+                onChange={setEmail}
                 type="email"
                 placeholder="tu@email.com"
-                className="h-[32px] w-[220px] rounded-[4px] border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink placeholder:text-[#9A968D] outline-none"
+                className="w-[220px]"
               />
             </div>
 
-            {/* Rol */}
+            {/* Col 3: Rol */}
             <div className="flex flex-col gap-1.5">
-              <DataPill className="w-fit">Rol</DataPill>
-              <select className="h-[32px] w-[140px] rounded-[4px] border border-admin-ink bg-white px-2 font-ui text-xs text-admin-ink outline-none cursor-pointer">
-                <option>Editor</option>
-                <option>Director</option>
-                <option>Admin</option>
-              </select>
+              <DataPill variant="subtle" className="w-fit">Rol</DataPill>
+              <AdminSelect
+                value={rol}
+                onChange={setRol}
+                placeholder="Seleccionar"
+                options={[
+                  { value: "Editor", label: "Editor" },
+                  { value: "Director", label: "Director" },
+                  { value: "Admin", label: "Admin" },
+                ]}
+                className="w-[140px]"
+              />
             </div>
 
             {/* Spacer */}
             <div className="flex-1" />
 
-            {/* Botones */}
-            <div className="flex flex-col gap-1.5">
-              <AdminButton>Invitar usuario</AdminButton>
-              <AdminButton>Enviar invitación</AdminButton>
+            {/* Col 4: Invitar usuario */}
+            <div className="flex flex-col items-end gap-1.5">
+              <DataPill variant="subtle" className="w-fit">Invitar usuario</DataPill>
+              <AdminButton
+                size="md"
+                variant={isReady ? "primary" : "default"}
+                style={!isReady ? { backgroundColor: "transparent" } : undefined}
+                className={`!text-xs !px-4 ${isReady ? "!font-bold" : ""}`}
+              >
+                Enviar invitación
+              </AdminButton>
             </div>
           </div>
-        </SectionPanel>
+        </HeaderPanel>
       }
       content={<UsuariosList usuarios={usuarios} />}
     />

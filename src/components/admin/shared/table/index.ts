@@ -5,3 +5,5 @@ export { RowCardHeaderCell } from "./RowCardHeaderCell";
 export { RowCardLeft } from "./RowCardLeft";
 export { RowCardRight } from "./RowCardRight";
 export { RowCardCell } from "./RowCardCell";
+export { RowCardButton } from "./RowCardButton";
+export { RowCardSelect } from "./RowCardSelect";

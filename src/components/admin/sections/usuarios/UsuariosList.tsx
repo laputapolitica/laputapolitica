@@ -1,20 +1,27 @@
 "use client";
 
 import {
-  AdminButton,
   RowCard,
+  RowCardButton,
   RowCardCell,
   RowCardLeft,
   RowCardList,
   RowCardRight,
+  RowCardSelect,
 } from "@/components/admin/shared";
 import type { Usuario } from "@/lib/mock-usuarios";
 
 type UsuariosListProps = {
   usuarios: Usuario[];
-  onCambiarRol?: (usuario: Usuario) => void;
+  onCambiarRol?: (usuario: Usuario, nuevoRol: string) => void;
   onEliminar?: (usuario: Usuario) => void;
 };
+
+const ROLES = [
+  { value: "Editor", label: "Editor" },
+  { value: "Director", label: "Director" },
+  { value: "Admin", label: "Admin" },
+];
 
 export function UsuariosList({ usuarios, onCambiarRol, onEliminar }: UsuariosListProps) {
   return (
@@ -27,19 +34,22 @@ export function UsuariosList({ usuarios, onCambiarRol, onEliminar }: UsuariosLis
               <RowCardCell>{usuario.nombre}</RowCardCell>
               <RowCardCell>{usuario.email}</RowCardCell>
               <RowCardCell>Desde {usuario.fechaDesde}</RowCardCell>
-              <RowCardCell>{esAdmin ? "ADMIN" : usuario.rol}</RowCardCell>
+              <RowCardCell>{usuario.rol}</RowCardCell>
             </RowCardLeft>
             <RowCardRight>
-              <AdminButton disabled={esAdmin} onClick={() => onCambiarRol?.(usuario)}>
-                Cambiar rol
-              </AdminButton>
-              <AdminButton
-                variant={esAdmin ? "default" : "danger"}
+              <RowCardSelect
+                value={usuario.rol}
+                onChange={(nuevoRol) => onCambiarRol?.(usuario, nuevoRol)}
+                options={ROLES}
+                disabled={esAdmin}
+              />
+              <RowCardButton
+                borderColor="#FF5C60"
                 disabled={esAdmin}
                 onClick={() => onEliminar?.(usuario)}
               >
                 Eliminar
-              </AdminButton>
+              </RowCardButton>
             </RowCardRight>
           </RowCard>
         );
