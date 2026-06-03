@@ -4,6 +4,11 @@ import { Eye, EyeOff } from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import {
+  AdminButton,
+  DataPill,
+  adminInputClasses,
+} from "@/components/admin/shared";
 
 import { loginAdmin } from "./actions";
 
@@ -19,45 +24,44 @@ export function LoginAdminClient() {
     initialState,
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const isReady = email.trim() !== "" && password.trim() !== "";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-base px-5 pt-16">
+    <main className="flex min-h-0 flex-1 items-center justify-center bg-bg-base px-5">
       <form
         action={formAction}
         className="w-[360px] rounded-[4px] border border-admin-ink p-12"
       >
         <div className="space-y-5">
           <div className="space-y-2">
-            <label
-              htmlFor="admin-email"
-              className="inline-flex rounded-[4px] border border-admin-ink px-2 py-0.5 font-ui text-sm text-text-primary"
-            >
-              Email
-            </label>
+            <DataPill variant="subtle" className="w-fit">Email</DataPill>
             <Input
               id="admin-email"
               name="email"
               type="email"
               placeholder="tu@email.com"
               required
-              className="rounded-[4px] border-border-default bg-bg-base font-ui"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`${adminInputClasses} w-full focus-visible:ring-0 focus-visible:ring-offset-0`}
             />
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="admin-password"
-              className="inline-flex rounded-[4px] border border-admin-ink px-2 py-0.5 font-ui text-sm text-text-primary"
-            >
-              Contraseña
-            </label>
+            <DataPill variant="subtle" className="w-fit">Contraseña</DataPill>
             <div className="relative">
               <Input
                 id="admin-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
                 required
-                className="rounded-[4px] border-border-default bg-bg-base pr-11 font-ui"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${adminInputClasses} w-full pr-11 focus-visible:ring-0 focus-visible:ring-offset-0`}
               />
               <button
                 type="button"
@@ -76,13 +80,16 @@ export function LoginAdminClient() {
             <p className="font-ui text-sm text-state-required">{state.error}</p>
           ) : null}
 
-          <button
+          <AdminButton
             type="submit"
+            size="md"
+            variant={isReady ? "primary" : "default"}
             disabled={isPending}
-            className="h-10 w-full rounded-[4px] bg-admin-ink font-ui text-sm font-medium text-bg-base disabled:opacity-60"
+            style={!isReady ? { backgroundColor: "transparent" } : undefined}
+            className={`!w-full justify-center !text-xs ${isReady ? "!font-bold" : ""}`}
           >
-            Entrar
-          </button>
+            {isPending ? "Entrando..." : "Entrar"}
+          </AdminButton>
         </div>
       </form>
     </main>

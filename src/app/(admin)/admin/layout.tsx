@@ -14,10 +14,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (pathname === "/admin/login") {
     return (
-      <>
+      <div className="flex h-screen flex-col bg-bg-base">
         <AdminHeader />
         {children}
-      </>
+      </div>
     );
   }
 

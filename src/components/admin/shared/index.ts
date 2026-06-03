@@ -1,7 +1,7 @@
 export { DataPill } from "./DataPill";
 export { RatioPill } from "./RatioPill";
 export { AdminButton } from "./AdminButton";
-export { AdminInput } from "./AdminInput";
+export { AdminInput, adminInputClasses } from "./AdminInput";
 export { AdminSelect } from "./AdminSelect";
 export { HeaderPanel } from "./HeaderPanel";
 export { HeaderPill } from "./HeaderPill";
