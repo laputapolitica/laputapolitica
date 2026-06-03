@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OnboardingNav, OnboardingSlide } from "@/components/opinadores";
-import { CountrySelector, ElPulsoLogo, Logo } from "@/components/shared";
+import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
 
 type OnboardingItem = {
   numero: number;
@@ -122,7 +122,7 @@ export function OpinadoresClient(): React.ReactElement {
           <span aria-hidden="true" className="h-8 w-px bg-border-default" />
           <ElPulsoLogo className="h-[26px] w-auto" />
         </div>
-        <CountrySelector />
+        <CountryIndicator />
       </header>
 
       <div className="flex h-screen w-screen snap-x snap-mandatory overflow-x-auto scroll-smooth">

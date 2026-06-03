@@ -8,7 +8,7 @@ import {
   NoticiaSwipe,
   type NoticiaSwipeNoticia,
 } from "@/components/opinadores";
-import { CountrySelector, ElPulsoLogo, Logo } from "@/components/shared";
+import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
 import type { Edicion } from "@/lib/mock-data";
 
 type DiaClientProps = {
@@ -95,7 +95,7 @@ export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
           <span aria-hidden="true" className="h-8 w-px bg-border-default" />
           <ElPulsoLogo className="h-[26px] w-auto" />
         </div>
-        <CountrySelector />
+        <CountryIndicator />
       </header>
 
       <HeaderOpinador nombre="Martin" />
@@ -238,7 +238,7 @@ function LecturaModal({
             className="h-auto w-[206px] max-w-[calc(100vw-112px)]"
             variant="large"
           />
-          <CountrySelector />
+          <CountryIndicator />
         </div>
       </header>
 

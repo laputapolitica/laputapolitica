@@ -7,7 +7,7 @@ import {
   loginOpinador,
   type LoginOpinadorState,
 } from "@/app/(opinadores)/el-pulso/login/actions";
-import { CountrySelector, ElPulsoLogo, Logo } from "@/components/shared";
+import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
 import { Input } from "@/components/ui/input";
 
 const fieldClassName =
@@ -32,7 +32,7 @@ export function LoginClient(): React.ReactElement {
           <span aria-hidden="true" className="h-8 w-px bg-border-default" />
           <ElPulsoLogo className="h-[26px] w-auto" />
         </div>
-        <CountrySelector />
+        <CountryIndicator />
       </header>
 
       <section className="flex min-h-screen items-center justify-center px-6 pb-20 pt-20">
