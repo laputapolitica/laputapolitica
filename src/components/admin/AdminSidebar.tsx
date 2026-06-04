@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { logoutAdmin } from "@/app/(admin)/admin/login/actions";
+
 const navItems = [
   { href: "/admin", label: "Edicion del dia" },
   { href: "/admin/ediciones", label: "Lista de ediciones" },
@@ -138,7 +140,7 @@ export function AdminSidebar() {
 
         <button
           type="button"
-          onClick={() => router.push("/admin/login")}
+          onClick={() => logoutAdmin()}
           className="flex h-8 w-[180px] items-center rounded-md border-2 border-[#C4342D] bg-white pl-3 text-left font-ui text-sm font-medium text-[#C4342D] cursor-pointer"
         >
           Cerrar Sesion

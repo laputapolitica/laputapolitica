@@ -2,25 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-type LoginAdminState = {
-  error?: string;
-};
+import { createClient } from "@/lib/supabase/server";
 
-export async function loginAdmin(
-  _previousState: LoginAdminState,
-  formData: FormData,
-): Promise<LoginAdminState> {
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  if (
-    email === "admin@laputapolitica.com" &&
-    password === "admin1234"
-  ) {
-    redirect("/admin");
-  }
-
-  return {
-    error: "Email o contraseña incorrectos.",
-  };
+export async function logoutAdmin(): Promise<void> {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/admin/login");
 }

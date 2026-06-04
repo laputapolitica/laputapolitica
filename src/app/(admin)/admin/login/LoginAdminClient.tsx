@@ -1,8 +1,9 @@
 "use client";
 
 import { Eye, EyeOff } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 
+import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import {
   AdminButton,
@@ -10,29 +11,59 @@ import {
   adminInputClasses,
 } from "@/components/admin/shared";
 
-import { loginAdmin } from "./actions";
-
-type LoginAdminState = {
-  error?: string;
-};
-
-const initialState: LoginAdminState = {};
-
 export function LoginAdminClient() {
-  const [state, formAction, isPending] = useActionState(
-    loginAdmin,
-    initialState,
-  );
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
 
   const isReady = email.trim() !== "" && password.trim() !== "";
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(undefined);
+    setIsPending(true);
+
+    try {
+      const supabase = createClient();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (signInError || !data.user) {
+        setError("Email o contraseña incorrectos.");
+        setIsPending(false);
+        return;
+      }
+
+      // Verificar que la cuenta sea staff activo (tiene fila en profiles).
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("activo")
+        .eq("id", data.user.id)
+        .maybeSingle();
+
+      if (!profile || !profile.activo) {
+        await supabase.auth.signOut();
+        setError("Esta cuenta no tiene acceso al panel.");
+        setIsPending(false);
+        return;
+      }
+
+      // Recarga completa para que el servidor lea la sesión recién creada.
+      window.location.assign("/admin");
+    } catch {
+      setError("Ocurrió un error. Intentá de nuevo.");
+      setIsPending(false);
+    }
+  }
 
   return (
     <main className="flex min-h-0 flex-1 items-center justify-center bg-bg-base px-5">
       <form
-        action={formAction}
+        onSubmit={handleSubmit}
         className="w-[360px] rounded-[4px] border border-admin-ink p-12"
       >
         <div className="space-y-5">
@@ -76,8 +107,8 @@ export function LoginAdminClient() {
             </div>
           </div>
 
-          {state.error ? (
-            <p className="font-ui text-sm text-state-required">{state.error}</p>
+          {error ? (
+            <p className="font-ui text-sm text-state-required">{error}</p>
           ) : null}
 
           <AdminButton

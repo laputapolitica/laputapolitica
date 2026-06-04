@@ -45,7 +45,8 @@ export default async function AdminEdicionesPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("ediciones")
-    .select("id, fecha, titulo, estado, publicada_en");
+    .select("id, fecha, titulo, estado, publicada_en")
+    .eq("estado", "published");
 
   if (error) {
     console.error("Error leyendo ediciones desde Supabase:", error.message);
