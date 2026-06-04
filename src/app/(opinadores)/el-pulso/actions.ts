@@ -1,5 +1,7 @@
 "use server";
 
+import { createClient } from "@/lib/supabase/server";
+
 export type CrearPostulacionState = {
   error?: string;
   success?: boolean;
@@ -12,16 +14,24 @@ export async function crearPostulacion(
   const nombre = String(formData.get("nombre") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
-  const edad = String(formData.get("edad") ?? "").trim();
+  const edadRaw = String(formData.get("edad") ?? "").trim();
   const provincia = String(formData.get("provincia") ?? "").trim();
   const motivacion = String(formData.get("motivacion") ?? "").trim();
 
-  if (!nombre || !email || !telefono || !edad || !provincia || !motivacion) {
+  if (!nombre || !email || !telefono || !edadRaw || !provincia || !motivacion) {
     return { error: "Todos los campos son obligatorios" };
   }
 
-  // TODO: insertar en tabla postulaciones de Supabase.
-  console.log("Nueva postulación:", {
+  const edad = Number.parseInt(edadRaw, 10);
+  if (Number.isNaN(edad) || edad < 13) {
+    return { error: "Ingresá una edad válida (mínimo 13 años)" };
+  }
+
+  const supabase = await createClient();
+
+  // pais cae en 'AR' por default; estado en 'pending' por default
+  // (requerido por la policy de inserción pública).
+  const { error } = await supabase.from("postulaciones").insert({
     nombre,
     email,
     telefono,
@@ -29,6 +39,11 @@ export async function crearPostulacion(
     provincia,
     motivacion,
   });
+
+  if (error) {
+    console.error("Error insertando postulación:", error.message);
+    return { error: "No pudimos enviar tu postulación. Intentá de nuevo." };
+  }
 
   return { success: true };
 }
