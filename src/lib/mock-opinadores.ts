@@ -1,56 +1,52 @@
-import {
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_POSITIVO,
-  getStatusColor,
-} from "@/lib/colors";
+import { getStatusColor } from "@/lib/colors";
+import { VOTE_COLORS } from "@/lib/constants";
 export type { OpinadorAdmin, Postulacion } from "@/types/admin";
 import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 export const getParticipacionColor = getStatusColor;
 
 const votosPositivos = [
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.incierta,
+  VOTE_COLORS.positiva,
 ];
 
 const votosMixtos = [
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_NEGATIVO,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.incierta,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.negativa,
 ];
 
 const votosConPendiente = [
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.incierta,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.positiva,
   null,
 ];
 
 const votosTensos = [
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_INCIERTO,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.incierta,
   null,
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.positiva,
 ];
 
 const votosIncompletos = [
-  COLOR_VOTO_INCIERTO,
+  VOTE_COLORS.incierta,
   null,
-  COLOR_VOTO_NEGATIVO,
+  VOTE_COLORS.negativa,
   null,
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.positiva,
 ];
 
 const votosMinimos = [
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.positiva,
   null,
   null,
   null,
@@ -58,11 +54,11 @@ const votosMinimos = [
 ];
 
 const votosCompletosInciertos = [
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_POSITIVO,
-  COLOR_VOTO_INCIERTO,
-  COLOR_VOTO_NEGATIVO,
-  COLOR_VOTO_POSITIVO,
+  VOTE_COLORS.incierta,
+  VOTE_COLORS.positiva,
+  VOTE_COLORS.incierta,
+  VOTE_COLORS.negativa,
+  VOTE_COLORS.positiva,
 ];
 
 export const mockOpinadores: OpinadorAdmin[] = [

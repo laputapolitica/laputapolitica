@@ -18,6 +18,7 @@ import {
   mockEdicionesMasVistas,
 } from "@/lib/mock-metricas";
 import { getSentimientoColor } from "@/lib/colors";
+import { CHART_COLORS } from "@/lib/constants";
 import {
   DataPill,
   SectionPanel,
@@ -43,11 +44,11 @@ function GraficoParticipacion() {
 
       <div className="flex items-center gap-2">
         <DataPill variant="subtle">
-          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: "#8EDFA1" }} />
+          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: CHART_COLORS.positiva }} />
           Participaron
         </DataPill>
         <DataPill variant="subtle">
-          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: "#FFA3A6" }} />
+          <span className="h-[10px] w-[10px] rounded-[2px] shrink-0" style={{ backgroundColor: CHART_COLORS.negativa }} />
           No Participaron
         </DataPill>
       </div>
@@ -91,8 +92,8 @@ function GraficoParticipacion() {
               tickLine={false}
               width={24}
             />
-            <Bar dataKey="participaron" stackId="a" fill="#8EDFA1" radius={0} />
-            <Bar dataKey="noParticiparon" stackId="a" fill="#FFA3A6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="participaron" stackId="a" fill={CHART_COLORS.positiva} radius={0} />
+            <Bar dataKey="noParticiparon" stackId="a" fill={CHART_COLORS.negativa} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

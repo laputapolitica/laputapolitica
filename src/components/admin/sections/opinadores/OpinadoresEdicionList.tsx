@@ -8,6 +8,7 @@ import {
   RowCardRight,
 } from "@/components/admin/shared";
 import { getStatusColor } from "@/lib/colors";
+import { VOTE_COLORS } from "@/lib/constants";
 import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
 
 type OpinadoresEdicionListProps = {
@@ -32,7 +33,7 @@ export function OpinadoresEdicionList({ opinadores, onSelect }: OpinadoresEdicio
                 <span
                   key={i}
                   className="h-[8px] w-[8px] rounded-full"
-                  style={{ backgroundColor: color ?? "#E5E3DD" }}
+                  style={{ backgroundColor: color ?? VOTE_COLORS.nula }}
                 />
               ))}
             </RowCardCell>

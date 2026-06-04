@@ -22,8 +22,3 @@ export function getSentimientoColor(
   if (sentimiento === "negativo") return VOTE_COLORS.negativa;
   return VOTE_COLORS.incierta;
 }
-
-export const COLOR_VOTO_POSITIVO = "#A8D5BA";
-export const COLOR_VOTO_NEGATIVO = "#E6A8A1";
-export const COLOR_VOTO_INCIERTO = "#C7C3E6";
-export const COLOR_VOTO_NULL = "#E5E3DD";
