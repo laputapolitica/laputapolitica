@@ -31,7 +31,20 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  const { pathname } = request.nextUrl;
+
+  // Proteger /admin/* (excepto la pantalla de login).
+  const esRutaAdmin =
+    pathname.startsWith("/admin") && pathname !== "/admin/login";
+
+  if (esRutaAdmin && !data?.claims) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/admin/login";
+    loginUrl.search = "";
+    return NextResponse.redirect(loginUrl);
+  }
 
   return supabaseResponse;
 }
