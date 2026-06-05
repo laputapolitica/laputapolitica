@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getPostulaciones } from "./actions";
 import { useSearchParams } from "next/navigation";
-import {
-  mockOpinadores,
-  mockPendientes,
-  mockRechazados,
-} from "@/lib/mock-opinadores";
+import { mockOpinadores } from "@/lib/mock-opinadores";
 import {
   DataPill,
   RatioPill,
@@ -206,9 +203,11 @@ function mockOpinadorParaDetalle(
 }
 
 function ListaPendientes({
+  pendientes,
   onSelect,
   onVolver,
 }: {
+  pendientes: Postulacion[];
   onSelect: (p: Postulacion) => void;
   onVolver: () => void;
 }) {
@@ -219,12 +218,12 @@ function ListaPendientes({
           <TitlePill onClick={onVolver} borderColor="#FAC800">
             Pendientes
           </TitlePill>
-          <TitlePill>{mockPendientes.length} postulaciones</TitlePill>
+          <TitlePill>{pendientes.length} postulaciones</TitlePill>
         </RowCardListHeader>
       }
       content={
         <RowCardList>
-          {mockPendientes.map((p) => (
+          {pendientes.map((p) => (
             <RowCard key={p.id} onClick={() => onSelect(p)}>
               <RowCardLeft>
                 <RowCardCell>{p.nombre}</RowCardCell>
@@ -239,7 +238,13 @@ function ListaPendientes({
   );
 }
 
-function ListaRechazados({ onVolver }: { onVolver: () => void }) {
+function ListaRechazados({
+  rechazados,
+  onVolver,
+}: {
+  rechazados: Postulacion[];
+  onVolver: () => void;
+}) {
   return (
     <PanelLayout
       header={
@@ -247,12 +252,12 @@ function ListaRechazados({ onVolver }: { onVolver: () => void }) {
           <TitlePill onClick={onVolver} borderColor="#FF5C60">
             Rechazados
           </TitlePill>
-          <TitlePill>{mockRechazados.length} rechazados</TitlePill>
+          <TitlePill>{rechazados.length} rechazados</TitlePill>
         </RowCardListHeader>
       }
       content={
         <RowCardList>
-          {mockRechazados.map((p) => (
+          {rechazados.map((p) => (
             <RowCard key={p.id}>
               <RowCardLeft>
                 <RowCardCell>{p.nombre}</RowCardCell>
@@ -317,6 +322,21 @@ export default function AdminOpinadoresPage() {
     useState<Postulacion | null>(null);
 
   const searchParams = useSearchParams();
+  const [pendientes, setPendientes] = useState<Postulacion[]>([]);
+  const [rechazados, setRechazados] = useState<Postulacion[]>([]);
+
+  useEffect(() => {
+    let activo = true;
+    getPostulaciones().then((data) => {
+      if (activo) {
+        setPendientes(data.pendientes);
+        setRechazados(data.rechazados);
+      }
+    });
+    return () => {
+      activo = false;
+    };
+  }, []);
 
   useEffect(() => {
     setSelectedOpinador(null);
@@ -336,6 +356,7 @@ export default function AdminOpinadoresPage() {
     }
     return (
       <ListaPendientes
+        pendientes={pendientes}
         onSelect={setSelectedPostulacion}
         onVolver={() => setVista("lista")}
       />
@@ -343,7 +364,12 @@ export default function AdminOpinadoresPage() {
   }
 
   if (vista === "rechazados") {
-    return <ListaRechazados onVolver={() => setVista("lista")} />;
+    return (
+      <ListaRechazados
+        rechazados={rechazados}
+        onVolver={() => setVista("lista")}
+      />
+    );
   }
 
   if (selectedEdicion && selectedOpinador) {

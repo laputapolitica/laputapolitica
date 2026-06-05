@@ -49,7 +49,7 @@ export type OpinadorAdmin = {
 };
 
 export type Postulacion = {
-  id: number;
+  id: string;
   nombre: string;
   email: string;
   telefono: string;
