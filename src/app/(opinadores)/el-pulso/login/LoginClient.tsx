@@ -1,12 +1,9 @@
 "use client";
 
 import { Eye, EyeOff } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 
-import {
-  loginOpinador,
-  type LoginOpinadorState,
-} from "@/app/(opinadores)/el-pulso/login/actions";
+import { createClient } from "@/lib/supabase/client";
 import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
 import { Input } from "@/components/ui/input";
 
@@ -17,12 +14,59 @@ const labelClassName =
   "font-ui text-xs font-medium uppercase tracking-wider text-text-secondary";
 
 export function LoginClient(): React.ReactElement {
-  const initialState: LoginOpinadorState = {};
   const [showPassword, setShowPassword] = useState(false);
-  const [state, formAction, isPending] = useActionState(
-    loginOpinador,
-    initialState,
-  );
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(undefined);
+
+    const mail = email.trim();
+    const pass = password.trim();
+
+    if (!mail || !pass) {
+      setError("Completá todos los campos");
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      const supabase = createClient();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: mail,
+        password: pass,
+      });
+
+      if (signInError || !data.user) {
+        setError("Email o contraseña incorrectos");
+        setIsPending(false);
+        return;
+      }
+
+      // Verificar que sea un opinador activo.
+      const { data: opinador } = await supabase
+        .from("opinadores")
+        .select("activo")
+        .eq("id", data.user.id)
+        .maybeSingle();
+
+      if (!opinador || !opinador.activo) {
+        await supabase.auth.signOut();
+        setError("Esta cuenta no está habilitada");
+        setIsPending(false);
+        return;
+      }
+
+      window.location.assign("/el-pulso/dia");
+    } catch {
+      setError("Ocurrió un error. Intentá de nuevo.");
+      setIsPending(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-bg-base text-text-primary">
@@ -41,14 +85,16 @@ export function LoginClient(): React.ReactElement {
             Inicia sesión
           </h1>
 
-          <form action={formAction} className="mt-10 flex flex-col gap-4">
-            <FormField label="NUMERO DE USUARIO">
+          <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-4">
+            <FormField label="EMAIL">
               <Input
                 className={fieldClassName}
-                inputMode="numeric"
-                name="numero_usuario"
-                placeholder="00000000"
-                type="text"
+                inputMode="email"
+                name="email"
+                placeholder="tu@email.com"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </FormField>
 
@@ -59,6 +105,8 @@ export function LoginClient(): React.ReactElement {
                   name="password"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -77,9 +125,9 @@ export function LoginClient(): React.ReactElement {
               </div>
             </FormField>
 
-            {state.error ? (
+            {error ? (
               <p className="pt-1 text-center font-ui text-sm text-state-required">
-                {state.error}
+                {error}
               </p>
             ) : null}
 

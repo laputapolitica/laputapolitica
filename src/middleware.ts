@@ -32,6 +32,7 @@ export async function middleware(request: NextRequest) {
   );
 
   const { data } = await supabase.auth.getClaims();
+  const haySesion = Boolean(data?.claims);
 
   const { pathname } = request.nextUrl;
 
@@ -39,9 +40,19 @@ export async function middleware(request: NextRequest) {
   const esRutaAdmin =
     pathname.startsWith("/admin") && pathname !== "/admin/login";
 
-  if (esRutaAdmin && !data?.claims) {
+  if (esRutaAdmin && !haySesion) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
+    loginUrl.search = "";
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Proteger el portal diario de opinadores.
+  const esRutaOpinadorPrivada = pathname.startsWith("/el-pulso/dia");
+
+  if (esRutaOpinadorPrivada && !haySesion) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/el-pulso/login";
     loginUrl.search = "";
     return NextResponse.redirect(loginUrl);
   }
