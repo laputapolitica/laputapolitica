@@ -1,20 +1,80 @@
+import { createClient } from "@/lib/supabase/server";
+import type { Edicion, Noticia } from "@/lib/mock-data";
+
 import { DiaClient } from "./DiaClient";
 
-import { getEdicionMock } from "@/lib/mock-data";
+type NoticiaRow = {
+  id: string;
+  orden: number;
+  titulo: string;
+  cuerpo: string;
+  fuentes_urls: string[] | null;
+};
 
-function getBuenosAiresToday(): string {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+type EdicionRow = {
+  id: string;
+  fecha: string;
+  titulo: string;
+  portada_url: string | null;
+  noticias: NoticiaRow[] | null;
+};
 
-  return formatter.format(new Date());
-}
+export default async function DiaPage(): Promise<React.ReactElement> {
+  const supabase = await createClient();
 
-export default function DiaPage(): React.ReactElement {
-  const edicion = getEdicionMock(getBuenosAiresToday());
+  // RLS deja ver al opinador solo la edición en transcurso de su país
+  // cuya ventana de opinión está abierta. Por eso alcanza con pedir la
+  // edición no publicada: la base se encarga de filtrar el resto.
+  const { data, error } = await supabase
+    .from("ediciones")
+    .select(
+      "id, fecha, titulo, portada_url, noticias(id, orden, titulo, cuerpo, fuentes_urls)",
+    )
+    .neq("estado", "published")
+    .order("fecha", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error leyendo edición del día:", error.message);
+  }
+
+  if (!data) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-bg-base px-6 text-center">
+        <p className="max-w-sm font-editorial text-base leading-relaxed text-text-secondary">
+          No hay una edición abierta para opinar en este momento. Volvé cuando
+          se abra la ventana de opinión.
+        </p>
+      </main>
+    );
+  }
+
+  const row = data as unknown as EdicionRow;
+
+  const noticias: Noticia[] = (row.noticias ?? [])
+    .map((n) => ({
+      id: n.id,
+      orden: n.orden,
+      titulo: n.titulo,
+      cuerpo: n.cuerpo,
+      fuentes_urls: n.fuentes_urls ?? [],
+      el_pulso: {
+        texto_resumen: "",
+        pct_positiva: 0,
+        pct_negativa: 0,
+        pct_incierta: 0,
+      },
+    }))
+    .sort((a, b) => a.orden - b.orden);
+
+  const edicion: Edicion = {
+    id: row.id,
+    fecha: row.fecha,
+    titulo: row.titulo,
+    portada_illustracion_url: row.portada_url ?? "/placeholder.svg",
+    noticias,
+  };
 
   return <DiaClient edicion={edicion} />;
 }
