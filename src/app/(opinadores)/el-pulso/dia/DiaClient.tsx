@@ -13,11 +13,12 @@ import type { Edicion } from "@/lib/mock-data";
 
 type DiaClientProps = {
   edicion: Edicion;
+  nombre: string;
 };
 
 const TOTAL_NOTICIAS = 5;
 
-export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
+export function DiaClient({ edicion, nombre }: DiaClientProps): React.ReactElement {
   const [activeSlide, setActiveSlide] = useState<number>(1);
   const [noticiaActiva, setNoticiaActiva] =
     useState<NoticiaSwipeNoticia | null>(null);
@@ -98,7 +99,7 @@ export function DiaClient({ edicion }: DiaClientProps): React.ReactElement {
         <CountryIndicator />
       </header>
 
-      <HeaderOpinador nombre="Martin" />
+      <HeaderOpinador nombre={nombre || "opinador"} />
 
       <div className="fixed left-0 top-28 z-30 flex h-10 w-full items-center bg-bg-base px-4">
         <p className="font-ui text-xs font-medium uppercase tracking-wider text-text-secondary">

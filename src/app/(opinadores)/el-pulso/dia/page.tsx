@@ -22,9 +22,23 @@ type EdicionRow = {
 export default async function DiaPage(): Promise<React.ReactElement> {
   const supabase = await createClient();
 
+  // Nombre del opinador logueado, para el saludo del header.
+  let nombreOpinador = "";
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (user) {
+    const { data: opinador } = await supabase
+      .from("opinadores")
+      .select("nombre")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (opinador?.nombre) {
+      nombreOpinador = opinador.nombre.split(" ")[0] ?? opinador.nombre;
+    }
+  }
+
   // RLS deja ver al opinador solo la edición en transcurso de su país
-  // cuya ventana de opinión está abierta. Por eso alcanza con pedir la
-  // edición no publicada: la base se encarga de filtrar el resto.
+  // cuya ventana de opinión está abierta.
   const { data, error } = await supabase
     .from("ediciones")
     .select(
@@ -76,5 +90,5 @@ export default async function DiaPage(): Promise<React.ReactElement> {
     noticias,
   };
 
-  return <DiaClient edicion={edicion} />;
+  return <DiaClient edicion={edicion} nombre={nombreOpinador} />;
 }
