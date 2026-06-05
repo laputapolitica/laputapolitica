@@ -67,3 +67,36 @@ export async function getPostulaciones(): Promise<{
     rechazados: mapped.filter((p) => p.estado === "rechazado"),
   };
 }
+
+export type RechazarResult = {
+  error?: string;
+  success?: boolean;
+};
+
+export async function rechazarPostulacion(
+  id: string,
+): Promise<RechazarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const { error } = await supabase
+    .from("postulaciones")
+    .update({
+      estado: "rejected",
+      revisada_por: user.id,
+      revisada_en: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error rechazando postulación:", error.message);
+    return { error: "No pudimos rechazar la postulación. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}

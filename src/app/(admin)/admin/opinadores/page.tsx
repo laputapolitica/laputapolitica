@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPostulaciones } from "./actions";
+import { getPostulaciones, rechazarPostulacion } from "./actions";
 import { useSearchParams } from "next/navigation";
 import { mockOpinadores } from "@/lib/mock-opinadores";
 import {
@@ -272,7 +272,27 @@ function ListaRechazados({
   );
 }
 
-function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion; onBack: () => void }) {
+function DetallePostulacion({
+  postulacion,
+  onBack,
+  onRechazada,
+}: {
+  postulacion: Postulacion;
+  onBack: () => void;
+  onRechazada: () => void;
+}) {
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleRechazar() {
+    setIsPending(true);
+    const result = await rechazarPostulacion(postulacion.id);
+    if (result.success) {
+      onRechazada();
+    } else {
+      setIsPending(false);
+    }
+  }
+
   return (
     <PanelLayout
       header={
@@ -281,7 +301,13 @@ function DetallePostulacion({ postulacion, onBack }: { postulacion: Postulacion;
           <div className="flex items-center justify-between">
             <TitlePill>{postulacion.nombre}</TitlePill>
             <div className="flex items-center gap-2">
-              <TitlePill onClick={onBack} borderColor="#FF5C60">Rechazar</TitlePill>
+              <TitlePill
+                onClick={isPending ? undefined : handleRechazar}
+                borderColor="#FF5C60"
+              >
+                {isPending ? "Rechazando..." : "Rechazar"}
+              </TitlePill>
+              {/* Aceptar: pendiente del sprint de aprobación (crea usuario + opinador) */}
               <TitlePill onClick={() => {}} borderColor="#35C759">Aceptar</TitlePill>
             </div>
           </div>
@@ -351,6 +377,13 @@ export default function AdminOpinadoresPage() {
         <DetallePostulacion
           postulacion={selectedPostulacion}
           onBack={() => setSelectedPostulacion(null)}
+          onRechazada={() => {
+            getPostulaciones().then((data) => {
+              setPendientes(data.pendientes);
+              setRechazados(data.rechazados);
+            });
+            setSelectedPostulacion(null);
+          }}
         />
       );
     }
