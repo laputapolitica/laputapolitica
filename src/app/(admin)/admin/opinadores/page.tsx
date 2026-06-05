@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPostulaciones, rechazarPostulacion } from "./actions";
+import { getPostulaciones, rechazarPostulacion, aprobarPostulacion } from "./actions";
 import { useSearchParams } from "next/navigation";
 import { mockOpinadores } from "@/lib/mock-opinadores";
 import {
@@ -274,24 +274,85 @@ function ListaRechazados({
 
 function DetallePostulacion({
   postulacion,
-  onBack,
   onRechazada,
+  onAprobada,
 }: {
   postulacion: Postulacion;
-  onBack: () => void;
   onRechazada: () => void;
+  onAprobada: () => void;
 }) {
-  const [isPending, setIsPending] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [credenciales, setCredenciales] = useState<{
+    numero: number;
+    password: string;
+  } | null>(null);
 
   async function handleRechazar() {
-    setIsPending(true);
+    setIsRejecting(true);
+    setError(undefined);
     const result = await rechazarPostulacion(postulacion.id);
     if (result.success) {
       onRechazada();
     } else {
-      setIsPending(false);
+      setError(result.error);
+      setIsRejecting(false);
     }
   }
+
+  async function handleAprobar() {
+    setIsApproving(true);
+    setError(undefined);
+    const result = await aprobarPostulacion(postulacion.id);
+    if (result.success && result.passwordTemporal && result.numeroUsuario) {
+      setCredenciales({
+        numero: result.numeroUsuario,
+        password: result.passwordTemporal,
+      });
+    } else {
+      setError(result.error ?? "No se pudo aprobar.");
+      setIsApproving(false);
+    }
+  }
+
+  // Pantalla de éxito: muestra las credenciales temporales UNA vez.
+  if (credenciales) {
+    return (
+      <PanelLayout
+        header={
+          <HeaderPanel>
+            <TitlePill>Opinador creado: {postulacion.nombre}</TitlePill>
+          </HeaderPanel>
+        }
+        content={
+          <div className="space-y-4 p-4">
+            <p className="font-ui text-sm text-text-secondary">
+              Pasale estos datos al opinador. La contraseña no se vuelve a
+              mostrar.
+            </p>
+            <div className="space-y-2 rounded-[4px] border border-admin-ink bg-white p-4">
+              <p className="font-ui text-sm text-admin-ink">
+                <strong>Email:</strong> {postulacion.email}
+              </p>
+              <p className="font-ui text-sm text-admin-ink">
+                <strong>Número de opinador:</strong> {credenciales.numero}
+              </p>
+              <p className="font-ui text-sm text-admin-ink">
+                <strong>Contraseña temporal:</strong>{" "}
+                <span className="font-mono">{credenciales.password}</span>
+              </p>
+            </div>
+            <TitlePill onClick={onAprobada} borderColor="#35C759">
+              Listo
+            </TitlePill>
+          </div>
+        }
+      />
+    );
+  }
+
+  const isBusy = isRejecting || isApproving;
 
   return (
     <PanelLayout
@@ -302,13 +363,17 @@ function DetallePostulacion({
             <TitlePill>{postulacion.nombre}</TitlePill>
             <div className="flex items-center gap-2">
               <TitlePill
-                onClick={isPending ? undefined : handleRechazar}
+                onClick={isBusy ? undefined : handleRechazar}
                 borderColor="#FF5C60"
               >
-                {isPending ? "Rechazando..." : "Rechazar"}
+                {isRejecting ? "Rechazando..." : "Rechazar"}
               </TitlePill>
-              {/* Aceptar: pendiente del sprint de aprobación (crea usuario + opinador) */}
-              <TitlePill onClick={() => {}} borderColor="#35C759">Aceptar</TitlePill>
+              <TitlePill
+                onClick={isBusy ? undefined : handleAprobar}
+                borderColor="#35C759"
+              >
+                {isApproving ? "Aprobando..." : "Aceptar"}
+              </TitlePill>
             </div>
           </div>
 
@@ -326,6 +391,9 @@ function DetallePostulacion({
       }
       content={
         <div className="space-y-4">
+          {error ? (
+            <p className="font-ui text-sm text-state-required">{error}</p>
+          ) : null}
           <div>
             <TextField value="¿Por qué quiere ser opinador?" variant="subtle" readOnly />
           </div>
@@ -373,17 +441,18 @@ export default function AdminOpinadoresPage() {
 
   if (vista === "pendientes") {
     if (selectedPostulacion) {
+      const recargar = () => {
+        getPostulaciones().then((data) => {
+          setPendientes(data.pendientes);
+          setRechazados(data.rechazados);
+        });
+        setSelectedPostulacion(null);
+      };
       return (
         <DetallePostulacion
           postulacion={selectedPostulacion}
-          onBack={() => setSelectedPostulacion(null)}
-          onRechazada={() => {
-            getPostulaciones().then((data) => {
-              setPendientes(data.pendientes);
-              setRechazados(data.rechazados);
-            });
-            setSelectedPostulacion(null);
-          }}
+          onRechazada={recargar}
+          onAprobada={recargar}
         />
       );
     }
