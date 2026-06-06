@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPostulaciones, rechazarPostulacion, aprobarPostulacion } from "./actions";
+import {
+  getPostulaciones,
+  rechazarPostulacion,
+  aprobarPostulacion,
+  getOpinadores,
+} from "./actions";
 import { useSearchParams } from "next/navigation";
-import { mockOpinadores } from "@/lib/mock-opinadores";
 import {
   DataPill,
   RatioPill,
@@ -36,10 +40,12 @@ type EdicionSeleccionada = {
 };
 
 function ListaOpinadores({
+  opinadores,
   onSelect,
   onPendientes,
   onRechazados,
 }: {
+  opinadores: OpinadorAdmin[];
   onSelect: (op: OpinadorAdmin) => void;
   onPendientes: () => void;
   onRechazados: () => void;
@@ -48,7 +54,7 @@ function ListaOpinadores({
     <PanelLayout
       header={
         <RowCardListHeader>
-          <TitlePill>{mockOpinadores.length} Opinadores</TitlePill>
+          <TitlePill>{opinadores.length} Opinadores</TitlePill>
           <div className="flex items-center gap-2">
             <TitlePill onClick={onRechazados} borderColor="#FF5C60">
               Rechazados
@@ -59,7 +65,7 @@ function ListaOpinadores({
           </div>
         </RowCardListHeader>
       }
-      content={<OpinadoresList opinadores={mockOpinadores} onSelect={onSelect} />}
+      content={<OpinadoresList opinadores={opinadores} onSelect={onSelect} />}
     />
   );
 }
@@ -418,6 +424,7 @@ export default function AdminOpinadoresPage() {
   const searchParams = useSearchParams();
   const [pendientes, setPendientes] = useState<Postulacion[]>([]);
   const [rechazados, setRechazados] = useState<Postulacion[]>([]);
+  const [opinadores, setOpinadores] = useState<OpinadorAdmin[]>([]);
 
   useEffect(() => {
     let activo = true;
@@ -425,6 +432,11 @@ export default function AdminOpinadoresPage() {
       if (activo) {
         setPendientes(data.pendientes);
         setRechazados(data.rechazados);
+      }
+    });
+    getOpinadores().then((data) => {
+      if (activo) {
+        setOpinadores(data);
       }
     });
     return () => {
@@ -496,6 +508,7 @@ export default function AdminOpinadoresPage() {
 
   return (
     <ListaOpinadores
+      opinadores={opinadores}
       onSelect={setSelectedOpinador}
       onPendientes={() => setVista("pendientes")}
       onRechazados={() => setVista("rechazados")}

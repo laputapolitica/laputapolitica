@@ -2,7 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Postulacion } from "@/types/admin";
+import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 type PostulacionRow = {
   id: string;
@@ -217,4 +217,54 @@ export async function aprobarPostulacion(id: string): Promise<AprobarResult> {
 
   // 8. Devolver la contraseña temporal para mostrarla una vez.
   return { success: true, passwordTemporal, numeroUsuario };
+}
+
+type OpinadorRow = {
+  numero_usuario: number;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  provincia: string;
+  edad: number;
+  ingreso_en: string;
+};
+
+function formatFechaCorta(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `${dd}/${mm}/${d.getUTCFullYear()}`;
+}
+
+export async function getOpinadores(): Promise<OpinadorAdmin[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("opinadores")
+    .select("numero_usuario, nombre, email, telefono, provincia, edad, ingreso_en")
+    .eq("activo", true)
+    .order("numero_usuario", { ascending: true });
+
+  if (error) {
+    console.error("Error leyendo opinadores:", error.message);
+    return [];
+  }
+
+  const rows = (data ?? []) as OpinadorRow[];
+
+  // Métricas (días/noticias/ediciones) en cero por ahora: el cálculo real
+  // de participación (cruce con opiniones) es un paso futuro dedicado.
+  return rows.map((r) => ({
+    id: r.numero_usuario,
+    nombre: r.nombre,
+    email: r.email,
+    telefono: r.telefono ?? "",
+    ciudad: r.provincia,
+    edad: r.edad,
+    fechaInicio: formatFechaCorta(r.ingreso_en),
+    diasParticipados: 0,
+    totalDias: 0,
+    noticiasOpinadas: 0,
+    totalNoticias: 0,
+    ediciones: [],
+  }));
 }
