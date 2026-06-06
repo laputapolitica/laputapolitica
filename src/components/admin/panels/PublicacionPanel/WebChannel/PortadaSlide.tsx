@@ -4,8 +4,8 @@ import { useState } from "react";
 import { IconBajar, IconEditar, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
-export function PortadaSlide() {
-  const [titulo, setTitulo] = useState("Equilibrio ciego");
+export function PortadaSlide({ titulo: tituloInicial }: { titulo?: string }) {
+  const [titulo, setTitulo] = useState(tituloInicial ?? "Equilibrio ciego");
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
 
   return (

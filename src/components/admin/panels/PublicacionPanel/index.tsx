@@ -3,12 +3,14 @@
 import { useState } from "react";
 
 import { LoadingTextGrid, PanelLayout } from "@/components/admin/shared";
-import type { Canal, MockOpinador } from "./types";
+import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
 import { PublicacionHeader, type PublicacionState } from "./PublicacionHeader";
 import { PublicacionContent } from "./PublicacionContent";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
+  titulo?: string;
+  noticias?: NoticiaPublicacion[];
 }
 
 const initialState: PublicacionState = {
@@ -18,7 +20,7 @@ const initialState: PublicacionState = {
   noticiaIndex: 0,
 };
 
-export function PublicacionPanel({ status }: PublicacionPanelProps) {
+export function PublicacionPanel({ status, titulo, noticias }: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
   if (status === "loading") {
@@ -36,7 +38,14 @@ export function PublicacionPanel({ status }: PublicacionPanelProps) {
   return (
     <PanelLayout
       header={<PublicacionHeader state={state} onChange={setState} />}
-      content={<PublicacionContent state={state} onChange={setState} />}
+      content={
+        <PublicacionContent
+          state={state}
+          onChange={setState}
+          titulo={titulo}
+          noticias={noticias}
+        />
+      }
     />
   );
 }
