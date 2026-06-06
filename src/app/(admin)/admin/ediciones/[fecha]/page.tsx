@@ -110,7 +110,14 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
           </div>
         </HeaderPanel>
       }
-      content={<PublicacionPanel status="ready" titulo={row.titulo} noticias={noticias} />}
+      content={
+        <PublicacionPanel
+          status="ready"
+          edicionId={row.id}
+          titulo={row.titulo}
+          noticias={noticias}
+        />
+      }
     />
   );
 }

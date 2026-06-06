@@ -17,6 +17,7 @@ type PublicacionContentProps = {
   state: PublicacionState;
   onChange: (state: PublicacionState) => void;
   readOnly?: boolean;
+  edicionId?: string;
   titulo?: string;
   noticias?: NoticiaPublicacion[];
 };
@@ -24,11 +25,13 @@ type PublicacionContentProps = {
 function SlideContent({
   activeCanal,
   activeSlide,
+  edicionId,
   titulo,
   noticias,
 }: {
   activeCanal: Canal;
   activeSlide: number;
+  edicionId?: string;
   titulo?: string;
   noticias: NoticiaPublicacion[];
 }) {
@@ -41,7 +44,7 @@ function SlideContent({
   }
 
   if (activeSlide === 1) {
-    return <PortadaSlide titulo={titulo} />;
+    return <PortadaSlide edicionId={edicionId} titulo={titulo} />;
   }
 
   if (activeSlide === 7) {
@@ -58,6 +61,7 @@ function SlideContent({
 export function PublicacionContent({
   state,
   onChange,
+  edicionId,
   titulo,
   noticias,
 }: PublicacionContentProps) {
@@ -92,6 +96,7 @@ export function PublicacionContent({
         <SlideContent
           activeCanal={activeCanal}
           activeSlide={activeSlide}
+          edicionId={edicionId}
           titulo={titulo}
           noticias={noticiasData}
         />

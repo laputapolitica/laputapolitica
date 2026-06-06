@@ -9,6 +9,7 @@ import { PublicacionContent } from "./PublicacionContent";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
+  edicionId?: string;
   titulo?: string;
   noticias?: NoticiaPublicacion[];
 }
@@ -20,7 +21,7 @@ const initialState: PublicacionState = {
   noticiaIndex: 0,
 };
 
-export function PublicacionPanel({ status, titulo, noticias }: PublicacionPanelProps) {
+export function PublicacionPanel({ status, edicionId, titulo, noticias }: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
   if (status === "loading") {
@@ -42,6 +43,7 @@ export function PublicacionPanel({ status, titulo, noticias }: PublicacionPanelP
         <PublicacionContent
           state={state}
           onChange={setState}
+          edicionId={edicionId}
           titulo={titulo}
           noticias={noticias}
         />
