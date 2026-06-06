@@ -20,16 +20,6 @@ function mapEstado(estado: string): Postulacion["estado"] {
   return estado === "rejected" ? "rechazado" : "pendiente";
 }
 
-function formatFecha(iso: string): string {
-  const meses = [
-    "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-    "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",
-  ];
-  const d = new Date(iso);
-  const dd = String(d.getUTCDate()).padStart(2, "0");
-  return `${dd} ${meses[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
-
 function mapPostulacion(row: PostulacionRow): Postulacion {
   return {
     id: row.id,
@@ -38,7 +28,7 @@ function mapPostulacion(row: PostulacionRow): Postulacion {
     telefono: row.telefono ?? "",
     ciudad: row.provincia,
     edad: row.edad,
-    fechaPostulacion: formatFecha(row.created_at),
+    fechaPostulacion: formatFechaCorta(row.created_at),
     motivacion: row.motivacion,
     estado: mapEstado(row.estado),
   };
