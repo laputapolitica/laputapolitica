@@ -220,6 +220,7 @@ export async function aprobarPostulacion(id: string): Promise<AprobarResult> {
 }
 
 type OpinadorRow = {
+  id: string;
   numero_usuario: number;
   nombre: string;
   email: string;
@@ -238,9 +239,10 @@ function formatFechaCorta(iso: string): string {
 
 export async function getOpinadores(): Promise<OpinadorAdmin[]> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("opinadores")
-    .select("numero_usuario, nombre, email, telefono, provincia, edad, ingreso_en")
+    .select("id, numero_usuario, nombre, email, telefono, provincia, edad, ingreso_en")
     .eq("activo", true)
     .order("numero_usuario", { ascending: true });
 
@@ -250,23 +252,85 @@ export async function getOpinadores(): Promise<OpinadorAdmin[]> {
   }
 
   const rows = (data ?? []) as OpinadorRow[];
+  if (rows.length === 0) {
+    return [];
+  }
 
-  // Métricas (días/noticias/ediciones) en cero por ahora: el cálculo real
-  // de participación (cruce con opiniones) es un paso futuro dedicado.
-  return rows.map((r) => ({
-    id: r.numero_usuario,
-    nombre: r.nombre,
-    email: r.email,
-    telefono: r.telefono ?? "",
-    ciudad: r.provincia,
-    edad: r.edad,
-    fechaInicio: formatFechaCorta(r.ingreso_en),
-    diasParticipados: 0,
-    totalDias: 0,
-    noticiasOpinadas: 0,
-    totalNoticias: 0,
-    ediciones: [],
-  }));
+  // Ediciones publicadas: base para el denominador (depende del ingreso de cada opinador).
+  const { data: edData } = await supabase
+    .from("ediciones")
+    .select("id, publicada_en")
+    .eq("estado", "published");
+  const ediciones = (edData ?? []) as { id: string; publicada_en: string | null }[];
+
+  // Noticias de esas ediciones.
+  const edIds = ediciones.map((e) => e.id);
+  let noticias: { id: string; edicion_id: string }[] = [];
+  if (edIds.length > 0) {
+    const { data: ntData } = await supabase
+      .from("noticias")
+      .select("id, edicion_id")
+      .in("edicion_id", edIds);
+    noticias = (ntData ?? []) as { id: string; edicion_id: string }[];
+  }
+
+  // Opiniones de los opinadores activos.
+  const opIds = rows.map((r) => r.id);
+  const { data: opData } = await supabase
+    .from("opiniones")
+    .select("opinador_id, noticia_id")
+    .in("opinador_id", opIds);
+  const opiniones = (opData ?? []) as { opinador_id: string; noticia_id: string }[];
+
+  // Mapa noticia -> edicion.
+  const noticiaEdicion = new Map<string, string>();
+  for (const n of noticias) {
+    noticiaEdicion.set(n.id, n.edicion_id);
+  }
+
+  return rows.map((r) => {
+    const ingreso = new Date(r.ingreso_en).getTime();
+
+    // Ediciones publicadas a partir del ingreso de este opinador.
+    const edicionesValidas = new Set(
+      ediciones
+        .filter(
+          (e) => e.publicada_en && new Date(e.publicada_en).getTime() >= ingreso,
+        )
+        .map((e) => e.id),
+    );
+
+    const totalDias = edicionesValidas.size;
+    const totalNoticias = noticias.filter((n) =>
+      edicionesValidas.has(n.edicion_id),
+    ).length;
+
+    const misOpiniones = opiniones.filter((o) => o.opinador_id === r.id);
+    const noticiasOpinadas = new Set<string>();
+    const edicionesParticipadas = new Set<string>();
+    for (const o of misOpiniones) {
+      const edId = noticiaEdicion.get(o.noticia_id);
+      if (edId && edicionesValidas.has(edId)) {
+        noticiasOpinadas.add(o.noticia_id);
+        edicionesParticipadas.add(edId);
+      }
+    }
+
+    return {
+      id: r.numero_usuario,
+      nombre: r.nombre,
+      email: r.email,
+      telefono: r.telefono ?? "",
+      ciudad: r.provincia,
+      edad: r.edad,
+      fechaInicio: formatFechaCorta(r.ingreso_en),
+      diasParticipados: edicionesParticipadas.size,
+      totalDias,
+      noticiasOpinadas: noticiasOpinadas.size,
+      totalNoticias,
+      ediciones: [],
+    };
+  });
 }
 
 export type DesactivarResult = {
