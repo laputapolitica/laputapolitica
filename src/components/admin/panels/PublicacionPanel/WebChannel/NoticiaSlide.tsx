@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { IconEditar, IconRehacer } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
+import {
+  guardarTituloNoticia,
+  guardarResumenNoticia,
+  guardarPulsoNoticia,
+} from "@/app/(admin)/admin/ediciones/[fecha]/actions";
 import { InterpretacionGeneral } from "./InterpretacionGeneral";
 import type { NoticiaPublicacion } from "../types";
 
@@ -16,6 +21,8 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
   const [isEditingResumen, setIsEditingResumen] = useState(false);
   const [isEditingPulso, setIsEditingPulso] = useState(false);
 
+  const [error, setError] = useState<string | undefined>();
+
   // Reset estados al cambiar de noticia
   useEffect(() => {
     setTitulo(noticia.titulo);
@@ -24,7 +31,29 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
     setIsEditingTitulo(false);
     setIsEditingResumen(false);
     setIsEditingPulso(false);
+    setError(undefined);
   }, [noticia]);
+
+  async function handleSaveTitulo(value: string) {
+    setTitulo(value);
+    setError(undefined);
+    const res = await guardarTituloNoticia(noticia.id, value);
+    if (res.error) setError(res.error);
+  }
+
+  async function handleSaveResumen(value: string) {
+    setResumen(value);
+    setError(undefined);
+    const res = await guardarResumenNoticia(noticia.id, value);
+    if (res.error) setError(res.error);
+  }
+
+  async function handleSavePulso(value: string) {
+    setPulso(value);
+    setError(undefined);
+    const res = await guardarPulsoNoticia(noticia.id, value);
+    if (res.error) setError(res.error);
+  }
 
   return (
     <div className="grid min-w-0 grid-cols-2 gap-4">
@@ -38,7 +67,7 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
           <div className="flex items-center gap-2">
             <TextField
               value={titulo}
-              onSave={setTitulo}
+              onSave={handleSaveTitulo}
               isEditing={isEditingTitulo}
               onEditingChange={setIsEditingTitulo}
             />
@@ -59,7 +88,7 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
           <div className="flex min-w-0 items-start gap-2">
             <TextArea
               value={resumen}
-              onSave={setResumen}
+              onSave={handleSaveResumen}
               isEditing={isEditingResumen}
               onEditingChange={setIsEditingResumen}
               fullWidth
@@ -88,7 +117,7 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
           <div className="flex min-w-0 items-start gap-2">
             <TextArea
               value={pulso}
-              onSave={setPulso}
+              onSave={handleSavePulso}
               isEditing={isEditingPulso}
               onEditingChange={setIsEditingPulso}
               fullWidth
@@ -112,6 +141,10 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
         {/* INTERPRETACIÓN GENERAL */}
         <InterpretacionGeneral interpretacion={noticia.interpretacion} />
       </div>
+
+      {error ? (
+        <p className="col-span-2 font-ui text-sm text-state-required">{error}</p>
+      ) : null}
     </div>
   );
 }

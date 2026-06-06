@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IconBajar, IconEditar, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
+import { guardarTituloEdicion } from "@/app/(admin)/admin/ediciones/[fecha]/actions";
 
 export function PortadaSlide({
-  edicionId: _edicionId,
+  edicionId,
   titulo: tituloInicial,
 }: {
   edicionId?: string;
   titulo?: string;
 }) {
-  void _edicionId;
-
   const [titulo, setTitulo] = useState(tituloInicial ?? "Equilibrio ciego");
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+
+  useEffect(() => {
+    setTitulo(tituloInicial ?? "Equilibrio ciego");
+  }, [tituloInicial]);
+
+  async function handleSaveTitulo(value: string) {
+    setTitulo(value);
+    setError(undefined);
+    if (!edicionId) return;
+    const res = await guardarTituloEdicion(edicionId, value);
+    if (res.error) setError(res.error);
+  }
 
   return (
     <div className="flex flex-col gap-6 font-ui">
@@ -26,7 +38,7 @@ export function PortadaSlide({
         <div className="flex items-center gap-2">
           <TextField
             value={titulo}
-            onSave={setTitulo}
+            onSave={handleSaveTitulo}
             isEditing={isEditingTitulo}
             onEditingChange={setIsEditingTitulo}
           />
@@ -37,6 +49,9 @@ export function PortadaSlide({
             </IconButton>
           )}
         </div>
+        {error ? (
+          <p className="font-ui text-sm text-state-required">{error}</p>
+        ) : null}
       </section>
 
       {/* PORTADA */}
