@@ -6,6 +6,7 @@ import {
   rechazarPostulacion,
   aprobarPostulacion,
   getOpinadores,
+  desactivarOpinador,
 } from "./actions";
 import { useSearchParams } from "next/navigation";
 import {
@@ -73,11 +74,29 @@ function ListaOpinadores({
 function DetalleOpinador({
   opinador,
   onSelectEdicion,
+  onEliminado,
 }: {
   opinador: OpinadorAdmin;
-  onBack: () => void;
   onSelectEdicion: (ed: EdicionSeleccionada) => void;
+  onEliminado: () => void;
 }) {
+  const [isPending, setIsPending] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+
+  async function handleEliminar() {
+    setIsPending(true);
+    setError(undefined);
+    const result = await desactivarOpinador(opinador.id);
+    if (result.success) {
+      onEliminado();
+    } else {
+      setError(result.error);
+      setIsPending(false);
+      setConfirmando(false);
+    }
+  }
+
   return (
     <PanelLayout
       header={
@@ -85,7 +104,28 @@ function DetalleOpinador({
           {/* Fila 1: identidad + acción */}
           <div className="flex items-center justify-between">
             <TitlePill>{opinador.nombre}</TitlePill>
-            <TitlePill onClick={() => {}} borderColor="#FF5C60">Eliminar</TitlePill>
+            {confirmando ? (
+              <div className="flex items-center gap-2">
+                <span className="font-ui text-sm text-text-secondary">
+                  ¿Eliminar opinador?
+                </span>
+                <TitlePill
+                  onClick={isPending ? undefined : () => setConfirmando(false)}
+                >
+                  Cancelar
+                </TitlePill>
+                <TitlePill
+                  onClick={isPending ? undefined : handleEliminar}
+                  borderColor="#FF5C60"
+                >
+                  {isPending ? "Eliminando..." : "Confirmar"}
+                </TitlePill>
+              </div>
+            ) : (
+              <TitlePill onClick={() => setConfirmando(true)} borderColor="#FF5C60">
+                Eliminar
+              </TitlePill>
+            )}
           </div>
 
           {/* Fila 2: contacto + atributos */}
@@ -112,6 +152,10 @@ function DetalleOpinador({
             </div>
             <DataPill>Inicio {opinador.fechaInicio}</DataPill>
           </div>
+
+          {error ? (
+            <p className="font-ui text-sm text-state-required">{error}</p>
+          ) : null}
         </HeaderPanel>
       }
       content={
@@ -500,8 +544,11 @@ export default function AdminOpinadoresPage() {
     return (
       <DetalleOpinador
         opinador={selectedOpinador}
-        onBack={() => setSelectedOpinador(null)}
         onSelectEdicion={setSelectedEdicion}
+        onEliminado={() => {
+          getOpinadores().then(setOpinadores);
+          setSelectedOpinador(null);
+        }}
       />
     );
   }

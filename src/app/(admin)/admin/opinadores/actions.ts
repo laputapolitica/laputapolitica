@@ -268,3 +268,57 @@ export async function getOpinadores(): Promise<OpinadorAdmin[]> {
     ediciones: [],
   }));
 }
+
+export type DesactivarResult = {
+  error?: string;
+  success?: boolean;
+};
+
+export async function desactivarOpinador(
+  numeroUsuario: number,
+): Promise<DesactivarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const admin = createAdminClient();
+
+  // Buscar el UUID real del opinador a partir de su numero_usuario.
+  const { data: op, error: findError } = await admin
+    .from("opinadores")
+    .select("id")
+    .eq("numero_usuario", numeroUsuario)
+    .maybeSingle();
+
+  if (findError || !op) {
+    return { error: "No se encontró el opinador." };
+  }
+
+  // 1. Desactivar la fila (preserva el historial de opiniones).
+  const { error: updateError } = await admin
+    .from("opinadores")
+    .update({ activo: false })
+    .eq("id", op.id);
+
+  if (updateError) {
+    console.error("Error desactivando opinador:", updateError.message);
+    return { error: "No pudimos desactivar el opinador. Intentá de nuevo." };
+  }
+
+  // 2. Banear el usuario de auth para que no pueda loguear (baneo permanente).
+  const { error: banError } = await admin.auth.admin.updateUserById(op.id, {
+    ban_duration: "876000h",
+  });
+
+  if (banError) {
+    console.error("Opinador desactivado, pero falló el baneo de auth:", banError.message);
+    // La fila ya está activo=false (las queries lo filtran), así que el
+    // opinador no opera aunque el baneo de auth no se haya aplicado.
+    return { success: true };
+  }
+
+  return { success: true };
+}
