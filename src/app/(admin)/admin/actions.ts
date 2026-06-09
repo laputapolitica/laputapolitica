@@ -87,3 +87,49 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
 
   return { edicionId: ed.id, fecha: ed.fecha, titulo: ed.titulo, state };
 }
+
+export type AutorizarEtapa = "relevamiento" | "titulosResumenes" | "portada" | "publicacion";
+
+export type AutorizarResult = {
+  error?: string;
+  success?: boolean;
+};
+
+// Mapea el nodeId del diagrama al prefijo de columna en pipeline_state.
+const COLUMNA_APROBACION: Record<AutorizarEtapa, string> = {
+  relevamiento: "relevamiento",
+  titulosResumenes: "titulos",
+  portada: "portada",
+  publicacion: "publicacion",
+};
+
+export async function autorizarEtapa(
+  edicionId: string,
+  etapa: AutorizarEtapa,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const prefijo = COLUMNA_APROBACION[etapa];
+  const update = {
+    [`${prefijo}_aprobado_por`]: user.id,
+    [`${prefijo}_aprobado_en`]: new Date().toISOString(),
+  };
+
+  const { error } = await supabase
+    .from("pipeline_state")
+    .update(update)
+    .eq("edicion_id", edicionId);
+
+  if (error) {
+    console.error(`Error autorizando ${etapa}:`, error.message);
+    return { error: "No se pudo autorizar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}

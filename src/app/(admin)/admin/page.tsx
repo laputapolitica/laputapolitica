@@ -2,7 +2,12 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getPipelineEnCurso, type PipelineEnCurso } from "./actions";
+import {
+  getPipelineEnCurso,
+  autorizarEtapa,
+  type PipelineEnCurso,
+  type AutorizarEtapa,
+} from "./actions";
 import {
   ElPulsoPanel,
   PipelineDiagram,
@@ -141,6 +146,11 @@ export default function AdminPage() {
   const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
   const [cargando, setCargando] = useState(true);
 
+  async function recargarPipeline() {
+    const data = await getPipelineEnCurso();
+    setEnCurso(data);
+  }
+
   useEffect(() => {
     let activo = true;
     getPipelineEnCurso().then((data) => {
@@ -153,6 +163,29 @@ export default function AdminPage() {
       activo = false;
     };
   }, []);
+
+  async function handleAutorizar(nodeId: string) {
+    if (!enCurso) return;
+    const etapasValidas: AutorizarEtapa[] = [
+      "relevamiento",
+      "titulosResumenes",
+      "portada",
+      "publicacion",
+    ];
+    if (!etapasValidas.includes(nodeId as AutorizarEtapa)) return;
+    const res = await autorizarEtapa(enCurso.edicionId, nodeId as AutorizarEtapa);
+    if (res.success) {
+      await recargarPipeline();
+    }
+  }
+
+  async function handlePublicar() {
+    if (!enCurso) return;
+    const res = await autorizarEtapa(enCurso.edicionId, "publicacion");
+    if (res.success) {
+      await recargarPipeline();
+    }
+  }
 
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
   // Si no, se usa el estado real de la edición en curso.
@@ -187,8 +220,8 @@ export default function AdminPage() {
     <div className="flex h-full flex-col gap-4">
       <PipelineDiagram
         pipelineState={pipelineState}
-        onAutorizar={() => console.log("Autorizar (mock)")}
-        onPublicar={() => console.log("Publicar (mock)")}
+        onAutorizar={handleAutorizar}
+        onPublicar={handlePublicar}
       />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         {forcedNodeId ? (

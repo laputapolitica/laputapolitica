@@ -37,7 +37,7 @@ export type PipelineNodeId =
 
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
-  onAutorizar?: () => void;
+  onAutorizar?: (nodeId: PipelineNodeId) => void;
   onPublicar?: () => void;
   diagramOnly?: boolean;
 };
@@ -506,7 +506,7 @@ export function PipelineDiagram({
           </div>
           <button
             type="button"
-            onClick={onAutorizar}
+            onClick={() => activeReview && onAutorizar?.(activeReview.nodeId)}
             className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
           >
             Autorizar
