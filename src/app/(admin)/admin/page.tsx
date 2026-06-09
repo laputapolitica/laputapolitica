@@ -1,6 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getPipelineEnCurso, type PipelineEnCurso } from "./actions";
 import {
   ElPulsoPanel,
   PipelineDiagram,
@@ -135,11 +137,51 @@ export default function AdminPage() {
   const searchParams = useSearchParams();
   const scenarioParam = searchParams.get("scenario");
   const panelParam = searchParams.get("panel") as PipelineNodeId | null;
-  const pipelineState = scenarioParam
+
+  const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    let activo = true;
+    getPipelineEnCurso().then((data) => {
+      if (activo) {
+        setEnCurso(data);
+        setCargando(false);
+      }
+    });
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
+  // Si no, se usa el estado real de la edición en curso.
+  const pipelineState: PipelineState | null = scenarioParam
     ? SCENARIO_STATES[scenarioParam] ?? mockState
-    : mockState;
+    : enCurso?.state ?? null;
+
   const forcedNodeId =
     panelParam && VALID_NODES.includes(panelParam) ? panelParam : null;
+
+  // Sin scenario y todavía cargando el estado real.
+  if (!scenarioParam && cargando) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <span className="font-ui text-sm text-text-secondary">Cargando…</span>
+      </div>
+    );
+  }
+
+  // Sin scenario y sin edición en curso.
+  if (!pipelineState) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <span className="font-ui text-sm text-text-secondary">
+          No hay una edición en curso en este momento.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col gap-4">
