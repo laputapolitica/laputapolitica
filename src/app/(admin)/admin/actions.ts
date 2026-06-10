@@ -133,3 +133,63 @@ export async function autorizarEtapa(
 
   return { success: true };
 }
+
+// ---- Candidatas del relevamiento ----
+
+export type CandidataRelevamiento = {
+  id: string;
+  titulo: string;
+  ranking: number;
+  fuente_url: string | null;
+};
+
+export type NoticiasRelevamiento = {
+  activas: CandidataRelevamiento[];
+  descartadas: CandidataRelevamiento[];
+};
+
+type CandidataRow = {
+  id: string;
+  titulo: string;
+  ranking: number;
+  fuente_url: string | null;
+  activa: boolean;
+};
+
+export async function getCandidatasRelevamiento(
+  edicionId: string,
+): Promise<NoticiasRelevamiento> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("relevamiento_candidatas")
+    .select("id, titulo, ranking, fuente_url, activa")
+    .eq("edicion_id", edicionId)
+    .order("ranking", { ascending: true });
+
+  if (error) {
+    console.error("Error leyendo candidatas del relevamiento:", error.message);
+    return { activas: [], descartadas: [] };
+  }
+
+  const rows = (data ?? []) as CandidataRow[];
+
+  const activas: CandidataRelevamiento[] = [];
+  const descartadas: CandidataRelevamiento[] = [];
+
+  for (const row of rows) {
+    const candidata: CandidataRelevamiento = {
+      id: row.id,
+      titulo: row.titulo,
+      ranking: row.ranking,
+      fuente_url: row.fuente_url,
+    };
+    if (row.activa) {
+      activas.push(candidata);
+    } else {
+      descartadas.push(candidata);
+    }
+  }
+
+  return { activas, descartadas };
+}

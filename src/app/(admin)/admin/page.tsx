@@ -4,8 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   getPipelineEnCurso,
+  getCandidatasRelevamiento,
   autorizarEtapa,
   type PipelineEnCurso,
+  type NoticiasRelevamiento,
   type AutorizarEtapa,
 } from "./actions";
 import {
@@ -85,6 +87,8 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
   publicado: mockStatePublicado,
 };
 
+type NoticiasRelevamientoState = NoticiasRelevamiento | null;
+
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
   const reviewGate = REVIEW_GATES.find(
     ({ gateId, nodeId }) => state[gateId] === "pending" && state[nodeId] === "done",
@@ -97,8 +101,16 @@ function getRunningNodes(state: PipelineState): PipelineNodeId[] {
   return VALID_NODES.filter((nodeId) => state[nodeId] === "running");
 }
 
-function ActivePanel({ nodeId }: { nodeId: PipelineNodeId }) {
-  if (nodeId === "relevamiento") return <RelevamientoPanel status="ready" />;
+function ActivePanel({
+  nodeId,
+  noticiasRelev,
+}: {
+  nodeId: PipelineNodeId;
+  noticiasRelev?: NoticiasRelevamientoState;
+}) {
+  if (nodeId === "relevamiento") {
+    return <RelevamientoPanel status="ready" noticias={noticiasRelev ?? undefined} />;
+  }
   if (nodeId === "titulosResumenes") return <TitulosResumenesPanel status="ready" />;
   if (nodeId === "portada") return <PortadaPanel status="ready" />;
   if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel />;
@@ -106,7 +118,13 @@ function ActivePanel({ nodeId }: { nodeId: PipelineNodeId }) {
   return <PublicacionPanel status="ready" />;
 }
 
-function PipelineActivePanel({ state }: { state: PipelineState }) {
+function PipelineActivePanel({
+  state,
+  noticiasRelev,
+}: {
+  state: PipelineState;
+  noticiasRelev?: NoticiasRelevamientoState;
+}) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
     .filter(([key]) => !key.includes("Gate"))
@@ -117,7 +135,7 @@ function PipelineActivePanel({ state }: { state: PipelineState }) {
   const reviewNode = getReviewNode(state);
 
   if (reviewNode) {
-    return <ActivePanel nodeId={reviewNode} />;
+    return <ActivePanel nodeId={reviewNode} noticiasRelev={noticiasRelev} />;
   }
 
   const runningNodes = getRunningNodes(state);
@@ -144,18 +162,33 @@ export default function AdminPage() {
   const panelParam = searchParams.get("panel") as PipelineNodeId | null;
 
   const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
+  const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
     const data = await getPipelineEnCurso();
     setEnCurso(data);
+    if (data) {
+      const candidatas = await getCandidatasRelevamiento(data.edicionId);
+      setNoticiasRelev(candidatas);
+    } else {
+      setNoticiasRelev(null);
+    }
   }
 
   useEffect(() => {
     let activo = true;
-    getPipelineEnCurso().then((data) => {
+    getPipelineEnCurso().then(async (data) => {
       if (activo) {
         setEnCurso(data);
+        if (data) {
+          const candidatas = await getCandidatasRelevamiento(data.edicionId);
+          if (activo) {
+            setNoticiasRelev(candidatas);
+          }
+        } else {
+          setNoticiasRelev(null);
+        }
         setCargando(false);
       }
     });
@@ -225,9 +258,9 @@ export default function AdminPage() {
       />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         {forcedNodeId ? (
-          <ActivePanel nodeId={forcedNodeId} />
+          <ActivePanel nodeId={forcedNodeId} noticiasRelev={noticiasRelev} />
         ) : (
-          <PipelineActivePanel state={pipelineState} />
+          <PipelineActivePanel state={pipelineState} noticiasRelev={noticiasRelev} />
         )}
       </section>
     </div>
