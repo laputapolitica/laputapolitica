@@ -15,6 +15,7 @@ type TextFieldProps = {
   readOnly?: boolean;
   variant?: "default" | "subtle";
   wrap?: boolean;
+  fitContent?: boolean;
   autoResize?: boolean;
   isEditing?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
@@ -31,6 +32,7 @@ export function TextField({
   readOnly = false,
   variant = "default",
   wrap = false,
+  fitContent = false,
   autoResize = false,
   isEditing: controlledIsEditing,
   onEditingChange,
@@ -147,7 +149,7 @@ export function TextField({
   if (wrap) {
     return (
       <div
-        className={`flex w-full min-h-[28px] items-start gap-1.5 rounded-[3.5px] px-2 py-1 ${variantClasses} ${className}`}
+        className={`flex ${fitContent ? "w-fit max-w-full" : "w-full"} min-h-[28px] items-start gap-1.5 rounded-[3.5px] px-2 py-1 ${variantClasses} ${className}`}
         style={style}
       >
         <span
