@@ -19,10 +19,10 @@ type NoticiasRelevamiento = {
 export interface RelevamientoPanelProps {
   status: "running" | "ready";
   noticias?: NoticiasRelevamiento;
-  onSubir?: (index: number) => void;
-  onBajar?: (index: number) => void;
-  onEliminar?: (index: number) => void;
-  onAgregar?: (index: number) => void;
+  onSubir?: (id: string) => void;
+  onBajar?: (id: string) => void;
+  onEliminar?: (id: string) => void;
+  onAgregar?: (id: string) => void;
 }
 
 const defaultNoticias: NoticiasRelevamiento = {

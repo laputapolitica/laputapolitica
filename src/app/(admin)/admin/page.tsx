@@ -6,9 +6,11 @@ import {
   getPipelineEnCurso,
   getCandidatasRelevamiento,
   autorizarEtapa,
+  moverCandidata,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type AutorizarEtapa,
+  type DireccionMover,
 } from "./actions";
 import {
   ElPulsoPanel,
@@ -104,12 +106,29 @@ function getRunningNodes(state: PipelineState): PipelineNodeId[] {
 function ActivePanel({
   nodeId,
   noticiasRelev,
+  onSubir,
+  onBajar,
+  onEliminar,
+  onAgregar,
 }: {
   nodeId: PipelineNodeId;
   noticiasRelev?: NoticiasRelevamientoState;
+  onSubir?: (id: string) => void;
+  onBajar?: (id: string) => void;
+  onEliminar?: (id: string) => void;
+  onAgregar?: (id: string) => void;
 }) {
   if (nodeId === "relevamiento") {
-    return <RelevamientoPanel status="ready" noticias={noticiasRelev ?? undefined} />;
+    return (
+      <RelevamientoPanel
+        status="ready"
+        noticias={noticiasRelev ?? undefined}
+        onSubir={onSubir}
+        onBajar={onBajar}
+        onEliminar={onEliminar}
+        onAgregar={onAgregar}
+      />
+    );
   }
   if (nodeId === "titulosResumenes") return <TitulosResumenesPanel status="ready" />;
   if (nodeId === "portada") return <PortadaPanel status="ready" />;
@@ -121,9 +140,17 @@ function ActivePanel({
 function PipelineActivePanel({
   state,
   noticiasRelev,
+  onSubir,
+  onBajar,
+  onEliminar,
+  onAgregar,
 }: {
   state: PipelineState;
   noticiasRelev?: NoticiasRelevamientoState;
+  onSubir?: (id: string) => void;
+  onBajar?: (id: string) => void;
+  onEliminar?: (id: string) => void;
+  onAgregar?: (id: string) => void;
 }) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
@@ -135,7 +162,16 @@ function PipelineActivePanel({
   const reviewNode = getReviewNode(state);
 
   if (reviewNode) {
-    return <ActivePanel nodeId={reviewNode} noticiasRelev={noticiasRelev} />;
+    return (
+      <ActivePanel
+        nodeId={reviewNode}
+        noticiasRelev={noticiasRelev}
+        onSubir={onSubir}
+        onBajar={onBajar}
+        onEliminar={onEliminar}
+        onAgregar={onAgregar}
+      />
+    );
   }
 
   const runningNodes = getRunningNodes(state);
@@ -220,6 +256,24 @@ export default function AdminPage() {
     }
   }
 
+  async function handleMoverCandidata(candidataId: string, direccion: DireccionMover) {
+    if (!enCurso) return;
+    const res = await moverCandidata(enCurso.edicionId, candidataId, direccion);
+    if (res.success) {
+      await recargarPipeline();
+    }
+  }
+
+  async function handleEliminarCandidata(candidataId: string) {
+    void candidataId;
+    // TODO: implementar en el próximo paso
+  }
+
+  async function handleAgregarCandidata(candidataId: string) {
+    void candidataId;
+    // TODO: implementar en el próximo paso
+  }
+
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
   // Si no, se usa el estado real de la edición en curso.
   const pipelineState: PipelineState | null = scenarioParam
@@ -258,9 +312,23 @@ export default function AdminPage() {
       />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         {forcedNodeId ? (
-          <ActivePanel nodeId={forcedNodeId} noticiasRelev={noticiasRelev} />
+          <ActivePanel
+            nodeId={forcedNodeId}
+            noticiasRelev={noticiasRelev}
+            onSubir={(id) => handleMoverCandidata(id, "subir")}
+            onBajar={(id) => handleMoverCandidata(id, "bajar")}
+            onEliminar={handleEliminarCandidata}
+            onAgregar={handleAgregarCandidata}
+          />
         ) : (
-          <PipelineActivePanel state={pipelineState} noticiasRelev={noticiasRelev} />
+          <PipelineActivePanel
+            state={pipelineState}
+            noticiasRelev={noticiasRelev}
+            onSubir={(id) => handleMoverCandidata(id, "subir")}
+            onBajar={(id) => handleMoverCandidata(id, "bajar")}
+            onEliminar={handleEliminarCandidata}
+            onAgregar={handleAgregarCandidata}
+          />
         )}
       </section>
     </div>

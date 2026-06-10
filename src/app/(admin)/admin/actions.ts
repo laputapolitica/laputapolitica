@@ -193,3 +193,80 @@ export async function getCandidatasRelevamiento(
 
   return { activas, descartadas };
 }
+
+export type DireccionMover = "subir" | "bajar";
+
+export async function moverCandidata(
+  edicionId: string,
+  candidataId: string,
+  direccion: DireccionMover,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // 1. Traer todas las candidatas ACTIVAS de la edición, ordenadas por ranking.
+  const { data, error } = await supabase
+    .from("relevamiento_candidatas")
+    .select("id, ranking")
+    .eq("edicion_id", edicionId)
+    .eq("activa", true)
+    .order("ranking", { ascending: true });
+
+  if (error || !data) {
+    console.error("Error leyendo candidatas para mover:", error?.message);
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  const activas = data as { id: string; ranking: number }[];
+
+  // 2. Encontrar la candidata actual y su vecina.
+  const idx = activas.findIndex((c) => c.id === candidataId);
+  if (idx === -1) {
+    return { error: "Candidata no encontrada." };
+  }
+
+  const vecinoIdx = direccion === "subir" ? idx - 1 : idx + 1;
+
+  // Si no hay vecino (ya es la primera o la última), no hacer nada (éxito silencioso).
+  if (vecinoIdx < 0 || vecinoIdx >= activas.length) {
+    return { success: true };
+  }
+
+  const actual = activas[idx];
+  const vecino = activas[vecinoIdx];
+
+  // 3. Swap de rankings en 3 pasos para no violar unique(edicion_id, ranking).
+  // Usamos un ranking temporal negativo que no colisiona con ninguno real.
+  const TEMP = -1;
+
+  // 3a. actual -> TEMP
+  let res = await supabase
+    .from("relevamiento_candidatas")
+    .update({ ranking: TEMP })
+    .eq("id", actual.id);
+  if (res.error) {
+    console.error("Error swap paso 1:", res.error.message);
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  // 3b. vecino -> ranking de actual
+  res = await supabase
+    .from("relevamiento_candidatas")
+    .update({ ranking: actual.ranking })
+    .eq("id", vecino.id);
+  if (res.error) {
+    console.error("Error swap paso 2:", res.error.message);
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  // 3c. actual (en TEMP) -> ranking del vecino
+  res = await supabase
+    .from("relevamiento_candidatas")
+    .update({ ranking: vecino.ranking })
+    .eq("id", actual.id);
+  if (res.error) {
+    console.error("Error swap paso 3:", res.error.message);
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
