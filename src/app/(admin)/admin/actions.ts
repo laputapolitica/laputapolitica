@@ -115,6 +115,57 @@ export async function autorizarEtapa(
     return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
   }
 
+  if (etapa === "relevamiento") {
+    const { data: activasData, error: activasError } = await supabase
+      .from("relevamiento_candidatas")
+      .select("titulo, fuente_url, ranking, orden")
+      .eq("edicion_id", edicionId)
+      .eq("activa", true)
+      .order("orden", { ascending: true });
+
+    if (activasError) {
+      console.error("Error leyendo activas para promover:", activasError.message);
+      return { error: "No se pudo autorizar. Intentá de nuevo." };
+    }
+
+    const activas = (activasData ?? []) as {
+      titulo: string;
+      fuente_url: string | null;
+      ranking: number;
+      orden: number;
+    }[];
+
+    if (activas.length === 0) {
+      return { error: "No hay noticias activas para autorizar." };
+    }
+
+    const { error: delError } = await supabase
+      .from("noticias")
+      .delete()
+      .eq("edicion_id", edicionId);
+
+    if (delError) {
+      console.error("Error limpiando noticias previas:", delError.message);
+      return { error: "No se pudo autorizar. Intentá de nuevo." };
+    }
+
+    const filas = activas.map((c) => ({
+      edicion_id: edicionId,
+      orden: c.orden,
+      titulo: c.titulo,
+      cuerpo: "",
+      fuentes_urls: c.fuente_url ? [c.fuente_url] : [],
+      metadata: { ranking_original: c.ranking },
+    }));
+
+    const { error: insError } = await supabase.from("noticias").insert(filas);
+
+    if (insError) {
+      console.error("Error promoviendo noticias:", insError.message);
+      return { error: "No se pudo autorizar. Intentá de nuevo." };
+    }
+  }
+
   const prefijo = COLUMNA_APROBACION[etapa];
   const update = {
     [`${prefijo}_aprobado_por`]: user.id,
