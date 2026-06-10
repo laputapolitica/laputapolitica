@@ -7,6 +7,8 @@ import {
   getCandidatasRelevamiento,
   autorizarEtapa,
   moverCandidata,
+  eliminarCandidata,
+  agregarCandidata,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type AutorizarEtapa,
@@ -265,13 +267,23 @@ export default function AdminPage() {
   }
 
   async function handleEliminarCandidata(candidataId: string) {
-    void candidataId;
-    // TODO: implementar en el próximo paso
+    if (!enCurso) return;
+    const res = await eliminarCandidata(enCurso.edicionId, candidataId);
+    if (res.success) {
+      await recargarPipeline();
+    } else if (res.error) {
+      alert(res.error);
+    }
   }
 
   async function handleAgregarCandidata(candidataId: string) {
-    void candidataId;
-    // TODO: implementar en el próximo paso
+    if (!enCurso) return;
+    const res = await agregarCandidata(enCurso.edicionId, candidataId);
+    if (res.success) {
+      await recargarPipeline();
+    } else if (res.error) {
+      alert(res.error);
+    }
   }
 
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).

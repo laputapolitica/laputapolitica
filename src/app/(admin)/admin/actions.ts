@@ -140,6 +140,7 @@ export type CandidataRelevamiento = {
   id: string;
   titulo: string;
   ranking: number;
+  orden: number | null;
   fuente_url: string | null;
 };
 
@@ -152,6 +153,7 @@ type CandidataRow = {
   id: string;
   titulo: string;
   ranking: number;
+  orden: number | null;
   fuente_url: string | null;
   activa: boolean;
 };
@@ -163,9 +165,8 @@ export async function getCandidatasRelevamiento(
 
   const { data, error } = await supabase
     .from("relevamiento_candidatas")
-    .select("id, titulo, ranking, fuente_url, activa")
-    .eq("edicion_id", edicionId)
-    .order("ranking", { ascending: true });
+    .select("id, titulo, ranking, orden, fuente_url, activa")
+    .eq("edicion_id", edicionId);
 
   if (error) {
     console.error("Error leyendo candidatas del relevamiento:", error.message);
@@ -174,24 +175,25 @@ export async function getCandidatasRelevamiento(
 
   const rows = (data ?? []) as CandidataRow[];
 
-  const activas: CandidataRelevamiento[] = [];
-  const descartadas: CandidataRelevamiento[] = [];
+  const activasRows = rows
+    .filter((r) => r.activa)
+    .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+  const descartadasRows = rows
+    .filter((r) => !r.activa)
+    .sort((a, b) => a.ranking - b.ranking);
 
-  for (const row of rows) {
-    const candidata: CandidataRelevamiento = {
-      id: row.id,
-      titulo: row.titulo,
-      ranking: row.ranking,
-      fuente_url: row.fuente_url,
-    };
-    if (row.activa) {
-      activas.push(candidata);
-    } else {
-      descartadas.push(candidata);
-    }
-  }
+  const toCandidata = (r: CandidataRow): CandidataRelevamiento => ({
+    id: r.id,
+    titulo: r.titulo,
+    ranking: r.ranking,
+    orden: r.orden,
+    fuente_url: r.fuente_url,
+  });
 
-  return { activas, descartadas };
+  return {
+    activas: activasRows.map(toCandidata),
+    descartadas: descartadasRows.map(toCandidata),
+  };
 }
 
 export type DireccionMover = "subir" | "bajar";
@@ -203,69 +205,177 @@ export async function moverCandidata(
 ): Promise<AutorizarResult> {
   const supabase = await createClient();
 
-  // 1. Traer todas las candidatas ACTIVAS de la edición, ordenadas por ranking.
+  // Traer las ACTIVAS ordenadas por `orden`.
   const { data, error } = await supabase
     .from("relevamiento_candidatas")
-    .select("id, ranking")
+    .select("id, orden")
     .eq("edicion_id", edicionId)
     .eq("activa", true)
-    .order("ranking", { ascending: true });
+    .order("orden", { ascending: true });
 
   if (error || !data) {
     console.error("Error leyendo candidatas para mover:", error?.message);
     return { error: "No se pudo reordenar. Intentá de nuevo." };
   }
 
-  const activas = data as { id: string; ranking: number }[];
+  const activas = data as { id: string; orden: number }[];
 
-  // 2. Encontrar la candidata actual y su vecina.
   const idx = activas.findIndex((c) => c.id === candidataId);
   if (idx === -1) {
     return { error: "Candidata no encontrada." };
   }
 
   const vecinoIdx = direccion === "subir" ? idx - 1 : idx + 1;
-
-  // Si no hay vecino (ya es la primera o la última), no hacer nada (éxito silencioso).
   if (vecinoIdx < 0 || vecinoIdx >= activas.length) {
-    return { success: true };
+    return { success: true }; // ya es la primera/última: no hacer nada
   }
 
   const actual = activas[idx];
   const vecino = activas[vecinoIdx];
 
-  // 3. Swap de rankings en 3 pasos para no violar unique(edicion_id, ranking).
-  // Usamos un ranking temporal negativo que no colisiona con ninguno real.
+  // Swap de `orden` en 3 pasos (orden temporal negativo para no violar el unique parcial).
   const TEMP = -1;
 
-  // 3a. actual -> TEMP
   let res = await supabase
     .from("relevamiento_candidatas")
-    .update({ ranking: TEMP })
+    .update({ orden: TEMP })
     .eq("id", actual.id);
   if (res.error) {
-    console.error("Error swap paso 1:", res.error.message);
+    console.error("Error swap orden paso 1:", res.error.message);
     return { error: "No se pudo reordenar. Intentá de nuevo." };
   }
 
-  // 3b. vecino -> ranking de actual
   res = await supabase
     .from("relevamiento_candidatas")
-    .update({ ranking: actual.ranking })
+    .update({ orden: actual.orden })
     .eq("id", vecino.id);
   if (res.error) {
-    console.error("Error swap paso 2:", res.error.message);
+    console.error("Error swap orden paso 2:", res.error.message);
     return { error: "No se pudo reordenar. Intentá de nuevo." };
   }
 
-  // 3c. actual (en TEMP) -> ranking del vecino
   res = await supabase
     .from("relevamiento_candidatas")
-    .update({ ranking: vecino.ranking })
+    .update({ orden: vecino.orden })
     .eq("id", actual.id);
   if (res.error) {
-    console.error("Error swap paso 3:", res.error.message);
+    console.error("Error swap orden paso 3:", res.error.message);
     return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
+export async function eliminarCandidata(
+  edicionId: string,
+  candidataId: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // Traer las ACTIVAS ordenadas por `orden`.
+  const { data, error } = await supabase
+    .from("relevamiento_candidatas")
+    .select("id, orden")
+    .eq("edicion_id", edicionId)
+    .eq("activa", true)
+    .order("orden", { ascending: true });
+
+  if (error || !data) {
+    console.error("Error leyendo candidatas para eliminar:", error?.message);
+    return { error: "No se pudo eliminar. Intentá de nuevo." };
+  }
+
+  const activas = data as { id: string; orden: number }[];
+
+  if (activas.length <= 3) {
+    return { error: "Tenés que mantener al menos 3 noticias activas." };
+  }
+
+  const objetivo = activas.find((c) => c.id === candidataId);
+  if (!objetivo) {
+    return { error: "Noticia no encontrada entre las activas." };
+  }
+
+  // Las activas que quedan, en su orden actual.
+  const restantes = activas.filter((c) => c.id !== candidataId);
+
+  // Paso 1: la objetivo pasa a descartada (activa=false, orden=null). ranking NO se toca.
+  let res = await supabase
+    .from("relevamiento_candidatas")
+    .update({ activa: false, orden: null })
+    .eq("id", candidataId);
+  if (res.error) {
+    console.error("Error eliminar (descartar):", res.error.message);
+    return { error: "No se pudo eliminar. Intentá de nuevo." };
+  }
+
+  // Paso 2: recompactar `orden` de las restantes a 1..N.
+  // Fase A: mandarlas a orden temporal negativo (evita choque con unique parcial).
+  for (let i = 0; i < restantes.length; i++) {
+    res = await supabase
+      .from("relevamiento_candidatas")
+      .update({ orden: -(i + 1) })
+      .eq("id", restantes[i].id);
+    if (res.error) {
+      console.error("Error eliminar recompactar fase A:", res.error.message);
+      return { error: "No se pudo eliminar. Intentá de nuevo." };
+    }
+  }
+  // Fase B: asignar 1..N definitivo.
+  for (let i = 0; i < restantes.length; i++) {
+    res = await supabase
+      .from("relevamiento_candidatas")
+      .update({ orden: i + 1 })
+      .eq("id", restantes[i].id);
+    if (res.error) {
+      console.error("Error eliminar recompactar fase B:", res.error.message);
+      return { error: "No se pudo eliminar. Intentá de nuevo." };
+    }
+  }
+
+  return { success: true };
+}
+
+export async function agregarCandidata(
+  edicionId: string,
+  candidataId: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // Traer las ACTIVAS para contar y saber el último orden.
+  const { data, error } = await supabase
+    .from("relevamiento_candidatas")
+    .select("id, orden")
+    .eq("edicion_id", edicionId)
+    .eq("activa", true)
+    .order("orden", { ascending: true });
+
+  if (error || !data) {
+    console.error("Error leyendo candidatas para agregar:", error?.message);
+    return { error: "No se pudo agregar. Intentá de nuevo." };
+  }
+
+  const activas = data as { id: string; orden: number }[];
+
+  // Validar máximo de 5 activas.
+  if (activas.length >= 5) {
+    return { error: "Ya tenés 5 noticias activas (el máximo)." };
+  }
+
+  // El nuevo orden es el siguiente al último (o 1 si no hay activas).
+  const ultimoOrden = activas.length > 0 ? activas[activas.length - 1].orden : 0;
+  const nuevoOrden = ultimoOrden + 1;
+
+  // La candidata pasa a activa con ese orden. ranking NO se toca.
+  const res = await supabase
+    .from("relevamiento_candidatas")
+    .update({ activa: true, orden: nuevoOrden })
+    .eq("id", candidataId)
+    .eq("edicion_id", edicionId);
+
+  if (res.error) {
+    console.error("Error agregar candidata:", res.error.message);
+    return { error: "No se pudo agregar. Intentá de nuevo." };
   }
 
   return { success: true };
