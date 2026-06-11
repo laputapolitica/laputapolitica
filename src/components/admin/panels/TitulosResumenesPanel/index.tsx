@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import type { NoticiaTituloResumen } from "@/app/(admin)/admin/actions";
 import { LoadingText, PanelLayout } from "@/components/admin/shared";
 
 import { TitulosResumenesContent } from "./Content";
@@ -9,15 +10,11 @@ import { TitulosResumenesHeader } from "./Header";
 
 interface TitulosResumenesPanelProps {
   status: "running" | "ready";
+  noticias?: NoticiaTituloResumen[];
+  onSaveTitulo?: (noticiaId: string, value: string) => void;
+  onSaveResumen?: (noticiaId: string, value: string) => void;
   onAutorizar?: () => void;
 }
-
-type NoticiaTituloResumen = {
-  id: string;
-  titulo: string;
-  resumen: string;
-  fuentes: { nombre: string; url: string }[];
-};
 
 const mockNoticias: NoticiaTituloResumen[] = [
   {
@@ -79,9 +76,16 @@ const mockNoticias: NoticiaTituloResumen[] = [
 
 export function TitulosResumenesPanel({
   status,
+  noticias: noticiasProp,
+  onSaveTitulo,
+  onSaveResumen,
 }: TitulosResumenesPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [noticias, setNoticias] = useState(mockNoticias);
+  const [noticias, setNoticias] = useState(noticiasProp ?? mockNoticias);
+
+  useEffect(() => {
+    if (noticiasProp) setNoticias(noticiasProp);
+  }, [noticiasProp]);
 
   if (status === "running") {
     return (
@@ -97,11 +101,20 @@ export function TitulosResumenesPanel({
     field: keyof Pick<NoticiaTituloResumen, "titulo" | "resumen">,
     value: string,
   ) {
+    const activeNoticiaId = noticias[activeIndex]?.id;
+
     setNoticias((currentNoticias) =>
       currentNoticias.map((noticia, index) =>
         index === activeIndex ? { ...noticia, [field]: value } : noticia,
       ),
     );
+
+    if (!activeNoticiaId) return;
+    if (field === "titulo") {
+      onSaveTitulo?.(activeNoticiaId, value);
+    } else {
+      onSaveResumen?.(activeNoticiaId, value);
+    }
   }
 
   return (

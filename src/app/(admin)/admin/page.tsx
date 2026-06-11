@@ -5,12 +5,15 @@ import { useEffect, useState } from "react";
 import {
   getPipelineEnCurso,
   getCandidatasRelevamiento,
+  getNoticiasTitulosResumenes,
   autorizarEtapa,
   moverCandidata,
   eliminarCandidata,
   agregarCandidata,
+  guardarTituloResumen,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
+  type NoticiaTituloResumen,
   type AutorizarEtapa,
   type DireccionMover,
 } from "./actions";
@@ -92,6 +95,7 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
 };
 
 type NoticiasRelevamientoState = NoticiasRelevamiento | null;
+type NoticiasTitulosState = NoticiaTituloResumen[] | null;
 
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
   const reviewGate = REVIEW_GATES.find(
@@ -108,17 +112,23 @@ function getRunningNodes(state: PipelineState): PipelineNodeId[] {
 function ActivePanel({
   nodeId,
   noticiasRelev,
+  noticiasTitulos,
   onSubir,
   onBajar,
   onEliminar,
   onAgregar,
+  onSaveTitulo,
+  onSaveResumen,
 }: {
   nodeId: PipelineNodeId;
   noticiasRelev?: NoticiasRelevamientoState;
+  noticiasTitulos?: NoticiasTitulosState;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
+  onSaveTitulo?: (id: string, val: string) => void;
+  onSaveResumen?: (id: string, val: string) => void;
 }) {
   if (nodeId === "relevamiento") {
     return (
@@ -132,7 +142,16 @@ function ActivePanel({
       />
     );
   }
-  if (nodeId === "titulosResumenes") return <TitulosResumenesPanel status="ready" />;
+  if (nodeId === "titulosResumenes") {
+    return (
+      <TitulosResumenesPanel
+        status="ready"
+        noticias={noticiasTitulos ?? undefined}
+        onSaveTitulo={(id, val) => onSaveTitulo?.(id, val)}
+        onSaveResumen={(id, val) => onSaveResumen?.(id, val)}
+      />
+    );
+  }
   if (nodeId === "portada") return <PortadaPanel status="ready" />;
   if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel />;
   if (nodeId === "elPulso") return <ElPulsoPanel status="ready" />;
@@ -142,17 +161,23 @@ function ActivePanel({
 function PipelineActivePanel({
   state,
   noticiasRelev,
+  noticiasTitulos,
   onSubir,
   onBajar,
   onEliminar,
   onAgregar,
+  onSaveTitulo,
+  onSaveResumen,
 }: {
   state: PipelineState;
   noticiasRelev?: NoticiasRelevamientoState;
+  noticiasTitulos?: NoticiasTitulosState;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
+  onSaveTitulo?: (id: string, val: string) => void;
+  onSaveResumen?: (id: string, val: string) => void;
 }) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
@@ -168,10 +193,13 @@ function PipelineActivePanel({
       <ActivePanel
         nodeId={reviewNode}
         noticiasRelev={noticiasRelev}
+        noticiasTitulos={noticiasTitulos}
         onSubir={onSubir}
         onBajar={onBajar}
         onEliminar={onEliminar}
         onAgregar={onAgregar}
+        onSaveTitulo={onSaveTitulo}
+        onSaveResumen={onSaveResumen}
       />
     );
   }
@@ -201,6 +229,8 @@ export default function AdminPage() {
 
   const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
   const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
+  const [noticiasTitulos, setNoticiasTitulos] =
+    useState<NoticiasTitulosState>(null);
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
@@ -208,9 +238,12 @@ export default function AdminPage() {
     setEnCurso(data);
     if (data) {
       const candidatas = await getCandidatasRelevamiento(data.edicionId);
+      const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
       setNoticiasRelev(candidatas);
+      setNoticiasTitulos(titNoticias);
     } else {
       setNoticiasRelev(null);
+      setNoticiasTitulos(null);
     }
   }
 
@@ -221,11 +254,14 @@ export default function AdminPage() {
         setEnCurso(data);
         if (data) {
           const candidatas = await getCandidatasRelevamiento(data.edicionId);
+          const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
           if (activo) {
             setNoticiasRelev(candidatas);
+            setNoticiasTitulos(titNoticias);
           }
         } else {
           setNoticiasRelev(null);
+          setNoticiasTitulos(null);
         }
         setCargando(false);
       }
@@ -286,6 +322,20 @@ export default function AdminPage() {
     }
   }
 
+  async function handleGuardarTituloResumen(
+    noticiaId: string,
+    campo: "titulo" | "resumen",
+    valor: string,
+  ) {
+    if (!enCurso) return;
+    const res = await guardarTituloResumen(noticiaId, campo, valor);
+    if (res.success) {
+      await recargarPipeline();
+    } else if (res.error) {
+      alert(res.error);
+    }
+  }
+
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
   // Si no, se usa el estado real de la edición en curso.
   const pipelineState: PipelineState | null = scenarioParam
@@ -327,19 +377,33 @@ export default function AdminPage() {
           <ActivePanel
             nodeId={forcedNodeId}
             noticiasRelev={noticiasRelev}
+            noticiasTitulos={noticiasTitulos}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
             onAgregar={handleAgregarCandidata}
+            onSaveTitulo={(id, val) =>
+              handleGuardarTituloResumen(id, "titulo", val)
+            }
+            onSaveResumen={(id, val) =>
+              handleGuardarTituloResumen(id, "resumen", val)
+            }
           />
         ) : (
           <PipelineActivePanel
             state={pipelineState}
             noticiasRelev={noticiasRelev}
+            noticiasTitulos={noticiasTitulos}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
             onAgregar={handleAgregarCandidata}
+            onSaveTitulo={(id, val) =>
+              handleGuardarTituloResumen(id, "titulo", val)
+            }
+            onSaveResumen={(id, val) =>
+              handleGuardarTituloResumen(id, "resumen", val)
+            }
           />
         )}
       </section>

@@ -431,3 +431,81 @@ export async function agregarCandidata(
 
   return { success: true };
 }
+
+export type NoticiaTituloResumen = {
+  id: string;
+  titulo: string;
+  resumen: string;
+  fuentes: { nombre: string; url: string }[];
+};
+
+function nombreFuenteDesdeUrl(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    // ej. "infobae.com" -> "Infobae"; "lanacion.com.ar" -> "Lanacion"
+    const base = host.split(".")[0];
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  } catch {
+    return "Fuente";
+  }
+}
+
+export async function getNoticiasTitulosResumenes(
+  edicionId: string,
+): Promise<NoticiaTituloResumen[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("noticias")
+    .select("id, titulo, cuerpo, fuentes_urls, orden")
+    .eq("edicion_id", edicionId)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error leyendo noticias para títulos/resúmenes:", error.message);
+    return [];
+  }
+
+  type NoticiaRow = {
+    id: string;
+    titulo: string;
+    cuerpo: string;
+    fuentes_urls: string[] | null;
+    orden: number;
+  };
+
+  const rows = (data ?? []) as NoticiaRow[];
+
+  return rows.map((r) => ({
+    id: r.id,
+    titulo: r.titulo,
+    resumen: r.cuerpo ?? "",
+    fuentes: (r.fuentes_urls ?? []).map((url) => ({
+      nombre: nombreFuenteDesdeUrl(url),
+      url,
+    })),
+  }));
+}
+
+export async function guardarTituloResumen(
+  noticiaId: string,
+  campo: "titulo" | "resumen",
+  valor: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // El panel usa "resumen", pero en la base la columna se llama "cuerpo".
+  const columna = campo === "resumen" ? "cuerpo" : "titulo";
+
+  const { error } = await supabase
+    .from("noticias")
+    .update({ [columna]: valor })
+    .eq("id", noticiaId);
+
+  if (error) {
+    console.error("Error guardando título/resumen:", error.message);
+    return { error: "No se pudo guardar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}

@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { NoticiaTituloResumen } from "@/app/(admin)/admin/actions";
 import { IconEditar, IconRehacer } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
-
-type NoticiaTituloResumen = {
-  id: string;
-  titulo: string;
-  resumen: string;
-  fuentes: { nombre: string; url: string }[];
-};
 
 type ContentProps = {
   noticia: NoticiaTituloResumen;
