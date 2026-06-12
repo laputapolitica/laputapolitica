@@ -11,6 +11,7 @@ import {
   eliminarCandidata,
   agregarCandidata,
   guardarTituloResumen,
+  rehacerCampo,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
@@ -119,6 +120,7 @@ function ActivePanel({
   onAgregar,
   onSaveTitulo,
   onSaveResumen,
+  onRehacer,
 }: {
   nodeId: PipelineNodeId;
   noticiasRelev?: NoticiasRelevamientoState;
@@ -129,6 +131,7 @@ function ActivePanel({
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveResumen?: (id: string, val: string) => void;
+  onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
   if (nodeId === "relevamiento") {
     return (
@@ -149,6 +152,7 @@ function ActivePanel({
         noticias={noticiasTitulos ?? undefined}
         onSaveTitulo={(id, val) => onSaveTitulo?.(id, val)}
         onSaveResumen={(id, val) => onSaveResumen?.(id, val)}
+        onRehacer={onRehacer}
       />
     );
   }
@@ -168,6 +172,7 @@ function PipelineActivePanel({
   onAgregar,
   onSaveTitulo,
   onSaveResumen,
+  onRehacer,
 }: {
   state: PipelineState;
   noticiasRelev?: NoticiasRelevamientoState;
@@ -178,6 +183,7 @@ function PipelineActivePanel({
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveResumen?: (id: string, val: string) => void;
+  onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
@@ -200,6 +206,7 @@ function PipelineActivePanel({
         onAgregar={onAgregar}
         onSaveTitulo={onSaveTitulo}
         onSaveResumen={onSaveResumen}
+        onRehacer={onRehacer}
       />
     );
   }
@@ -336,6 +343,22 @@ export default function AdminPage() {
     }
   }
 
+  async function handleRehacer(noticiaId: string, campo: "titulo" | "resumen") {
+    const res = await rehacerCampo(noticiaId, campo);
+    if (res.error) {
+      alert(res.error);
+      return;
+    }
+    if (res.valor) {
+      const guardado = await guardarTituloResumen(noticiaId, campo, res.valor);
+      if (guardado.success) {
+        await recargarPipeline();
+      } else if (guardado.error) {
+        alert(guardado.error);
+      }
+    }
+  }
+
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
   // Si no, se usa el estado real de la edición en curso.
   const pipelineState: PipelineState | null = scenarioParam
@@ -388,6 +411,7 @@ export default function AdminPage() {
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
+            onRehacer={handleRehacer}
           />
         ) : (
           <PipelineActivePanel
@@ -404,6 +428,7 @@ export default function AdminPage() {
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
+            onRehacer={handleRehacer}
           />
         )}
       </section>

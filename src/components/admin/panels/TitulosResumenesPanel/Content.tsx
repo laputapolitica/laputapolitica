@@ -9,12 +9,20 @@ type ContentProps = {
   noticia: NoticiaTituloResumen;
   onSaveTitulo: (value: string) => void;
   onSaveResumen: (value: string) => void;
+  onRehacerTitulo: () => void;
+  onRehacerResumen: () => void;
+  rehaciendoTitulo?: boolean;
+  rehaciendoResumen?: boolean;
 };
 
 export function TitulosResumenesContent({
   noticia,
   onSaveTitulo,
   onSaveResumen,
+  onRehacerTitulo,
+  onRehacerResumen,
+  rehaciendoTitulo = false,
+  rehaciendoResumen = false,
 }: ContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
   const [isEditingResumen, setIsEditingResumen] = useState(false);
@@ -46,10 +54,11 @@ export function TitulosResumenesContent({
                 Editar
               </IconButton>
               <IconButton
-                onClick={() => navigator.clipboard.writeText(noticia.titulo)}
+                onClick={onRehacerTitulo}
+                disabled={rehaciendoTitulo}
               >
                 <IconRehacer width={11} height={11} />
-                Rehacer
+                {rehaciendoTitulo ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
             </>
           )}
@@ -76,10 +85,11 @@ export function TitulosResumenesContent({
                 Editar
               </IconButton>
               <IconButton
-                onClick={() => navigator.clipboard.writeText(noticia.resumen)}
+                onClick={onRehacerResumen}
+                disabled={rehaciendoResumen}
               >
                 <IconRehacer width={11} height={11} />
-                Rehacer
+                {rehaciendoResumen ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
             </div>
           )}

@@ -509,3 +509,103 @@ export async function guardarTituloResumen(
 
   return { success: true };
 }
+
+type RehacerResult = {
+  error?: string;
+  valor?: string;
+};
+
+type GroqChatCompletionResponse = {
+  choices?: {
+    message?: {
+      content?: string;
+    };
+  }[];
+};
+
+export async function rehacerCampo(
+  noticiaId: string,
+  campo: "titulo" | "resumen",
+): Promise<RehacerResult> {
+  const supabase = await createClient();
+
+  // 1. Leer el texto de la(s) fuente(s) de la noticia.
+  const { data, error } = await supabase
+    .from("noticias")
+    .select("textos_fuentes")
+    .eq("id", noticiaId)
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("Error leyendo textos_fuentes:", error?.message);
+    return { error: "No se pudo leer la fuente. Intentá de nuevo." };
+  }
+
+  type FuenteTexto = { url: string; texto: string };
+  const fuentes = (data.textos_fuentes ?? []) as FuenteTexto[];
+
+  if (fuentes.length === 0 || !fuentes.some((f) => f.texto)) {
+    return { error: "Esta noticia no tiene el texto de la fuente guardado. No se puede rehacer." };
+  }
+
+  // Concatenar los textos de todas las fuentes (preparado para multi-fuente).
+  const textoFuentes = fuentes
+    .filter((f) => f.texto)
+    .map((f) => f.texto)
+    .join("\n\n---\n\n");
+
+  // 2. Armar el prompt según el campo a regenerar.
+  const instruccionCampo =
+    campo === "titulo"
+      ? 'Generá UN nuevo TÍTULO editorial (una sola línea, máximo 12 palabras, informativo y con carácter, sin clickbait). Devolvé SOLAMENTE un objeto JSON con la forma {"valor": "..."} y nada más.'
+      : 'Generá UN nuevo CUERPO/RESUMEN: un solo párrafo de 3 a 5 oraciones (entre 60 y 90 palabras) que cubra lo esencial de la nota. Devolvé SOLAMENTE un objeto JSON con la forma {"valor": "..."} y nada más.';
+
+  const prompt =
+    "Sos editor de un medio de noticias políticas argentino para jóvenes, con un estilo editorial serio pero con carácter (estilo The Economist).\n\n" +
+    instruccionCampo +
+    "\n\nIgnorá cualquier texto promocional del diario que no sea parte de la noticia.\n\nTexto de la nota:\n" +
+    textoFuentes;
+
+  // 3. Llamar a Groq.
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    console.error("Falta GROQ_API_KEY en el entorno.");
+    return { error: "Configuración incompleta del servidor." };
+  }
+
+  try {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!resp.ok) {
+      console.error("Groq respondió con error:", resp.status);
+      return { error: "La IA no respondió bien. Probá de nuevo en unos segundos." };
+    }
+
+    const json = (await resp.json()) as GroqChatCompletionResponse;
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) {
+      return { error: "La IA devolvió una respuesta vacía. Probá de nuevo." };
+    }
+
+    const parsed = JSON.parse(content) as { valor?: string };
+    if (!parsed.valor) {
+      return { error: "La IA no devolvió el campo esperado. Probá de nuevo." };
+    }
+
+    return { valor: parsed.valor };
+  } catch (e) {
+    console.error("Error llamando a Groq:", e);
+    return { error: "Hubo un problema al regenerar. Probá de nuevo." };
+  }
+}

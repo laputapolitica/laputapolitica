@@ -13,6 +13,7 @@ interface TitulosResumenesPanelProps {
   noticias?: NoticiaTituloResumen[];
   onSaveTitulo?: (noticiaId: string, value: string) => void;
   onSaveResumen?: (noticiaId: string, value: string) => void;
+  onRehacer?: (noticiaId: string, campo: "titulo" | "resumen") => Promise<void> | void;
   onAutorizar?: () => void;
 }
 
@@ -79,9 +80,12 @@ export function TitulosResumenesPanel({
   noticias: noticiasProp,
   onSaveTitulo,
   onSaveResumen,
+  onRehacer,
 }: TitulosResumenesPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [noticias, setNoticias] = useState(noticiasProp ?? mockNoticias);
+  const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
+  const [rehaciendoResumen, setRehaciendoResumen] = useState(false);
 
   useEffect(() => {
     if (noticiasProp) setNoticias(noticiasProp);
@@ -117,6 +121,26 @@ export function TitulosResumenesPanel({
     }
   }
 
+  async function handleRehacerTitulo() {
+    if (!activeNoticia) return;
+    setRehaciendoTitulo(true);
+    try {
+      await onRehacer?.(activeNoticia.id, "titulo");
+    } finally {
+      setRehaciendoTitulo(false);
+    }
+  }
+
+  async function handleRehacerResumen() {
+    if (!activeNoticia) return;
+    setRehaciendoResumen(true);
+    try {
+      await onRehacer?.(activeNoticia.id, "resumen");
+    } finally {
+      setRehaciendoResumen(false);
+    }
+  }
+
   return (
     <PanelLayout
       header={
@@ -131,6 +155,10 @@ export function TitulosResumenesPanel({
           noticia={activeNoticia}
           onSaveTitulo={(val) => updateActiveNoticia("titulo", val)}
           onSaveResumen={(val) => updateActiveNoticia("resumen", val)}
+          onRehacerTitulo={handleRehacerTitulo}
+          onRehacerResumen={handleRehacerResumen}
+          rehaciendoTitulo={rehaciendoTitulo}
+          rehaciendoResumen={rehaciendoResumen}
         />
       }
     />
