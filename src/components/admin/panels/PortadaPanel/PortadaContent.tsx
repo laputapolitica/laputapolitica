@@ -17,6 +17,27 @@ export function PortadaContent({
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
 
+  async function handleDescargar() {
+    if (!imagenUrl) return;
+
+    try {
+      const res = await fetch(imagenUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = "portada.jpg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Error al descargar la portada:", e);
+      alert("No se pudo descargar la imagen. Intentá de nuevo.");
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 font-ui">
       {/* TÍTULO */}
@@ -66,7 +87,7 @@ export function PortadaContent({
               <IconRehacer width={11} height={11} />
               Rehacer
             </IconButton>
-            <IconButton onClick={() => {}}>
+            <IconButton onClick={handleDescargar}>
               <IconBajar width={11} height={11} />
               Descargar
             </IconButton>
