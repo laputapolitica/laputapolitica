@@ -8,14 +8,24 @@ import { PortadaContent } from "./PortadaContent";
 interface PortadaPanelProps {
   status: "loading" | "ready";
   portada?: PortadaVigente;
+  onSaveTitulo?: (titulo: string) => void;
 }
 
-export function PortadaPanel({ status, portada }: PortadaPanelProps) {
+export function PortadaPanel({
+  status,
+  portada,
+  onSaveTitulo,
+}: PortadaPanelProps) {
   const [titulo, setTitulo] = useState(portada?.titulo ?? "Equilibrio ciego");
 
   useEffect(() => {
     if (portada?.titulo) setTitulo(portada.titulo);
   }, [portada?.titulo]);
+
+  function handleSaveTitulo(value: string) {
+    setTitulo(value);
+    onSaveTitulo?.(value);
+  }
 
   if (status === "loading") {
     return (
@@ -33,7 +43,7 @@ export function PortadaPanel({ status, portada }: PortadaPanelProps) {
       content={
         <PortadaContent
           titulo={titulo}
-          onSaveTitulo={setTitulo}
+          onSaveTitulo={handleSaveTitulo}
           imagenUrl={portada?.imagenUrl}
         />
       }

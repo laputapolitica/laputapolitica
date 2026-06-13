@@ -641,3 +641,22 @@ export async function getPortadaVigente(
     titulo: data.titulo,
   };
 }
+
+export async function guardarTituloPortada(
+  portadaId: string,
+  titulo: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("portadas")
+    .update({ titulo })
+    .eq("id", portadaId);
+
+  if (error) {
+    console.error("Error guardando título de portada:", error.message);
+    return { error: "No se pudo guardar el título. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}

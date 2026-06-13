@@ -12,6 +12,7 @@ import {
   eliminarCandidata,
   agregarCandidata,
   guardarTituloResumen,
+  guardarTituloPortada,
   rehacerCampo,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
@@ -122,6 +123,7 @@ function ActivePanel({
   onEliminar,
   onAgregar,
   onSaveTitulo,
+  onSaveTituloPortada,
   onSaveResumen,
   onRehacer,
 }: {
@@ -134,6 +136,7 @@ function ActivePanel({
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
+  onSaveTituloPortada?: (titulo: string) => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -161,7 +164,13 @@ function ActivePanel({
     );
   }
   if (nodeId === "portada") {
-    return <PortadaPanel status="ready" portada={portada} />;
+    return (
+      <PortadaPanel
+        status="ready"
+        portada={portada}
+        onSaveTitulo={onSaveTituloPortada}
+      />
+    );
   }
   if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel />;
   if (nodeId === "elPulso") return <ElPulsoPanel status="ready" />;
@@ -178,6 +187,7 @@ function PipelineActivePanel({
   onEliminar,
   onAgregar,
   onSaveTitulo,
+  onSaveTituloPortada,
   onSaveResumen,
   onRehacer,
 }: {
@@ -190,6 +200,7 @@ function PipelineActivePanel({
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
+  onSaveTituloPortada?: (titulo: string) => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -214,6 +225,7 @@ function PipelineActivePanel({
         onEliminar={onEliminar}
         onAgregar={onAgregar}
         onSaveTitulo={onSaveTitulo}
+        onSaveTituloPortada={onSaveTituloPortada}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
       />
@@ -359,6 +371,14 @@ export default function AdminPage() {
     }
   }
 
+  async function handleGuardarTituloPortada(titulo: string) {
+    if (!portada) return;
+    const res = await guardarTituloPortada(portada.id, titulo);
+    if (res.error) {
+      alert(res.error);
+    }
+  }
+
   async function handleRehacer(noticiaId: string, campo: "titulo" | "resumen") {
     const res = await rehacerCampo(noticiaId, campo);
     if (res.error) {
@@ -425,6 +445,7 @@ export default function AdminPage() {
             onSaveTitulo={(id, val) =>
               handleGuardarTituloResumen(id, "titulo", val)
             }
+            onSaveTituloPortada={handleGuardarTituloPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
@@ -443,6 +464,7 @@ export default function AdminPage() {
             onSaveTitulo={(id, val) =>
               handleGuardarTituloResumen(id, "titulo", val)
             }
+            onSaveTituloPortada={handleGuardarTituloPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
