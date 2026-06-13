@@ -7,9 +7,14 @@ import { IconButton, TextField } from "@/components/admin/shared";
 type PortadaContentProps = {
   titulo: string;
   onSaveTitulo: (value: string) => void;
+  imagenUrl?: string;
 };
 
-export function PortadaContent({ titulo, onSaveTitulo }: PortadaContentProps) {
+export function PortadaContent({
+  titulo,
+  onSaveTitulo,
+  imagenUrl,
+}: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
 
   return (
@@ -47,7 +52,15 @@ export function PortadaContent({ titulo, onSaveTitulo }: PortadaContentProps) {
           PORTADA
         </span>
         <div className="flex items-start gap-4">
-          <div className="h-[300px] w-[300px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
+          {imagenUrl ? (
+            <img
+              src={imagenUrl}
+              alt="Portada de la edición"
+              className="h-[300px] w-[300px] shrink-0 rounded-lg border border-admin-ink object-cover"
+            />
+          ) : (
+            <div className="h-[300px] w-[300px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
+          )}
           <div className="flex flex-col items-start gap-2">
             <IconButton onClick={() => {}}>
               <IconRehacer width={11} height={11} />

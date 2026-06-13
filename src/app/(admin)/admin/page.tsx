@@ -6,6 +6,7 @@ import {
   getPipelineEnCurso,
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
+  getPortadaVigente,
   autorizarEtapa,
   moverCandidata,
   eliminarCandidata,
@@ -15,6 +16,7 @@ import {
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
+  type PortadaVigente,
   type AutorizarEtapa,
   type DireccionMover,
 } from "./actions";
@@ -114,6 +116,7 @@ function ActivePanel({
   nodeId,
   noticiasRelev,
   noticiasTitulos,
+  portada,
   onSubir,
   onBajar,
   onEliminar,
@@ -125,6 +128,7 @@ function ActivePanel({
   nodeId: PipelineNodeId;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
+  portada?: PortadaVigente;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -156,7 +160,9 @@ function ActivePanel({
       />
     );
   }
-  if (nodeId === "portada") return <PortadaPanel status="ready" />;
+  if (nodeId === "portada") {
+    return <PortadaPanel status="ready" portada={portada} />;
+  }
   if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel />;
   if (nodeId === "elPulso") return <ElPulsoPanel status="ready" />;
   return <PublicacionPanel status="ready" />;
@@ -166,6 +172,7 @@ function PipelineActivePanel({
   state,
   noticiasRelev,
   noticiasTitulos,
+  portada,
   onSubir,
   onBajar,
   onEliminar,
@@ -177,6 +184,7 @@ function PipelineActivePanel({
   state: PipelineState;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
+  portada?: PortadaVigente;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -200,6 +208,7 @@ function PipelineActivePanel({
         nodeId={reviewNode}
         noticiasRelev={noticiasRelev}
         noticiasTitulos={noticiasTitulos}
+        portada={portada}
         onSubir={onSubir}
         onBajar={onBajar}
         onEliminar={onEliminar}
@@ -238,6 +247,7 @@ export default function AdminPage() {
   const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
+  const [portada, setPortada] = useState<PortadaVigente>(null);
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
@@ -246,11 +256,14 @@ export default function AdminPage() {
     if (data) {
       const candidatas = await getCandidatasRelevamiento(data.edicionId);
       const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
+      const portadaData = await getPortadaVigente(data.edicionId);
       setNoticiasRelev(candidatas);
       setNoticiasTitulos(titNoticias);
+      setPortada(portadaData);
     } else {
       setNoticiasRelev(null);
       setNoticiasTitulos(null);
+      setPortada(null);
     }
   }
 
@@ -262,13 +275,16 @@ export default function AdminPage() {
         if (data) {
           const candidatas = await getCandidatasRelevamiento(data.edicionId);
           const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
+          const portadaData = await getPortadaVigente(data.edicionId);
           if (activo) {
             setNoticiasRelev(candidatas);
             setNoticiasTitulos(titNoticias);
+            setPortada(portadaData);
           }
         } else {
           setNoticiasRelev(null);
           setNoticiasTitulos(null);
+          setPortada(null);
         }
         setCargando(false);
       }
@@ -401,6 +417,7 @@ export default function AdminPage() {
             nodeId={forcedNodeId}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
+            portada={portada}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -418,6 +435,7 @@ export default function AdminPage() {
             state={pipelineState}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
+            portada={portada}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}

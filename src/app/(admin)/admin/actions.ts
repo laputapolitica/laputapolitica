@@ -609,3 +609,35 @@ export async function rehacerCampo(
     return { error: "Hubo un problema al regenerar. Probá de nuevo." };
   }
 }
+
+export type PortadaVigente = {
+  id: string;
+  imagenUrl: string;
+  titulo: string;
+} | null;
+
+export async function getPortadaVigente(
+  edicionId: string,
+): Promise<PortadaVigente> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("portadas")
+    .select("id, imagen_url, titulo")
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error leyendo portada vigente:", error.message);
+    return null;
+  }
+
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    imagenUrl: data.imagen_url,
+    titulo: data.titulo,
+  };
+}
