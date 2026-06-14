@@ -11,6 +11,8 @@ type PortadaContentProps = {
   imagenUrl?: string;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
+  onRehacerTitulo?: () => void;
+  rehaciendoTitulo?: boolean;
   onRehacerPortada?: (tipo: "mismo" | "ia_elige") => void;
   rehaciendoPortada?: boolean;
   historial?: PortadaHistorial[];
@@ -23,6 +25,8 @@ export function PortadaContent({
   imagenUrl,
   onSubirImagen,
   subiendoImagen,
+  onRehacerTitulo,
+  rehaciendoTitulo,
   onRehacerPortada,
   rehaciendoPortada,
   historial,
@@ -86,9 +90,9 @@ export function PortadaContent({
                 <IconEditar width={11} height={11} />
                 Editar
               </IconButton>
-              <IconButton onClick={() => {}}>
+              <IconButton onClick={onRehacerTitulo} disabled={rehaciendoTitulo}>
                 <IconRehacer width={11} height={11} />
-                Rehacer
+                {rehaciendoTitulo ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
             </>
           )}

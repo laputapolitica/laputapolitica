@@ -1096,3 +1096,87 @@ export async function rehacerPortada(
 
   return await generarPortadaCore(edicionId, estiloId);
 }
+
+export async function rehacerTituloPortada(edicionId: string): Promise<AutorizarResult> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    console.error("Falta GROQ_API_KEY.");
+    return { error: "Configuración incompleta del servidor." };
+  }
+
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // Buscar la portada vigente.
+  const { data: vigente, error: vigenteError } = await supabase
+    .from("portadas")
+    .select("id")
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true)
+    .maybeSingle();
+
+  if (vigenteError || !vigente) {
+    return { error: "No hay una portada vigente para esta edición." };
+  }
+
+  // Leer noticias para el contexto.
+  const { data: noticiasData } = await supabase
+    .from("noticias")
+    .select("orden, titulo, cuerpo")
+    .eq("edicion_id", edicionId)
+    .order("orden", { ascending: true });
+
+  const textoNoticias = (noticiasData ?? [])
+    .map((n, i) => `${i + 1}. ${n.titulo}\n${n.cuerpo}`)
+    .join("\n\n");
+
+  // Generar el título con Groq.
+  let nuevoTitulo = "";
+  try {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        temperature: 1.3,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "user",
+            content:
+              "Sos editor de un medio político argentino. Generá 5 títulos de tapa DISTINTOS entre sí, cortos y conceptuales (entre 2 y 6 palabras cada uno), con carácter editorial, que capten el clima del día a partir de estas noticias. No son resúmenes ni listan las noticias: son ganchos conceptuales, como títulos de tapa de revista. Que sean variados: distintos ángulos (tensión, ironía, trasfondo, clima emocional). Sin comillas.\n\nNoticias de hoy:\n" +
+              textoNoticias +
+              '\n\nDevolvé SOLAMENTE un objeto JSON con la forma {"titulos": ["...", "...", "...", "...", "..."]} y nada más.',
+          },
+        ],
+      }),
+    });
+
+    if (!resp.ok) return { error: "La IA no pudo generar el título. Probá de nuevo." };
+    const json = await resp.json();
+    const parsed = JSON.parse(json.choices[0].message.content);
+    const opciones = Array.isArray(parsed.titulos)
+      ? parsed.titulos.filter((t: unknown) => typeof t === "string" && t.trim().length > 0)
+      : [];
+    if (opciones.length === 0) return { error: "La IA no devolvió títulos. Probá de nuevo." };
+    nuevoTitulo = opciones[Math.floor(Math.random() * opciones.length)];
+  } catch (e) {
+    console.error("Error generando título de portada:", e);
+    return { error: "La IA no pudo generar el título. Probá de nuevo." };
+  }
+
+  if (!nuevoTitulo) return { error: "La IA no devolvió un título. Probá de nuevo." };
+
+  // Guardar el nuevo título en la portada vigente.
+  const { error: updateError } = await admin
+    .from("portadas")
+    .update({ titulo: nuevoTitulo })
+    .eq("id", vigente.id);
+
+  if (updateError) {
+    console.error("Error guardando título regenerado:", updateError.message);
+    return { error: "No se pudo guardar el título. Probá de nuevo." };
+  }
+
+  return { success: true };
+}
