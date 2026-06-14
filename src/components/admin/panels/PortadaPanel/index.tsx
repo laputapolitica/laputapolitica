@@ -9,12 +9,16 @@ interface PortadaPanelProps {
   status: "loading" | "ready";
   portada?: PortadaVigente;
   onSaveTitulo?: (titulo: string) => void;
+  onSubirImagen?: (file: File) => void;
+  subiendoImagen?: boolean;
 }
 
 export function PortadaPanel({
   status,
   portada,
   onSaveTitulo,
+  onSubirImagen,
+  subiendoImagen,
 }: PortadaPanelProps) {
   const [titulo, setTitulo] = useState(portada?.titulo ?? "Equilibrio ciego");
 
@@ -45,6 +49,8 @@ export function PortadaPanel({
           titulo={titulo}
           onSaveTitulo={handleSaveTitulo}
           imagenUrl={portada?.imagenUrl}
+          onSubirImagen={onSubirImagen}
+          subiendoImagen={subiendoImagen}
         />
       }
     />

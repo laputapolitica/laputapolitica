@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
@@ -8,14 +8,32 @@ type PortadaContentProps = {
   titulo: string;
   onSaveTitulo: (value: string) => void;
   imagenUrl?: string;
+  onSubirImagen?: (file: File) => void;
+  subiendoImagen?: boolean;
 };
 
 export function PortadaContent({
   titulo,
   onSaveTitulo,
   imagenUrl,
+  onSubirImagen,
+  subiendoImagen,
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleClickSubir() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      onSubirImagen?.(file);
+    }
+    // Resetear el input para poder subir el mismo archivo de nuevo si hace falta.
+    e.target.value = "";
+  }
 
   async function handleDescargar() {
     if (!imagenUrl) return;
@@ -72,6 +90,13 @@ export function PortadaContent({
         <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
           PORTADA
         </span>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
         <div className="flex items-start gap-4">
           {imagenUrl ? (
             <img
@@ -91,9 +116,9 @@ export function PortadaContent({
               <IconBajar width={11} height={11} />
               Descargar
             </IconButton>
-            <IconButton onClick={() => {}}>
+            <IconButton onClick={handleClickSubir} disabled={subiendoImagen}>
               <IconSubir width={11} height={11} />
-              Subir portada
+              {subiendoImagen ? "Subiendo..." : "Subir portada"}
             </IconButton>
           </div>
         </div>

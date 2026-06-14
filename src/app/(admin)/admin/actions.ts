@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
 
 type PipelineRow = {
@@ -656,6 +657,79 @@ export async function guardarTituloPortada(
   if (error) {
     console.error("Error guardando título de portada:", error.message);
     return { error: "No se pudo guardar el título. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
+export async function subirPortadaManual(
+  edicionId: string,
+  formData: FormData,
+): Promise<AutorizarResult> {
+  const file = formData.get("imagen");
+
+  if (!file || !(file instanceof File) || file.size === 0) {
+    return { error: "No se recibió ninguna imagen." };
+  }
+
+  // Validación básica de tipo.
+  if (!file.type.startsWith("image/")) {
+    return { error: "El archivo debe ser una imagen." };
+  }
+
+  const admin = createAdminClient();
+
+  // 1. Subir la imagen a Storage con un nombre único.
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${edicionId}_${Date.now()}.${ext}`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+
+  const { error: uploadError } = await admin.storage
+    .from("portadas")
+    .upload(path, bytes, {
+      contentType: file.type,
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.error("Error subiendo portada manual:", uploadError.message);
+    return { error: "No se pudo subir la imagen. Intentá de nuevo." };
+  }
+
+  // 2. Armar la URL pública.
+  const { data: publicData } = admin.storage
+    .from("portadas")
+    .getPublicUrl(path);
+  const imagenUrl = publicData.publicUrl;
+
+  // 3. Desmarcar la portada vigente anterior (si hay).
+  const { error: unsetError } = await admin
+    .from("portadas")
+    .update({ vigente: false })
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true);
+
+  if (unsetError) {
+    console.error("Error desmarcando portada vigente:", unsetError.message);
+    return { error: "No se pudo actualizar la portada. Intentá de nuevo." };
+  }
+
+  // 4. Insertar la nueva portada como vigente.
+  const { error: insertError } = await admin.from("portadas").insert({
+    edicion_id: edicionId,
+    imagen_url: imagenUrl,
+    prompt: "",
+    estilo_id: null,
+    origen: "manual",
+    vigente: true,
+    titulo: "",
+  });
+
+  if (insertError) {
+    console.error("Error insertando portada manual:", insertError.message);
+    return { error: "No se pudo guardar la portada. Intentá de nuevo." };
   }
 
   return { success: true };

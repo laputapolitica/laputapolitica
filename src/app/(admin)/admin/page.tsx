@@ -13,6 +13,7 @@ import {
   agregarCandidata,
   guardarTituloResumen,
   guardarTituloPortada,
+  subirPortadaManual,
   rehacerCampo,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
@@ -124,6 +125,8 @@ function ActivePanel({
   onAgregar,
   onSaveTitulo,
   onSaveTituloPortada,
+  onSubirPortada,
+  subiendoPortadaProp,
   onSaveResumen,
   onRehacer,
 }: {
@@ -137,6 +140,8 @@ function ActivePanel({
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveTituloPortada?: (titulo: string) => void;
+  onSubirPortada?: (file: File) => void;
+  subiendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -169,6 +174,8 @@ function ActivePanel({
         status="ready"
         portada={portada}
         onSaveTitulo={onSaveTituloPortada}
+        onSubirImagen={onSubirPortada}
+        subiendoImagen={subiendoPortadaProp}
       />
     );
   }
@@ -188,6 +195,8 @@ function PipelineActivePanel({
   onAgregar,
   onSaveTitulo,
   onSaveTituloPortada,
+  onSubirPortada,
+  subiendoPortadaProp,
   onSaveResumen,
   onRehacer,
 }: {
@@ -201,6 +210,8 @@ function PipelineActivePanel({
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveTituloPortada?: (titulo: string) => void;
+  onSubirPortada?: (file: File) => void;
+  subiendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -226,6 +237,8 @@ function PipelineActivePanel({
         onAgregar={onAgregar}
         onSaveTitulo={onSaveTitulo}
         onSaveTituloPortada={onSaveTituloPortada}
+        onSubirPortada={onSubirPortada}
+        subiendoPortadaProp={subiendoPortadaProp}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
       />
@@ -260,6 +273,7 @@ export default function AdminPage() {
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
   const [portada, setPortada] = useState<PortadaVigente>(null);
+  const [subiendoPortada, setSubiendoPortada] = useState(false);
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
@@ -379,6 +393,23 @@ export default function AdminPage() {
     }
   }
 
+  async function handleSubirPortada(file: File) {
+    if (!enCurso) return;
+    setSubiendoPortada(true);
+    try {
+      const formData = new FormData();
+      formData.append("imagen", file);
+      const res = await subirPortadaManual(enCurso.edicionId, formData);
+      if (res.success) {
+        await recargarPipeline();
+      } else if (res.error) {
+        alert(res.error);
+      }
+    } finally {
+      setSubiendoPortada(false);
+    }
+  }
+
   async function handleRehacer(noticiaId: string, campo: "titulo" | "resumen") {
     const res = await rehacerCampo(noticiaId, campo);
     if (res.error) {
@@ -446,6 +477,8 @@ export default function AdminPage() {
               handleGuardarTituloResumen(id, "titulo", val)
             }
             onSaveTituloPortada={handleGuardarTituloPortada}
+            onSubirPortada={handleSubirPortada}
+            subiendoPortadaProp={subiendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
@@ -465,6 +498,8 @@ export default function AdminPage() {
               handleGuardarTituloResumen(id, "titulo", val)
             }
             onSaveTituloPortada={handleGuardarTituloPortada}
+            onSubirPortada={handleSubirPortada}
+            subiendoPortadaProp={subiendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
