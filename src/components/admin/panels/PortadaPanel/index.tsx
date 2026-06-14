@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PortadaVigente } from "@/app/(admin)/admin/actions";
+import type { PortadaHistorial, PortadaVigente } from "@/app/(admin)/admin/actions";
 import { LoadingTextGrid, PanelLayout } from "@/components/admin/shared";
 import { PortadaContent } from "./PortadaContent";
 
@@ -11,6 +11,8 @@ interface PortadaPanelProps {
   onSaveTitulo?: (titulo: string) => void;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
+  historial?: PortadaHistorial[];
+  onRestaurar?: (portadaId: string) => void;
 }
 
 export function PortadaPanel({
@@ -19,6 +21,8 @@ export function PortadaPanel({
   onSaveTitulo,
   onSubirImagen,
   subiendoImagen,
+  historial,
+  onRestaurar,
 }: PortadaPanelProps) {
   const [titulo, setTitulo] = useState(portada?.titulo ?? "Equilibrio ciego");
 
@@ -51,6 +55,8 @@ export function PortadaPanel({
           imagenUrl={portada?.imagenUrl}
           onSubirImagen={onSubirImagen}
           subiendoImagen={subiendoImagen}
+          historial={historial}
+          onRestaurar={onRestaurar}
         />
       }
     />

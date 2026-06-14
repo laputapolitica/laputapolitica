@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
+import type { PortadaHistorial } from "@/app/(admin)/admin/actions";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
@@ -10,6 +11,8 @@ type PortadaContentProps = {
   imagenUrl?: string;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
+  historial?: PortadaHistorial[];
+  onRestaurar?: (portadaId: string) => void;
 };
 
 export function PortadaContent({
@@ -18,6 +21,8 @@ export function PortadaContent({
   imagenUrl,
   onSubirImagen,
   subiendoImagen,
+  historial,
+  onRestaurar,
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -123,6 +128,37 @@ export function PortadaContent({
           </div>
         </div>
       </section>
+
+      {historial && historial.length > 1 && (
+        <section className="flex flex-col gap-2">
+          <span className="font-ui text-xs font-semibold tracking-wider text-text-secondary">
+            VERSIONES
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {historial.map((version) => (
+              <button
+                key={version.id}
+                type="button"
+                onClick={() => {
+                  if (!version.vigente) onRestaurar?.(version.id);
+                }}
+                title={version.vigente ? "Versión actual" : "Restaurar esta versión"}
+                className={`relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-md border-2 ${
+                  version.vigente
+                    ? "border-admin-success cursor-default"
+                    : "border-admin-ink/30 cursor-pointer hover:border-admin-ink"
+                }`}
+              >
+                <img
+                  src={version.imagenUrl}
+                  alt={`Versión ${version.origen}`}
+                  className="h-full w-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

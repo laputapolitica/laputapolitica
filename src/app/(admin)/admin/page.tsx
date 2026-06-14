@@ -7,6 +7,7 @@ import {
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
   getPortadaVigente,
+  getHistorialPortadas,
   autorizarEtapa,
   moverCandidata,
   eliminarCandidata,
@@ -14,11 +15,13 @@ import {
   guardarTituloResumen,
   guardarTituloPortada,
   subirPortadaManual,
+  restaurarPortada,
   rehacerCampo,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
   type PortadaVigente,
+  type PortadaHistorial,
   type AutorizarEtapa,
   type DireccionMover,
 } from "./actions";
@@ -119,6 +122,7 @@ function ActivePanel({
   noticiasRelev,
   noticiasTitulos,
   portada,
+  historialPortadas,
   onSubir,
   onBajar,
   onEliminar,
@@ -126,6 +130,7 @@ function ActivePanel({
   onSaveTitulo,
   onSaveTituloPortada,
   onSubirPortada,
+  onRestaurarPortada,
   subiendoPortadaProp,
   onSaveResumen,
   onRehacer,
@@ -134,6 +139,7 @@ function ActivePanel({
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
   portada?: PortadaVigente;
+  historialPortadas?: PortadaHistorial[];
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -141,6 +147,7 @@ function ActivePanel({
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveTituloPortada?: (titulo: string) => void;
   onSubirPortada?: (file: File) => void;
+  onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
@@ -176,6 +183,8 @@ function ActivePanel({
         onSaveTitulo={onSaveTituloPortada}
         onSubirImagen={onSubirPortada}
         subiendoImagen={subiendoPortadaProp}
+        historial={historialPortadas}
+        onRestaurar={onRestaurarPortada}
       />
     );
   }
@@ -189,6 +198,7 @@ function PipelineActivePanel({
   noticiasRelev,
   noticiasTitulos,
   portada,
+  historialPortadas,
   onSubir,
   onBajar,
   onEliminar,
@@ -196,6 +206,7 @@ function PipelineActivePanel({
   onSaveTitulo,
   onSaveTituloPortada,
   onSubirPortada,
+  onRestaurarPortada,
   subiendoPortadaProp,
   onSaveResumen,
   onRehacer,
@@ -204,6 +215,7 @@ function PipelineActivePanel({
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
   portada?: PortadaVigente;
+  historialPortadas?: PortadaHistorial[];
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -211,6 +223,7 @@ function PipelineActivePanel({
   onSaveTitulo?: (id: string, val: string) => void;
   onSaveTituloPortada?: (titulo: string) => void;
   onSubirPortada?: (file: File) => void;
+  onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
@@ -231,6 +244,7 @@ function PipelineActivePanel({
         noticiasRelev={noticiasRelev}
         noticiasTitulos={noticiasTitulos}
         portada={portada}
+        historialPortadas={historialPortadas}
         onSubir={onSubir}
         onBajar={onBajar}
         onEliminar={onEliminar}
@@ -238,6 +252,7 @@ function PipelineActivePanel({
         onSaveTitulo={onSaveTitulo}
         onSaveTituloPortada={onSaveTituloPortada}
         onSubirPortada={onSubirPortada}
+        onRestaurarPortada={onRestaurarPortada}
         subiendoPortadaProp={subiendoPortadaProp}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
@@ -273,6 +288,7 @@ export default function AdminPage() {
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
   const [portada, setPortada] = useState<PortadaVigente>(null);
+  const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
   const [cargando, setCargando] = useState(true);
 
@@ -283,13 +299,16 @@ export default function AdminPage() {
       const candidatas = await getCandidatasRelevamiento(data.edicionId);
       const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
       const portadaData = await getPortadaVigente(data.edicionId);
+      const hist = await getHistorialPortadas(data.edicionId);
       setNoticiasRelev(candidatas);
       setNoticiasTitulos(titNoticias);
       setPortada(portadaData);
+      setHistorialPortadas(hist);
     } else {
       setNoticiasRelev(null);
       setNoticiasTitulos(null);
       setPortada(null);
+      setHistorialPortadas([]);
     }
   }
 
@@ -302,15 +321,18 @@ export default function AdminPage() {
           const candidatas = await getCandidatasRelevamiento(data.edicionId);
           const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
           const portadaData = await getPortadaVigente(data.edicionId);
+          const hist = await getHistorialPortadas(data.edicionId);
           if (activo) {
             setNoticiasRelev(candidatas);
             setNoticiasTitulos(titNoticias);
             setPortada(portadaData);
+            setHistorialPortadas(hist);
           }
         } else {
           setNoticiasRelev(null);
           setNoticiasTitulos(null);
           setPortada(null);
+          setHistorialPortadas([]);
         }
         setCargando(false);
       }
@@ -410,6 +432,16 @@ export default function AdminPage() {
     }
   }
 
+  async function handleRestaurarPortada(portadaId: string) {
+    if (!enCurso) return;
+    const res = await restaurarPortada(enCurso.edicionId, portadaId);
+    if (res.success) {
+      await recargarPipeline();
+    } else if (res.error) {
+      alert(res.error);
+    }
+  }
+
   async function handleRehacer(noticiaId: string, campo: "titulo" | "resumen") {
     const res = await rehacerCampo(noticiaId, campo);
     if (res.error) {
@@ -469,6 +501,7 @@ export default function AdminPage() {
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
             portada={portada}
+            historialPortadas={historialPortadas}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -478,6 +511,7 @@ export default function AdminPage() {
             }
             onSaveTituloPortada={handleGuardarTituloPortada}
             onSubirPortada={handleSubirPortada}
+            onRestaurarPortada={handleRestaurarPortada}
             subiendoPortadaProp={subiendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
@@ -490,6 +524,7 @@ export default function AdminPage() {
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
             portada={portada}
+            historialPortadas={historialPortadas}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -499,6 +534,7 @@ export default function AdminPage() {
             }
             onSaveTituloPortada={handleGuardarTituloPortada}
             onSubirPortada={handleSubirPortada}
+            onRestaurarPortada={handleRestaurarPortada}
             subiendoPortadaProp={subiendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)

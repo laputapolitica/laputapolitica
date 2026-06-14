@@ -734,3 +734,71 @@ export async function subirPortadaManual(
 
   return { success: true };
 }
+
+export type PortadaHistorial = {
+  id: string;
+  imagenUrl: string;
+  titulo: string;
+  origen: string;
+  vigente: boolean;
+  createdAt: string;
+};
+
+export async function getHistorialPortadas(
+  edicionId: string,
+): Promise<PortadaHistorial[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("portadas")
+    .select("id, imagen_url, titulo, origen, vigente, created_at")
+    .eq("edicion_id", edicionId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error leyendo historial de portadas:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    imagenUrl: r.imagen_url,
+    titulo: r.titulo,
+    origen: r.origen,
+    vigente: r.vigente,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function restaurarPortada(
+  edicionId: string,
+  portadaId: string,
+): Promise<AutorizarResult> {
+  const admin = createAdminClient();
+
+  // Desmarcar la vigente actual.
+  const { error: unsetError } = await admin
+    .from("portadas")
+    .update({ vigente: false })
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true);
+
+  if (unsetError) {
+    console.error("Error desmarcando vigente:", unsetError.message);
+    return { error: "No se pudo restaurar. Intentá de nuevo." };
+  }
+
+  // Marcar la elegida como vigente.
+  const { error: setError } = await admin
+    .from("portadas")
+    .update({ vigente: true })
+    .eq("id", portadaId)
+    .eq("edicion_id", edicionId);
+
+  if (setError) {
+    console.error("Error marcando vigente:", setError.message);
+    return { error: "No se pudo restaurar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
