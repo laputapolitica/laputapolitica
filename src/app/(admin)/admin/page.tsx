@@ -16,6 +16,7 @@ import {
   guardarTituloPortada,
   subirPortadaManual,
   restaurarPortada,
+  rehacerPortada,
   rehacerCampo,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
@@ -104,6 +105,7 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
 
 type NoticiasRelevamientoState = NoticiasRelevamiento | null;
 type NoticiasTitulosState = NoticiaTituloResumen[] | null;
+type RehacerPortadaTipo = "mismo" | "ia_elige";
 
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
   const reviewGate = REVIEW_GATES.find(
@@ -132,6 +134,8 @@ function ActivePanel({
   onSubirPortada,
   onRestaurarPortada,
   subiendoPortadaProp,
+  onRehacerPortada,
+  rehaciendoPortadaProp,
   onSaveResumen,
   onRehacer,
 }: {
@@ -149,6 +153,8 @@ function ActivePanel({
   onSubirPortada?: (file: File) => void;
   onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
+  onRehacerPortada?: (tipo: RehacerPortadaTipo) => void;
+  rehaciendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -183,6 +189,8 @@ function ActivePanel({
         onSaveTitulo={onSaveTituloPortada}
         onSubirImagen={onSubirPortada}
         subiendoImagen={subiendoPortadaProp}
+        onRehacerPortada={onRehacerPortada}
+        rehaciendoPortada={rehaciendoPortadaProp}
         historial={historialPortadas}
         onRestaurar={onRestaurarPortada}
       />
@@ -208,6 +216,8 @@ function PipelineActivePanel({
   onSubirPortada,
   onRestaurarPortada,
   subiendoPortadaProp,
+  onRehacerPortada,
+  rehaciendoPortadaProp,
   onSaveResumen,
   onRehacer,
 }: {
@@ -225,6 +235,8 @@ function PipelineActivePanel({
   onSubirPortada?: (file: File) => void;
   onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
+  onRehacerPortada?: (tipo: RehacerPortadaTipo) => void;
+  rehaciendoPortadaProp?: boolean;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -254,6 +266,8 @@ function PipelineActivePanel({
         onSubirPortada={onSubirPortada}
         onRestaurarPortada={onRestaurarPortada}
         subiendoPortadaProp={subiendoPortadaProp}
+        onRehacerPortada={onRehacerPortada}
+        rehaciendoPortadaProp={rehaciendoPortadaProp}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
       />
@@ -290,6 +304,7 @@ export default function AdminPage() {
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
+  const [rehaciendoPortada, setRehaciendoPortada] = useState(false);
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
@@ -442,6 +457,21 @@ export default function AdminPage() {
     }
   }
 
+  async function handleRehacerPortada(tipo: RehacerPortadaTipo) {
+    if (!enCurso) return;
+    setRehaciendoPortada(true);
+    try {
+      const res = await rehacerPortada(enCurso.edicionId, { tipo });
+      if (res.success) {
+        await recargarPipeline();
+      } else if (res.error) {
+        alert(res.error);
+      }
+    } finally {
+      setRehaciendoPortada(false);
+    }
+  }
+
   async function handleRehacer(noticiaId: string, campo: "titulo" | "resumen") {
     const res = await rehacerCampo(noticiaId, campo);
     if (res.error) {
@@ -513,6 +543,8 @@ export default function AdminPage() {
             onSubirPortada={handleSubirPortada}
             onRestaurarPortada={handleRestaurarPortada}
             subiendoPortadaProp={subiendoPortada}
+            onRehacerPortada={handleRehacerPortada}
+            rehaciendoPortadaProp={rehaciendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
@@ -536,6 +568,8 @@ export default function AdminPage() {
             onSubirPortada={handleSubirPortada}
             onRestaurarPortada={handleRestaurarPortada}
             subiendoPortadaProp={subiendoPortada}
+            onRehacerPortada={handleRehacerPortada}
+            rehaciendoPortadaProp={rehaciendoPortada}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }

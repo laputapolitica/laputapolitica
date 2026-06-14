@@ -1,5 +1,6 @@
 "use server";
 
+import { Buffer } from "node:buffer";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
@@ -801,4 +802,297 @@ export async function restaurarPortada(
   }
 
   return { success: true };
+}
+
+type GeminiTextResponse = {
+  candidates?: {
+    content?: {
+      parts?: {
+        text?: string;
+      }[];
+    };
+  }[];
+};
+
+type GeminiImageResponse = {
+  candidates?: {
+    content?: {
+      parts?: {
+        inlineData?: {
+          data?: string;
+        };
+        inline_data?: {
+          data?: string;
+        };
+      }[];
+    };
+  }[];
+};
+
+async function generarPortadaCore(
+  edicionId: string,
+  estiloId: string,
+): Promise<AutorizarResult> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("Falta GEMINI_API_KEY.");
+    return { error: "Configuración incompleta del servidor." };
+  }
+
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // 1. Leer noticias de la edición.
+  const { data: noticiasData, error: noticiasError } = await supabase
+    .from("noticias")
+    .select("orden, titulo, cuerpo")
+    .eq("edicion_id", edicionId)
+    .order("orden", { ascending: true });
+
+  if (noticiasError || !noticiasData || noticiasData.length === 0) {
+    console.error("Error leyendo noticias:", noticiasError?.message);
+    return { error: "No se pudieron leer las noticias." };
+  }
+
+  const textoNoticias = noticiasData
+    .map((n, i) => `${i + 1}. ${n.titulo}\n${n.cuerpo}`)
+    .join("\n\n");
+
+  // 2. Leer el estilo elegido.
+  const { data: estilo, error: estiloError } = await supabase
+    .from("estilos_portada")
+    .select("id, nombre, imagen_url")
+    .eq("id", estiloId)
+    .maybeSingle();
+
+  if (estiloError || !estilo) {
+    console.error("Error leyendo estilo:", estiloError?.message);
+    return { error: "No se encontró el estilo." };
+  }
+
+  try {
+    // 3. Descargar la imagen de referencia y convertir a base64.
+    const refResp = await fetch(estilo.imagen_url);
+    if (!refResp.ok) return { error: "No se pudo leer la imagen de referencia." };
+    const refBuffer = await refResp.arrayBuffer();
+    const refBase64 = Buffer.from(refBuffer).toString("base64");
+    const refMime = refResp.headers.get("content-type") || "image/jpeg";
+
+    // 4. Razonadora: Gemini mira la referencia + noticias y arma el prompt.
+    const promptRazonadora =
+      "Sos director de arte de un medio político argentino. Te muestro una imagen de referencia que define un LENGUAJE VISUAL (técnica, composición, paleta, cómo se representan los objetos). Observá ese lenguaje visual y creá un PROMPT en inglés para un generador de imágenes, que produzca una portada para hoy representando estas noticias argentinas usando ESE mismo lenguaje visual. NO incluyas texto ni palabras dentro de la imagen; que sea puramente visual y simbólica.\n\nNoticias de hoy:\n" +
+      textoNoticias +
+      "\n\nDevolvé SOLAMENTE el prompt en inglés, sin explicar nada más.";
+
+    const razResp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: promptRazonadora },
+                { inline_data: { mime_type: refMime, data: refBase64 } },
+              ],
+            },
+          ],
+        }),
+      },
+    );
+
+    if (!razResp.ok) {
+      console.error("Razonadora falló:", razResp.status);
+      return { error: "La IA no pudo analizar el estilo. Probá de nuevo." };
+    }
+
+    const razJson = (await razResp.json()) as GeminiTextResponse;
+    let promptImagen = razJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    promptImagen = promptImagen.replace(/\*\*/g, "").trim();
+    if (!promptImagen) return { error: "La IA no generó un prompt. Probá de nuevo." };
+
+    // 5. Generadora: Nano Banana genera la imagen.
+    const genResp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: promptImagen }] }],
+        }),
+      },
+    );
+
+    if (!genResp.ok) {
+      console.error("Generadora falló:", genResp.status);
+      return { error: "La IA no pudo generar la imagen. Probá de nuevo." };
+    }
+
+    const genJson = (await genResp.json()) as GeminiImageResponse;
+    const parts = genJson.candidates?.[0]?.content?.parts || [];
+    const imgPart = parts.find(
+      (p: { inlineData?: { data?: string }; inline_data?: { data?: string } }) =>
+        p.inlineData?.data || p.inline_data?.data,
+    );
+    const imgBase64 = imgPart?.inlineData?.data || imgPart?.inline_data?.data;
+    if (!imgBase64) return { error: "La IA no devolvió una imagen. Probá de nuevo." };
+
+    // 6. Subir la imagen a Storage.
+    const bytes = Buffer.from(imgBase64, "base64");
+    const path = `${edicionId}_${Date.now()}.jpg`;
+
+    const { error: uploadError } = await admin.storage
+      .from("portadas")
+      .upload(path, bytes, { contentType: "image/jpeg", upsert: true });
+
+    if (uploadError) {
+      console.error("Error subiendo portada:", uploadError.message);
+      return { error: "No se pudo guardar la imagen. Probá de nuevo." };
+    }
+
+    const { data: publicData } = admin.storage.from("portadas").getPublicUrl(path);
+    const imagenUrl = publicData.publicUrl;
+
+    // 7. Desmarcar vigente anterior e insertar la nueva.
+    await admin
+      .from("portadas")
+      .update({ vigente: false })
+      .eq("edicion_id", edicionId)
+      .eq("vigente", true);
+
+    const { error: insertError } = await admin.from("portadas").insert({
+      edicion_id: edicionId,
+      imagen_url: imagenUrl,
+      prompt: promptImagen,
+      estilo_id: estiloId,
+      origen: "ia",
+      vigente: true,
+      titulo: "",
+    });
+
+    if (insertError) {
+      console.error("Error insertando portada:", insertError.message);
+      return { error: "No se pudo guardar la portada. Probá de nuevo." };
+    }
+
+    return { success: true };
+  } catch (e) {
+    console.error("Error generando portada:", e);
+    return { error: "Hubo un problema al regenerar. Probá de nuevo." };
+  }
+}
+
+export type OpcionRehacer =
+  | { tipo: "mismo" }
+  | { tipo: "ia_elige" }
+  | { tipo: "elegir"; estiloId: string };
+
+export async function rehacerPortada(
+  edicionId: string,
+  opcion: OpcionRehacer,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // Estilo de la portada vigente actual (para "mismo" y para excluir en "ia_elige").
+  const { data: vigente } = await supabase
+    .from("portadas")
+    .select("estilo_id")
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true)
+    .maybeSingle();
+
+  const estiloActual = vigente?.estilo_id ?? null;
+
+  let estiloId: string | null = null;
+
+  if (opcion.tipo === "elegir") {
+    estiloId = opcion.estiloId;
+  } else if (opcion.tipo === "mismo") {
+    if (!estiloActual) {
+      return { error: "La portada actual no tiene un estilo asociado. Probá 'elegir diseño'." };
+    }
+    estiloId = estiloActual;
+  } else {
+    // ia_elige: leer estilos activos y pedirle a Groq que elija uno distinto al actual.
+    const { data: estilos, error: estilosError } = await supabase
+      .from("estilos_portada")
+      .select("id, nombre, descripcion")
+      .eq("activo", true);
+
+    if (estilosError || !estilos || estilos.length === 0) {
+      return { error: "No hay estilos disponibles en el banco." };
+    }
+
+    // Candidatos: excluir el actual si hay más de uno.
+    const candidatos =
+      estilos.length > 1 && estiloActual
+        ? estilos.filter((e) => e.id !== estiloActual)
+        : estilos;
+
+    if (candidatos.length === 1) {
+      estiloId = candidatos[0].id;
+    } else {
+      // Leer noticias para que la elección tenga contexto.
+      const { data: noticiasData } = await supabase
+        .from("noticias")
+        .select("orden, titulo, cuerpo")
+        .eq("edicion_id", edicionId)
+        .order("orden", { ascending: true });
+
+      const textoNoticias = (noticiasData ?? [])
+        .map((n, i) => `${i + 1}. ${n.titulo}\n${n.cuerpo}`)
+        .join("\n\n");
+
+      const menu = candidatos
+        .map((e) => `ID: ${e.id}\nNombre: ${e.nombre}\nCuándo usarlo: ${e.descripcion}`)
+        .join("\n\n");
+
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) return { error: "Configuración incompleta del servidor." };
+
+      try {
+        const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            response_format: { type: "json_object" },
+            messages: [
+              {
+                role: "user",
+                content:
+                  "Elegí el estilo de portada que mejor encaje con las noticias de hoy.\n\nESTILOS:\n" +
+                  menu +
+                  "\n\nNOTICIAS:\n" +
+                  textoNoticias +
+                  '\n\nDevolvé SOLO un JSON {"estilo_id": "el-id-elegido"} y nada más.',
+              },
+            ],
+          }),
+        });
+
+        if (!resp.ok) return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
+        const json = (await resp.json()) as GroqChatCompletionResponse;
+        const content = json.choices?.[0]?.message?.content;
+        if (!content) return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
+        const parsed = JSON.parse(content) as { estilo_id?: string };
+        estiloId = parsed.estilo_id ?? null;
+      } catch (e) {
+        console.error("Error eligiendo estilo:", e);
+        return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
+      }
+
+      // Validar que el id elegido esté entre los candidatos.
+      if (!candidatos.some((c) => c.id === estiloId)) {
+        estiloId = candidatos[0].id;
+      }
+    }
+  }
+
+  if (!estiloId) {
+    return { error: "No se pudo determinar el estilo. Intentá de nuevo." };
+  }
+
+  return await generarPortadaCore(edicionId, estiloId);
 }

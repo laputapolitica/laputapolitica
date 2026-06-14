@@ -11,6 +11,8 @@ type PortadaContentProps = {
   imagenUrl?: string;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
+  onRehacerPortada?: (tipo: "mismo" | "ia_elige") => void;
+  rehaciendoPortada?: boolean;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
 };
@@ -21,10 +23,13 @@ export function PortadaContent({
   imagenUrl,
   onSubirImagen,
   subiendoImagen,
+  onRehacerPortada,
+  rehaciendoPortada,
   historial,
   onRestaurar,
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
+  const [menuRehacerAbierto, setMenuRehacerAbierto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleClickSubir() {
@@ -113,10 +118,39 @@ export function PortadaContent({
             <div className="h-[300px] w-[300px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
           )}
           <div className="flex flex-col items-start gap-2">
-            <IconButton onClick={() => {}}>
-              <IconRehacer width={11} height={11} />
-              Rehacer
-            </IconButton>
+            <div className="relative">
+              <IconButton
+                onClick={() => setMenuRehacerAbierto((v) => !v)}
+                disabled={rehaciendoPortada}
+              >
+                <IconRehacer width={11} height={11} />
+                {rehaciendoPortada ? "Rehaciendo..." : "Rehacer"}
+              </IconButton>
+              {menuRehacerAbierto && !rehaciendoPortada && (
+                <div className="absolute left-0 top-full z-10 mt-1 flex w-52 flex-col overflow-hidden rounded-md border border-admin-ink bg-white shadow-md">
+                  <button
+                    type="button"
+                    className="px-3 py-2 text-left text-xs hover:bg-gray-100"
+                    onClick={() => {
+                      setMenuRehacerAbierto(false);
+                      onRehacerPortada?.("mismo");
+                    }}
+                  >
+                    Con el mismo estilo
+                  </button>
+                  <button
+                    type="button"
+                    className="border-t border-admin-ink/10 px-3 py-2 text-left text-xs hover:bg-gray-100"
+                    onClick={() => {
+                      setMenuRehacerAbierto(false);
+                      onRehacerPortada?.("ia_elige");
+                    }}
+                  >
+                    Con otro estilo (elige la IA)
+                  </button>
+                </div>
+              )}
+            </div>
             <IconButton onClick={handleDescargar}>
               <IconBajar width={11} height={11} />
               Descargar

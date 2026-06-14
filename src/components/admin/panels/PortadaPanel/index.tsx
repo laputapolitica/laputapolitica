@@ -11,6 +11,8 @@ interface PortadaPanelProps {
   onSaveTitulo?: (titulo: string) => void;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
+  onRehacerPortada?: (tipo: "mismo" | "ia_elige") => void;
+  rehaciendoPortada?: boolean;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
 }
@@ -21,6 +23,8 @@ export function PortadaPanel({
   onSaveTitulo,
   onSubirImagen,
   subiendoImagen,
+  onRehacerPortada,
+  rehaciendoPortada,
   historial,
   onRestaurar,
 }: PortadaPanelProps) {
@@ -55,6 +59,8 @@ export function PortadaPanel({
           imagenUrl={portada?.imagenUrl}
           onSubirImagen={onSubirImagen}
           subiendoImagen={subiendoImagen}
+          onRehacerPortada={onRehacerPortada}
+          rehaciendoPortada={rehaciendoPortada}
           historial={historial}
           onRestaurar={onRestaurar}
         />
