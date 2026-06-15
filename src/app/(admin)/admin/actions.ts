@@ -1180,3 +1180,30 @@ export async function rehacerTituloPortada(edicionId: string): Promise<Autorizar
 
   return { success: true };
 }
+
+export type EstiloBanco = {
+  id: string;
+  nombre: string;
+  imagenUrl: string;
+};
+
+export async function getEstilosBanco(): Promise<EstiloBanco[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("estilos_portada")
+    .select("id, nombre, imagen_url")
+    .eq("activo", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error leyendo estilos del banco:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((e) => ({
+    id: e.id,
+    nombre: e.nombre,
+    imagenUrl: e.imagen_url,
+  }));
+}

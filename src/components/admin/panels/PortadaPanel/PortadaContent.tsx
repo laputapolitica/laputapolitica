@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
-import type { PortadaHistorial } from "@/app/(admin)/admin/actions";
+import type { EstiloBanco, PortadaHistorial } from "@/app/(admin)/admin/actions";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 
@@ -13,8 +13,15 @@ type PortadaContentProps = {
   subiendoImagen?: boolean;
   onRehacerTitulo?: () => void;
   rehaciendoTitulo?: boolean;
-  onRehacerPortada?: (tipo: "mismo" | "ia_elige") => void;
+  onRehacerPortada?: (
+    opcion:
+      | { tipo: "mismo" }
+      | { tipo: "ia_elige" }
+      | { tipo: "elegir"; estiloId: string },
+  ) => void;
   rehaciendoPortada?: boolean;
+  estilosBanco?: EstiloBanco[];
+  onAbrirGaleriaEstilos?: () => void;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
 };
@@ -29,11 +36,14 @@ export function PortadaContent({
   rehaciendoTitulo,
   onRehacerPortada,
   rehaciendoPortada,
+  estilosBanco,
+  onAbrirGaleriaEstilos,
   historial,
   onRestaurar,
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
   const [menuRehacerAbierto, setMenuRehacerAbierto] = useState(false);
+  const [mostrandoGaleria, setMostrandoGaleria] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleClickSubir() {
@@ -124,34 +134,89 @@ export function PortadaContent({
           <div className="flex flex-col items-start gap-2">
             <div className="relative">
               <IconButton
-                onClick={() => setMenuRehacerAbierto((v) => !v)}
+                onClick={() => {
+                  if (menuRehacerAbierto) {
+                    setMostrandoGaleria(false);
+                  }
+                  setMenuRehacerAbierto((v) => !v);
+                }}
                 disabled={rehaciendoPortada}
               >
                 <IconRehacer width={11} height={11} />
                 {rehaciendoPortada ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
               {menuRehacerAbierto && !rehaciendoPortada && (
-                <div className="absolute left-0 top-full z-10 mt-1 flex w-52 flex-col overflow-hidden rounded-md border border-admin-ink bg-white shadow-md">
-                  <button
-                    type="button"
-                    className="px-3 py-2 text-left text-xs hover:bg-gray-100"
-                    onClick={() => {
-                      setMenuRehacerAbierto(false);
-                      onRehacerPortada?.("mismo");
-                    }}
-                  >
-                    Con el mismo estilo
-                  </button>
-                  <button
-                    type="button"
-                    className="border-t border-admin-ink/10 px-3 py-2 text-left text-xs hover:bg-gray-100"
-                    onClick={() => {
-                      setMenuRehacerAbierto(false);
-                      onRehacerPortada?.("ia_elige");
-                    }}
-                  >
-                    Con otro estilo (elige la IA)
-                  </button>
+                <div
+                  className={`absolute left-0 top-full z-10 mt-1 flex flex-col overflow-hidden rounded-md border border-admin-ink bg-white shadow-md ${
+                    mostrandoGaleria ? "w-64" : "w-52"
+                  }`}
+                >
+                  {mostrandoGaleria ? (
+                    <div className="flex max-h-64 w-full flex-col gap-2 overflow-y-auto p-2">
+                      {!estilosBanco || estilosBanco.length === 0 ? (
+                        <span className="px-1 py-2 text-xs text-text-secondary">
+                          No hay estilos disponibles.
+                        </span>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2">
+                          {estilosBanco.map((estilo) => (
+                            <button
+                              key={estilo.id}
+                              type="button"
+                              title={estilo.nombre}
+                              onClick={() => {
+                                setMenuRehacerAbierto(false);
+                                setMostrandoGaleria(false);
+                                onRehacerPortada?.({ tipo: "elegir", estiloId: estilo.id });
+                              }}
+                              className="h-16 w-16 overflow-hidden rounded-md border border-admin-ink/30 hover:border-admin-ink"
+                            >
+                              <img
+                                src={estilo.imagenUrl}
+                                alt={estilo.nombre}
+                                className="h-full w-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="px-3 py-2 text-left text-xs hover:bg-gray-100"
+                        onClick={() => {
+                          setMenuRehacerAbierto(false);
+                          setMostrandoGaleria(false);
+                          onRehacerPortada?.({ tipo: "mismo" });
+                        }}
+                      >
+                        Con el mismo estilo
+                      </button>
+                      <button
+                        type="button"
+                        className="border-t border-admin-ink/10 px-3 py-2 text-left text-xs hover:bg-gray-100"
+                        onClick={() => {
+                          setMenuRehacerAbierto(false);
+                          setMostrandoGaleria(false);
+                          onRehacerPortada?.({ tipo: "ia_elige" });
+                        }}
+                      >
+                        Con otro estilo (elige la IA)
+                      </button>
+                      <button
+                        type="button"
+                        className="border-t border-admin-ink/10 px-3 py-2 text-left text-xs hover:bg-gray-100"
+                        onClick={() => {
+                          setMostrandoGaleria(true);
+                          onAbrirGaleriaEstilos?.();
+                        }}
+                      >
+                        Elegir diseño
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

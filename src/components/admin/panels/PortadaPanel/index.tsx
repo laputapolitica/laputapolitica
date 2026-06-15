@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PortadaHistorial, PortadaVigente } from "@/app/(admin)/admin/actions";
+import type {
+  EstiloBanco,
+  OpcionRehacer,
+  PortadaHistorial,
+  PortadaVigente,
+} from "@/app/(admin)/admin/actions";
 import { LoadingTextGrid, PanelLayout } from "@/components/admin/shared";
 import { PortadaContent } from "./PortadaContent";
 
@@ -13,8 +18,10 @@ interface PortadaPanelProps {
   subiendoImagen?: boolean;
   onRehacerTitulo?: () => void;
   rehaciendoTitulo?: boolean;
-  onRehacerPortada?: (tipo: "mismo" | "ia_elige") => void;
+  onRehacerPortada?: (opcion: OpcionRehacer) => void;
   rehaciendoPortada?: boolean;
+  estilosBanco?: EstiloBanco[];
+  onAbrirGaleriaEstilos?: () => void;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
 }
@@ -29,6 +36,8 @@ export function PortadaPanel({
   rehaciendoTitulo,
   onRehacerPortada,
   rehaciendoPortada,
+  estilosBanco,
+  onAbrirGaleriaEstilos,
   historial,
   onRestaurar,
 }: PortadaPanelProps) {
@@ -67,6 +76,8 @@ export function PortadaPanel({
           rehaciendoTitulo={rehaciendoTitulo}
           onRehacerPortada={onRehacerPortada}
           rehaciendoPortada={rehaciendoPortada}
+          estilosBanco={estilosBanco}
+          onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
           historial={historial}
           onRestaurar={onRestaurar}
         />

@@ -8,6 +8,7 @@ import {
   getNoticiasTitulosResumenes,
   getPortadaVigente,
   getHistorialPortadas,
+  getEstilosBanco,
   autorizarEtapa,
   moverCandidata,
   eliminarCandidata,
@@ -24,8 +25,10 @@ import {
   type NoticiaTituloResumen,
   type PortadaVigente,
   type PortadaHistorial,
+  type EstiloBanco,
   type AutorizarEtapa,
   type DireccionMover,
+  type OpcionRehacer,
 } from "./actions";
 import {
   ElPulsoPanel,
@@ -106,7 +109,6 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
 
 type NoticiasRelevamientoState = NoticiasRelevamiento | null;
 type NoticiasTitulosState = NoticiaTituloResumen[] | null;
-type RehacerPortadaTipo = "mismo" | "ia_elige";
 
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
   const reviewGate = REVIEW_GATES.find(
@@ -126,6 +128,7 @@ function ActivePanel({
   noticiasTitulos,
   portada,
   historialPortadas,
+  estilosBancoProp,
   onSubir,
   onBajar,
   onEliminar,
@@ -139,6 +142,7 @@ function ActivePanel({
   rehaciendoTituloProp,
   onRehacerPortada,
   rehaciendoPortadaProp,
+  onAbrirGaleriaEstilos,
   onSaveResumen,
   onRehacer,
 }: {
@@ -147,6 +151,7 @@ function ActivePanel({
   noticiasTitulos?: NoticiasTitulosState;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
+  estilosBancoProp?: EstiloBanco[];
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -158,8 +163,9 @@ function ActivePanel({
   subiendoPortadaProp?: boolean;
   onRehacerTituloPortada?: () => void;
   rehaciendoTituloProp?: boolean;
-  onRehacerPortada?: (tipo: RehacerPortadaTipo) => void;
+  onRehacerPortada?: (opcion: OpcionRehacer) => void;
   rehaciendoPortadaProp?: boolean;
+  onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -198,6 +204,8 @@ function ActivePanel({
         rehaciendoTitulo={rehaciendoTituloProp}
         onRehacerPortada={onRehacerPortada}
         rehaciendoPortada={rehaciendoPortadaProp}
+        estilosBanco={estilosBancoProp}
+        onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
         historial={historialPortadas}
         onRestaurar={onRestaurarPortada}
       />
@@ -214,6 +222,7 @@ function PipelineActivePanel({
   noticiasTitulos,
   portada,
   historialPortadas,
+  estilosBancoProp,
   onSubir,
   onBajar,
   onEliminar,
@@ -227,6 +236,7 @@ function PipelineActivePanel({
   rehaciendoTituloProp,
   onRehacerPortada,
   rehaciendoPortadaProp,
+  onAbrirGaleriaEstilos,
   onSaveResumen,
   onRehacer,
 }: {
@@ -235,6 +245,7 @@ function PipelineActivePanel({
   noticiasTitulos?: NoticiasTitulosState;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
+  estilosBancoProp?: EstiloBanco[];
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -246,8 +257,9 @@ function PipelineActivePanel({
   subiendoPortadaProp?: boolean;
   onRehacerTituloPortada?: () => void;
   rehaciendoTituloProp?: boolean;
-  onRehacerPortada?: (tipo: RehacerPortadaTipo) => void;
+  onRehacerPortada?: (opcion: OpcionRehacer) => void;
   rehaciendoPortadaProp?: boolean;
+  onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
 }) {
@@ -268,6 +280,7 @@ function PipelineActivePanel({
         noticiasTitulos={noticiasTitulos}
         portada={portada}
         historialPortadas={historialPortadas}
+        estilosBancoProp={estilosBancoProp}
         onSubir={onSubir}
         onBajar={onBajar}
         onEliminar={onEliminar}
@@ -281,6 +294,7 @@ function PipelineActivePanel({
         rehaciendoTituloProp={rehaciendoTituloProp}
         onRehacerPortada={onRehacerPortada}
         rehaciendoPortadaProp={rehaciendoPortadaProp}
+        onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
       />
@@ -316,6 +330,7 @@ export default function AdminPage() {
     useState<NoticiasTitulosState>(null);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
+  const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
   const [subiendoPortada, setSubiendoPortada] = useState(false);
   const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
   const [rehaciendoPortada, setRehaciendoPortada] = useState(false);
@@ -486,11 +501,16 @@ export default function AdminPage() {
     }
   }
 
-  async function handleRehacerPortada(tipo: RehacerPortadaTipo) {
+  async function handleAbrirGaleriaEstilos() {
+    const estilos = await getEstilosBanco();
+    setEstilosBanco(estilos);
+  }
+
+  async function handleRehacerPortada(opcion: OpcionRehacer) {
     if (!enCurso) return;
     setRehaciendoPortada(true);
     try {
-      const res = await rehacerPortada(enCurso.edicionId, { tipo });
+      const res = await rehacerPortada(enCurso.edicionId, opcion);
       if (res.success) {
         await recargarPipeline();
       } else if (res.error) {
@@ -561,6 +581,7 @@ export default function AdminPage() {
             noticiasTitulos={noticiasTitulos}
             portada={portada}
             historialPortadas={historialPortadas}
+            estilosBancoProp={estilosBanco}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -576,6 +597,7 @@ export default function AdminPage() {
             rehaciendoTituloProp={rehaciendoTitulo}
             onRehacerPortada={handleRehacerPortada}
             rehaciendoPortadaProp={rehaciendoPortada}
+            onAbrirGaleriaEstilos={handleAbrirGaleriaEstilos}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
@@ -588,6 +610,7 @@ export default function AdminPage() {
             noticiasTitulos={noticiasTitulos}
             portada={portada}
             historialPortadas={historialPortadas}
+            estilosBancoProp={estilosBanco}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -603,6 +626,7 @@ export default function AdminPage() {
             rehaciendoTituloProp={rehaciendoTitulo}
             onRehacerPortada={handleRehacerPortada}
             rehaciendoPortadaProp={rehaciendoPortada}
+            onAbrirGaleriaEstilos={handleAbrirGaleriaEstilos}
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
