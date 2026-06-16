@@ -9,6 +9,7 @@ import {
   getPortadaVigente,
   getHistorialPortadas,
   getEstilosBanco,
+  getEstadoVentanaOpinion,
   autorizarEtapa,
   moverCandidata,
   eliminarCandidata,
@@ -26,6 +27,7 @@ import {
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
+  type EstadoVentanaOpinion,
   type AutorizarEtapa,
   type DireccionMover,
   type OpcionRehacer,
@@ -129,6 +131,7 @@ function ActivePanel({
   portada,
   historialPortadas,
   estilosBancoProp,
+  estadoVentana,
   onSubir,
   onBajar,
   onEliminar,
@@ -152,6 +155,7 @@ function ActivePanel({
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
+  estadoVentana?: EstadoVentanaOpinion;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -211,7 +215,7 @@ function ActivePanel({
       />
     );
   }
-  if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel />;
+  if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel estado={estadoVentana} />;
   if (nodeId === "elPulso") return <ElPulsoPanel status="ready" />;
   return <PublicacionPanel status="ready" />;
 }
@@ -223,6 +227,7 @@ function PipelineActivePanel({
   portada,
   historialPortadas,
   estilosBancoProp,
+  estadoVentana,
   onSubir,
   onBajar,
   onEliminar,
@@ -246,6 +251,7 @@ function PipelineActivePanel({
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
+  estadoVentana?: EstadoVentanaOpinion;
   onSubir?: (id: string) => void;
   onBajar?: (id: string) => void;
   onEliminar?: (id: string) => void;
@@ -281,6 +287,7 @@ function PipelineActivePanel({
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
+        estadoVentana={estadoVentana}
         onSubir={onSubir}
         onBajar={onBajar}
         onEliminar={onEliminar}
@@ -308,6 +315,10 @@ function PipelineActivePanel({
     return <PublicacionPanel status="ready" />;
   }
 
+  if (runningNodes.includes("ventanaOpinion")) {
+    return <VentanaOpinionPanel estado={estadoVentana} />;
+  }
+
   if (runningNodes.length > 0) {
     return (
       <LoadingTextGrid
@@ -331,6 +342,9 @@ export default function AdminPage() {
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
+  const [estadoVentana, setEstadoVentana] = useState<EstadoVentanaOpinion | undefined>(
+    undefined,
+  );
   const [subiendoPortada, setSubiendoPortada] = useState(false);
   const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
   const [rehaciendoPortada, setRehaciendoPortada] = useState(false);
@@ -344,15 +358,18 @@ export default function AdminPage() {
       const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
       const portadaData = await getPortadaVigente(data.edicionId);
       const hist = await getHistorialPortadas(data.edicionId);
+      const ev = await getEstadoVentanaOpinion(data.edicionId);
       setNoticiasRelev(candidatas);
       setNoticiasTitulos(titNoticias);
       setPortada(portadaData);
       setHistorialPortadas(hist);
+      setEstadoVentana(ev);
     } else {
       setNoticiasRelev(null);
       setNoticiasTitulos(null);
       setPortada(null);
       setHistorialPortadas([]);
+      setEstadoVentana(undefined);
     }
   }
 
@@ -366,17 +383,20 @@ export default function AdminPage() {
           const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
           const portadaData = await getPortadaVigente(data.edicionId);
           const hist = await getHistorialPortadas(data.edicionId);
+          const ev = await getEstadoVentanaOpinion(data.edicionId);
           if (activo) {
             setNoticiasRelev(candidatas);
             setNoticiasTitulos(titNoticias);
             setPortada(portadaData);
             setHistorialPortadas(hist);
+            setEstadoVentana(ev);
           }
         } else {
           setNoticiasRelev(null);
           setNoticiasTitulos(null);
           setPortada(null);
           setHistorialPortadas([]);
+          setEstadoVentana(undefined);
         }
         setCargando(false);
       }
@@ -582,6 +602,7 @@ export default function AdminPage() {
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
+            estadoVentana={estadoVentana}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}
@@ -611,6 +632,7 @@ export default function AdminPage() {
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
+            estadoVentana={estadoVentana}
             onSubir={(id) => handleMoverCandidata(id, "subir")}
             onBajar={(id) => handleMoverCandidata(id, "bajar")}
             onEliminar={handleEliminarCandidata}

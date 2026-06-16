@@ -1217,3 +1217,59 @@ export async function getEstilosBanco(): Promise<EstiloBanco[]> {
     imagenUrl: e.imagen_url,
   }));
 }
+
+export type EstadoVentanaOpinion = {
+  status: "pending" | "running" | "done";
+  cierraEn: string | null;
+  totalOpinadores: number;
+  participantes: number;
+};
+
+export async function getEstadoVentanaOpinion(
+  edicionId: string,
+): Promise<EstadoVentanaOpinion> {
+  const supabase = await createClient();
+
+  // Estado de la ventana.
+  const { data: ps } = await supabase
+    .from("pipeline_state")
+    .select("ventana_opinion_status, ventana_opinion_cierra_en")
+    .eq("edicion_id", edicionId)
+    .maybeSingle();
+
+  const status = (ps?.ventana_opinion_status ?? "pending") as "pending" | "running" | "done";
+  const cierraEn = ps?.ventana_opinion_cierra_en ?? null;
+
+  // Total de opinadores activos.
+  const { count: totalOpinadores } = await supabase
+    .from("opinadores")
+    .select("id", { count: "exact", head: true })
+    .eq("activo", true);
+
+  // IDs de las noticias de la edición.
+  const { data: noticias } = await supabase
+    .from("noticias")
+    .select("id")
+    .eq("edicion_id", edicionId);
+
+  const noticiaIds = (noticias ?? []).map((n) => n.id);
+
+  // Participantes: opinadores distintos con al menos una opinión en esas noticias.
+  let participantes = 0;
+  if (noticiaIds.length > 0) {
+    const { data: ops } = await supabase
+      .from("opiniones")
+      .select("opinador_id")
+      .in("noticia_id", noticiaIds);
+
+    const distintos = new Set((ops ?? []).map((o) => o.opinador_id));
+    participantes = distintos.size;
+  }
+
+  return {
+    status,
+    cierraEn,
+    totalOpinadores: totalOpinadores ?? 0,
+    participantes,
+  };
+}
