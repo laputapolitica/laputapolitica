@@ -169,10 +169,20 @@ export async function autorizarEtapa(
   }
 
   const prefijo = COLUMNA_APROBACION[etapa];
-  const update = {
+  const ahora = new Date();
+  const update: Record<string, string> = {
     [`${prefijo}_aprobado_por`]: user.id,
-    [`${prefijo}_aprobado_en`]: new Date().toISOString(),
+    [`${prefijo}_aprobado_en`]: ahora.toISOString(),
   };
+
+  // Al autorizar Títulos y Resúmenes se abre la Ventana de Opinión (en paralelo
+  // con Portada). Dura 1.5 horas (90 minutos) desde la apertura.
+  if (etapa === "titulosResumenes") {
+    const cierra = new Date(ahora.getTime() + 90 * 60 * 1000);
+    update.ventana_opinion_status = "running";
+    update.ventana_opinion_abierta_en = ahora.toISOString();
+    update.ventana_opinion_cierra_en = cierra.toISOString();
+  }
 
   const { error } = await supabase
     .from("pipeline_state")
