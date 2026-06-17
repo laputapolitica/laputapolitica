@@ -18,6 +18,7 @@ export interface PipelineState {
   portadaGate: GateStatus;
   ventanaOpinion: NodeStatus;
   elPulso: NodeStatus;
+  elPulsoGate: GateStatus;
   web: NodeStatus;
   instagram: NodeStatus;
   twitter: NodeStatus;
@@ -52,6 +53,7 @@ export const mockState: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "running",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -67,6 +69,7 @@ export const mockStateInicio: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "pending",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -82,6 +85,7 @@ export const mockStateRevisionRelevamiento: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "pending",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -97,6 +101,7 @@ export const mockStateTitulosRunning: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "pending",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -112,6 +117,7 @@ export const mockStateRevisionTitulos: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "pending",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -127,6 +133,7 @@ export const mockStateParaleloPortadaOpinion: PipelineState = {
   portadaGate: "pending",
   ventanaOpinion: "running",
   elPulso: "pending",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -142,6 +149,23 @@ export const mockStateElPulsoRunning: PipelineState = {
   portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "running",
+  elPulsoGate: "pending",
+  web: "pending",
+  instagram: "pending",
+  twitter: "pending",
+  publicacion: "pending",
+};
+
+export const mockStateRevisionElPulso: PipelineState = {
+  relevamiento: "done",
+  relevamientoGate: "approved",
+  titulosResumenes: "done",
+  titulosGate: "approved",
+  portada: "done",
+  portadaGate: "approved",
+  ventanaOpinion: "done",
+  elPulso: "done",
+  elPulsoGate: "pending",
   web: "pending",
   instagram: "pending",
   twitter: "pending",
@@ -157,6 +181,7 @@ export const mockStateParaleloWebInstagramTwitter: PipelineState = {
   portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "done",
+  elPulsoGate: "approved",
   web: "running",
   instagram: "running",
   twitter: "running",
@@ -172,6 +197,7 @@ export const mockStatePublicacion: PipelineState = {
   portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "done",
+  elPulsoGate: "approved",
   web: "done",
   instagram: "done",
   twitter: "done",
@@ -187,6 +213,7 @@ export const mockStatePublicado: PipelineState = {
   portadaGate: "approved",
   ventanaOpinion: "done",
   elPulso: "done",
+  elPulsoGate: "approved",
   web: "done",
   instagram: "done",
   twitter: "done",
@@ -213,9 +240,10 @@ const CONNECTORS: ConnectorDef[] = [
   { from: "portada:R", to: "portadaGate:L", fromNode: "portada" },
   { from: "portadaGate:R", to: "elPulso:L" },
   { from: "ventanaOpinion:R", to: "elPulso:L", fromNode: "ventanaOpinion" },
-  { from: "elPulso:R", to: "web:L", fromNode: "elPulso" },
-  { from: "elPulso:R", to: "instagram:L", fromNode: "elPulso" },
-  { from: "elPulso:R", to: "twitter:L", fromNode: "elPulso" },
+  { from: "elPulso:R", to: "elPulsoGate:L", fromNode: "elPulso" },
+  { from: "elPulsoGate:R", to: "web:L" },
+  { from: "elPulsoGate:R", to: "instagram:L" },
+  { from: "elPulsoGate:R", to: "twitter:L" },
   { from: "web:R", to: "publicacion:L", fromNode: "web" },
   { from: "instagram:R", to: "publicacion:L", fromNode: "instagram" },
   { from: "twitter:R", to: "publicacion:L", fromNode: "twitter" },
@@ -237,6 +265,7 @@ export const REVIEW_GATES: Array<{
     label: "Títulos y Resúmenes",
   },
   { gateId: "portadaGate", nodeId: "portada", label: "Portada" },
+  { gateId: "elPulsoGate", nodeId: "elPulso", label: "El Pulso" },
 ];
 
 // ─── COMPONENT ───────────────────────────────────────────────────
@@ -469,6 +498,14 @@ export function PipelineDiagram({
           {/* El Pulso */}
           <div ref={setRef("elPulso")}>
             <PipelineNode label="El Pulso" status={pipelineState.elPulso} />
+          </div>
+
+          {/* elPulsoGate */}
+          <div ref={setRef("elPulsoGate")} className="ml-2">
+            <PipelineGate
+              status={pipelineState.elPulsoGate}
+              nodeStatus={pipelineState.elPulso}
+            />
           </div>
 
           {/* Web/Instagram/Twitter (stack vertical) */}

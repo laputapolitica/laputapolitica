@@ -6,6 +6,7 @@ import {
   getPipelineEnCurso,
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
+  getNoticiasElPulso,
   getPortadaVigente,
   getHistorialPortadas,
   getEstilosBanco,
@@ -21,9 +22,11 @@ import {
   rehacerPortada,
   rehacerTituloPortada,
   rehacerCampo,
+  rehacerResumenElPulso,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
+  type NoticiaElPulso,
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
@@ -51,6 +54,7 @@ import {
   mockStateParaleloWebInstagramTwitter,
   mockStatePublicacion,
   mockStatePublicado,
+  mockStateRevisionElPulso,
   mockStateRevisionRelevamiento,
   mockStateRevisionTitulos,
   mockStateTitulosRunning,
@@ -82,6 +86,10 @@ const REVIEW_GATES = [
     gateId: "portadaGate",
     nodeId: "portada",
   },
+  {
+    gateId: "elPulsoGate",
+    nodeId: "elPulso",
+  },
 ] as const;
 
 const RUNNING_MESSAGES: Record<PipelineNodeId, string> = {
@@ -104,6 +112,7 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
   "paralelo-portada-opinion": mockStateParaleloPortadaOpinion,
   "revision-portada": mockState,
   "elpulso-running": mockStateElPulsoRunning,
+  "revision-elpulso": mockStateRevisionElPulso,
   "paralelo-canales": mockStateParaleloWebInstagramTwitter,
   publicacion: mockStatePublicacion,
   publicado: mockStatePublicado,
@@ -128,6 +137,7 @@ function ActivePanel({
   nodeId,
   noticiasRelev,
   noticiasTitulos,
+  noticiasElPulso,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -148,10 +158,12 @@ function ActivePanel({
   onAbrirGaleriaEstilos,
   onSaveResumen,
   onRehacer,
+  onRehacerElPulso,
 }: {
   nodeId: PipelineNodeId;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
+  noticiasElPulso?: NoticiaElPulso[] | null;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -172,6 +184,7 @@ function ActivePanel({
   onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
+  onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
 }) {
   if (nodeId === "relevamiento") {
     return (
@@ -216,7 +229,15 @@ function ActivePanel({
     );
   }
   if (nodeId === "ventanaOpinion") return <VentanaOpinionPanel estado={estadoVentana} />;
-  if (nodeId === "elPulso") return <ElPulsoPanel status="ready" />;
+  if (nodeId === "elPulso") {
+    return (
+      <ElPulsoPanel
+        status="ready"
+        noticias={noticiasElPulso ?? undefined}
+        onRehacer={onRehacerElPulso}
+      />
+    );
+  }
   return <PublicacionPanel status="ready" />;
 }
 
@@ -224,6 +245,7 @@ function PipelineActivePanel({
   state,
   noticiasRelev,
   noticiasTitulos,
+  noticiasElPulso,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -244,10 +266,12 @@ function PipelineActivePanel({
   onAbrirGaleriaEstilos,
   onSaveResumen,
   onRehacer,
+  onRehacerElPulso,
 }: {
   state: PipelineState;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
+  noticiasElPulso?: NoticiaElPulso[] | null;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -268,6 +292,7 @@ function PipelineActivePanel({
   onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
+  onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
 }) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
@@ -284,6 +309,7 @@ function PipelineActivePanel({
         nodeId={reviewNode}
         noticiasRelev={noticiasRelev}
         noticiasTitulos={noticiasTitulos}
+        noticiasElPulso={noticiasElPulso}
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
@@ -304,6 +330,7 @@ function PipelineActivePanel({
         onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
         onSaveResumen={onSaveResumen}
         onRehacer={onRehacer}
+        onRehacerElPulso={onRehacerElPulso}
       />
     );
   }
@@ -339,6 +366,8 @@ export default function AdminPage() {
   const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
+  const [noticiasElPulso, setNoticiasElPulso] =
+    useState<NoticiaElPulso[] | null>(null);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
@@ -356,17 +385,20 @@ export default function AdminPage() {
     if (data) {
       const candidatas = await getCandidatasRelevamiento(data.edicionId);
       const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
+      const pulsoNoticias = await getNoticiasElPulso(data.edicionId);
       const portadaData = await getPortadaVigente(data.edicionId);
       const hist = await getHistorialPortadas(data.edicionId);
       const ev = await getEstadoVentanaOpinion(data.edicionId);
       setNoticiasRelev(candidatas);
       setNoticiasTitulos(titNoticias);
+      setNoticiasElPulso(pulsoNoticias);
       setPortada(portadaData);
       setHistorialPortadas(hist);
       setEstadoVentana(ev);
     } else {
       setNoticiasRelev(null);
       setNoticiasTitulos(null);
+      setNoticiasElPulso(null);
       setPortada(null);
       setHistorialPortadas([]);
       setEstadoVentana(undefined);
@@ -381,12 +413,14 @@ export default function AdminPage() {
         if (data) {
           const candidatas = await getCandidatasRelevamiento(data.edicionId);
           const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
+          const pulsoNoticias = await getNoticiasElPulso(data.edicionId);
           const portadaData = await getPortadaVigente(data.edicionId);
           const hist = await getHistorialPortadas(data.edicionId);
           const ev = await getEstadoVentanaOpinion(data.edicionId);
           if (activo) {
             setNoticiasRelev(candidatas);
             setNoticiasTitulos(titNoticias);
+            setNoticiasElPulso(pulsoNoticias);
             setPortada(portadaData);
             setHistorialPortadas(hist);
             setEstadoVentana(ev);
@@ -394,6 +428,7 @@ export default function AdminPage() {
         } else {
           setNoticiasRelev(null);
           setNoticiasTitulos(null);
+          setNoticiasElPulso(null);
           setPortada(null);
           setHistorialPortadas([]);
           setEstadoVentana(undefined);
@@ -557,6 +592,15 @@ export default function AdminPage() {
     }
   }
 
+  async function handleRehacerElPulso(noticiaId: string) {
+    const res = await rehacerResumenElPulso(noticiaId);
+    if (res?.error) {
+      console.error(res.error);
+      return;
+    }
+    await recargarPipeline();
+  }
+
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
   // Si no, se usa el estado real de la edición en curso.
   const pipelineState: PipelineState | null = scenarioParam
@@ -599,6 +643,7 @@ export default function AdminPage() {
             nodeId={forcedNodeId}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
+            noticiasElPulso={noticiasElPulso}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -623,12 +668,14 @@ export default function AdminPage() {
               handleGuardarTituloResumen(id, "resumen", val)
             }
             onRehacer={handleRehacer}
+            onRehacerElPulso={handleRehacerElPulso}
           />
         ) : (
           <PipelineActivePanel
             state={pipelineState}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
+            noticiasElPulso={noticiasElPulso}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -653,6 +700,7 @@ export default function AdminPage() {
               handleGuardarTituloResumen(id, "resumen", val)
             }
             onRehacer={handleRehacer}
+            onRehacerElPulso={handleRehacerElPulso}
           />
         )}
       </section>

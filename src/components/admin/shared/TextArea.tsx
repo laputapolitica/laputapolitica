@@ -10,6 +10,7 @@ type TextAreaProps = {
   autoResize?: boolean;
   isEditing?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
+  variant?: "default" | "subtle";
   className?: string;
 };
 
@@ -21,6 +22,7 @@ export function TextArea({
   autoResize = false,
   isEditing: controlledIsEditing,
   onEditingChange,
+  variant = "default",
   className = "",
 }: TextAreaProps) {
   const [internalIsEditing, setInternalIsEditing] = useState(false);
@@ -73,6 +75,7 @@ export function TextArea({
   }
 
   const widthClass = fullWidth ? "w-full" : "w-[480px]";
+  const bgClass = variant === "subtle" ? "bg-transparent" : "bg-white";
   const editingTextAreaClass = autoResize
     ? "min-w-0 w-full resize-none overflow-hidden rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none"
     : "min-h-[200px] min-w-0 w-full resize-y rounded-[3.5px] border-2 border-admin-ink bg-white px-2 py-1.5 font-ui text-sm font-medium text-admin-ink outline-none";
@@ -110,7 +113,7 @@ export function TextArea({
   return (
     <div
       onDoubleClick={readOnly ? undefined : () => setIsEditing(true)}
-      className={`${widthClass} h-[80px] overflow-y-auto rounded-[3.5px] border border-admin-ink bg-white px-2 py-1.5 ${className}`}
+      className={`${widthClass} h-[80px] overflow-y-auto rounded-[3.5px] border border-admin-ink ${bgClass} px-2 py-1.5 ${className}`}
     >
       <p className="font-ui text-sm font-medium text-admin-ink">{current}</p>
     </div>

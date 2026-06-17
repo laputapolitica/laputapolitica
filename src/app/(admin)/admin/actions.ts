@@ -81,6 +81,7 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
     portadaGate: asGate(row.portada_aprobado_en),
     ventanaOpinion: asNode(row.ventana_opinion_status),
     elPulso: asNode(row.el_pulso_status),
+    elPulsoGate: row.el_pulso_status === "done" ? "pending" : "pending",
     web: asNode(row.web_status),
     instagram: asNode(row.instagram_status),
     twitter: asNode(row.twitter_status),
@@ -1272,4 +1273,166 @@ export async function getEstadoVentanaOpinion(
     totalOpinadores: totalOpinadores ?? 0,
     participantes,
   };
+}
+
+export type NoticiaElPulso = {
+  id: string;
+  orden: number;
+  titulo: string;
+  resumen: string;
+  resumenNoticia: string;
+  pctPositiva: number;
+  pctNegativa: number;
+  pctIncierta: number;
+  totalOpiniones: number;
+  totalOpinadores: number;
+};
+
+export async function getNoticiasElPulso(
+  edicionId: string,
+): Promise<NoticiaElPulso[]> {
+  const supabase = await createClient();
+
+  // Noticias de la edición (ordenadas).
+  const { data: noticiasData, error: noticiasError } = await supabase
+    .from("noticias")
+    .select("id, titulo, orden, cuerpo")
+    .eq("edicion_id", edicionId)
+    .order("orden", { ascending: true });
+
+  if (noticiasError) {
+    console.error("Error leyendo noticias para El Pulso:", noticiasError.message);
+    return [];
+  }
+
+  type NoticiaRow = { id: string; titulo: string; orden: number; cuerpo: string };
+  const noticias = (noticiasData ?? []) as NoticiaRow[];
+
+  if (noticias.length === 0) return [];
+
+  // Filas de el_pulso_noticia de esas noticias.
+  const noticiaIds = noticias.map((n) => n.id);
+  const { data: pulsoData, error: pulsoError } = await supabase
+    .from("el_pulso_noticia")
+    .select(
+      "noticia_id, texto_resumen, pct_positiva, pct_negativa, pct_incierta, total_opiniones",
+    )
+    .in("noticia_id", noticiaIds);
+
+  if (pulsoError) {
+    console.error("Error leyendo el_pulso_noticia:", pulsoError.message);
+  }
+
+  type PulsoRow = {
+    noticia_id: string;
+    texto_resumen: string | null;
+    pct_positiva: number;
+    pct_negativa: number;
+    pct_incierta: number;
+    total_opiniones: number;
+  };
+  const pulso = (pulsoData ?? []) as PulsoRow[];
+  const pulsoPorNoticia = new Map(pulso.map((p) => [p.noticia_id, p]));
+
+  const { count: totalOpinadores } = await supabase
+    .from("opinadores")
+    .select("id", { count: "exact", head: true })
+    .eq("activo", true);
+
+  return noticias.map((n) => {
+    const p = pulsoPorNoticia.get(n.id);
+    return {
+      id: n.id,
+      orden: n.orden,
+      titulo: n.titulo,
+      resumen: p?.texto_resumen ?? "",
+      resumenNoticia: n.cuerpo ?? "",
+      pctPositiva: p?.pct_positiva ?? 0,
+      pctNegativa: p?.pct_negativa ?? 0,
+      pctIncierta: p?.pct_incierta ?? 0,
+      totalOpiniones: p?.total_opiniones ?? 0,
+      totalOpinadores: totalOpinadores ?? 0,
+    };
+  });
+}
+
+export async function rehacerResumenElPulso(
+  noticiaId: string,
+): Promise<AutorizarResult> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    console.error("Falta GROQ_API_KEY.");
+    return { error: "Configuración incompleta del servidor." };
+  }
+
+  const supabase = await createClient();
+
+  // Leer las opiniones de la noticia.
+  const { data: opinionesData, error: opinionesError } = await supabase
+    .from("opiniones")
+    .select("texto, sentiment")
+    .eq("noticia_id", noticiaId);
+
+  if (opinionesError) {
+    console.error("Error leyendo opiniones para rehacer pulso:", opinionesError.message);
+    return { error: "No se pudieron leer las opiniones." };
+  }
+
+  type OpinionRow = {
+    texto: string;
+    sentiment: "positiva" | "negativa" | "incierta";
+  };
+  const opiniones = (opinionesData ?? []) as OpinionRow[];
+
+  if (opiniones.length === 0) {
+    return { error: "Esta noticia no tiene opiniones para resumir." };
+  }
+
+  // Consolidar las opiniones en un texto.
+  const textoOpiniones = opiniones
+    .map((o, i) => `Opinión ${i + 1} (voto: ${o.sentiment}): ${o.texto}`)
+    .join("\n\n");
+
+  const prompt =
+    "Sos analista de un medio político argentino. A continuación tenés las opiniones que dejó una comunidad de lectores jóvenes sobre una noticia del día, cada una con su voto (positiva, negativa o incierta). Tu tarea es escribir un RESUMEN BREVE (2 a 4 oraciones) que sintetice qué pensó la comunidad: las posturas principales, y si hubo acuerdo o división. Tono neutral y descriptivo, fiel a lo que se opinó. No inventes posturas que no estén. No uses comillas.\n\nOpiniones de la comunidad:\n" +
+    textoOpiniones +
+    '\n\nDevolvé SOLAMENTE un objeto JSON con la forma {"resumen": "..."} y nada más.';
+
+  let resumen = "";
+  try {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" },
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) return { error: "No se pudo generar el resumen. Intentá de nuevo." };
+    const json = await resp.json();
+    const parsed = JSON.parse(json.choices[0].message.content);
+    resumen = typeof parsed.resumen === "string" ? parsed.resumen.trim() : "";
+  } catch (e) {
+    console.error("Error llamando a Groq para rehacer pulso:", e);
+    return { error: "No se pudo generar el resumen. Intentá de nuevo." };
+  }
+
+  if (!resumen) {
+    return { error: "El resumen generado vino vacío. Intentá de nuevo." };
+  }
+
+  // Guardar el nuevo resumen en el_pulso_noticia.
+  const { error: updateError } = await supabase
+    .from("el_pulso_noticia")
+    .update({ texto_resumen: resumen })
+    .eq("noticia_id", noticiaId);
+
+  if (updateError) {
+    console.error("Error guardando resumen de pulso:", updateError.message);
+    return { error: "No se pudo guardar el resumen." };
+  }
+
+  return { success: true };
 }

@@ -107,6 +107,7 @@ export function AdminSidebar() {
                 Revisión de Portada + Ventana running
               </option>
               <option value="elpulso-running">El Pulso running</option>
+              <option value="revision-elpulso">Revisión de El Pulso</option>
               <option value="paralelo-canales">
                 Web + Instagram + Twitter (paralelo)
               </option>
