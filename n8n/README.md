@@ -8,16 +8,19 @@ este índice mapea cada ID a su nombre y propósito.
 > Los JSON referencian las credenciales de n8n por **ID y nombre**, no por valor.
 > **Nunca** commitear `export:credentials` (eso sí tiene las claves).
 
-### Secretos redactados
+### Secretos (en credenciales de n8n, no en el export)
 
-Los nodos **HTTP Request** de `El Pulso` y `Portada` tenían la key
-`service_role` de Supabase **hardcodeada** en los headers `apikey` / `Authorization`
-(para subir a Storage). En este snapshot versionado fue reemplazada por
-`REDACTED_SUPABASE_SERVICE_ROLE_KEY`. La key real vive en n8n / Bitwarden — **no** en git.
+Los nodos HTTP que pegan a Supabase con la key `service_role` (RPC en `El Pulso`,
+subida a Storage en `Portada`) usan una **credencial de n8n "Custom Auth"** que
+inyecta los headers `apikey` / `Authorization`. La key **no** está en estos JSON ni
+en git — vive encriptada en n8n / Bitwarden.
 
-> **Pendiente (fix de fondo):** mover esa key del nodo HTTP a una **credencial de n8n
-> (Header Auth)** en la UI, así los exports futuros nunca arrastran el secreto. Hasta
-> que se haga, re-importar estos JSON requiere volver a poner la key a mano.
+Es la **legacy service API key** (un JWT largo), **no** la `sb_secret_` nueva:
+Storage necesita la legacy. La app (Next.js) sí usa las keys nuevas (`sb_secret_` /
+`sb_publishable_`); n8n va por la legacy.
+
+> Al re-importar estos workflows en otro n8n hay que re-crear/seleccionar la
+> credencial "Custom Auth" con la key, porque la credencial no se exporta.
 
 ## Pipeline de producción
 
