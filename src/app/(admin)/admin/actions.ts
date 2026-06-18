@@ -1358,6 +1358,25 @@ export async function getNoticiasElPulso(
   });
 }
 
+export async function guardarResumenElPulso(
+  noticiaId: string,
+  valor: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("el_pulso_noticia")
+    .update({ texto_resumen: valor })
+    .eq("noticia_id", noticiaId);
+
+  if (error) {
+    console.error("Error guardando resumen de El Pulso:", error.message);
+    return { error: "No se pudo guardar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
 export async function rehacerResumenElPulso(
   noticiaId: string,
 ): Promise<AutorizarResult> {

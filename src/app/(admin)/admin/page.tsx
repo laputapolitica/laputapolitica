@@ -23,6 +23,7 @@ import {
   rehacerTituloPortada,
   rehacerCampo,
   rehacerResumenElPulso,
+  guardarResumenElPulso,
   type PipelineEnCurso,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
@@ -157,6 +158,7 @@ function ActivePanel({
   rehaciendoPortadaProp,
   onAbrirGaleriaEstilos,
   onSaveResumen,
+  onSaveResumenElPulso,
   onRehacer,
   onRehacerElPulso,
 }: {
@@ -183,6 +185,7 @@ function ActivePanel({
   rehaciendoPortadaProp?: boolean;
   onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
+  onSaveResumenElPulso?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
   onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
 }) {
@@ -234,6 +237,7 @@ function ActivePanel({
       <ElPulsoPanel
         status="ready"
         noticias={noticiasElPulso ?? undefined}
+        onSaveResumen={onSaveResumenElPulso}
         onRehacer={onRehacerElPulso}
       />
     );
@@ -265,6 +269,7 @@ function PipelineActivePanel({
   rehaciendoPortadaProp,
   onAbrirGaleriaEstilos,
   onSaveResumen,
+  onSaveResumenElPulso,
   onRehacer,
   onRehacerElPulso,
 }: {
@@ -291,6 +296,7 @@ function PipelineActivePanel({
   rehaciendoPortadaProp?: boolean;
   onAbrirGaleriaEstilos?: () => void;
   onSaveResumen?: (id: string, val: string) => void;
+  onSaveResumenElPulso?: (id: string, val: string) => void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
   onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
 }) {
@@ -329,6 +335,7 @@ function PipelineActivePanel({
         rehaciendoPortadaProp={rehaciendoPortadaProp}
         onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
         onSaveResumen={onSaveResumen}
+        onSaveResumenElPulso={onSaveResumenElPulso}
         onRehacer={onRehacer}
         onRehacerElPulso={onRehacerElPulso}
       />
@@ -597,9 +604,20 @@ export default function AdminPage() {
     const res = await rehacerResumenElPulso(noticiaId);
     if (res?.error) {
       console.error(res.error);
+      alert(res.error);
       return;
     }
     await recargarPipeline();
+  }
+
+  async function handleGuardarResumenElPulso(noticiaId: string, valor: string) {
+    if (!enCurso) return;
+    const res = await guardarResumenElPulso(noticiaId, valor);
+    if (res.success) {
+      await recargarPipeline();
+    } else if (res.error) {
+      alert(res.error);
+    }
   }
 
   // Si hay ?scenario= en la URL, se usa el mock (herramienta de testing Dev).
@@ -668,6 +686,7 @@ export default function AdminPage() {
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
+            onSaveResumenElPulso={handleGuardarResumenElPulso}
             onRehacer={handleRehacer}
             onRehacerElPulso={handleRehacerElPulso}
           />
@@ -700,6 +719,7 @@ export default function AdminPage() {
             onSaveResumen={(id, val) =>
               handleGuardarTituloResumen(id, "resumen", val)
             }
+            onSaveResumenElPulso={handleGuardarResumenElPulso}
             onRehacer={handleRehacer}
             onRehacerElPulso={handleRehacerElPulso}
           />
