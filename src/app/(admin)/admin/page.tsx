@@ -448,6 +448,7 @@ export default function AdminPage() {
       "titulosResumenes",
       "portada",
       "publicacion",
+      "elPulso",
     ];
     if (!etapasValidas.includes(nodeId as AutorizarEtapa)) return;
     const res = await autorizarEtapa(enCurso.edicionId, nodeId as AutorizarEtapa);

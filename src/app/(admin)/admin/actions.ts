@@ -18,6 +18,7 @@ type PipelineRow = {
   relevamiento_aprobado_en: string | null;
   titulos_aprobado_en: string | null;
   portada_aprobado_en: string | null;
+  el_pulso_aprobado_en: string | null;
 };
 
 function asNode(value: string): NodeStatus {
@@ -58,7 +59,7 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
   const { data: ps, error: psError } = await supabase
     .from("pipeline_state")
     .select(
-      "relevamiento_status, titulos_status, portada_status, ventana_opinion_status, el_pulso_status, web_status, instagram_status, twitter_status, publicacion_status, relevamiento_aprobado_en, titulos_aprobado_en, portada_aprobado_en",
+      "relevamiento_status, titulos_status, portada_status, ventana_opinion_status, el_pulso_status, web_status, instagram_status, twitter_status, publicacion_status, relevamiento_aprobado_en, titulos_aprobado_en, portada_aprobado_en, el_pulso_aprobado_en",
     )
     .eq("edicion_id", ed.id)
     .maybeSingle();
@@ -81,7 +82,7 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
     portadaGate: asGate(row.portada_aprobado_en),
     ventanaOpinion: asNode(row.ventana_opinion_status),
     elPulso: asNode(row.el_pulso_status),
-    elPulsoGate: row.el_pulso_status === "done" ? "pending" : "pending",
+    elPulsoGate: asGate(row.el_pulso_aprobado_en),
     web: asNode(row.web_status),
     instagram: asNode(row.instagram_status),
     twitter: asNode(row.twitter_status),
@@ -91,7 +92,7 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
   return { edicionId: ed.id, fecha: ed.fecha, titulo: ed.titulo, state };
 }
 
-export type AutorizarEtapa = "relevamiento" | "titulosResumenes" | "portada" | "publicacion";
+export type AutorizarEtapa = "relevamiento" | "titulosResumenes" | "portada" | "publicacion" | "elPulso";
 
 export type AutorizarResult = {
   error?: string;
@@ -104,6 +105,7 @@ const COLUMNA_APROBACION: Record<AutorizarEtapa, string> = {
   titulosResumenes: "titulos",
   portada: "portada",
   publicacion: "publicacion",
+  elPulso: "el_pulso",
 };
 
 export async function autorizarEtapa(
