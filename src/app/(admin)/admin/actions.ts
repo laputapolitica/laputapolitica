@@ -997,7 +997,6 @@ async function generarPortadaCore(
 }
 
 export type OpcionRehacer =
-  | { tipo: "mismo" }
   | { tipo: "ia_elige" }
   | { tipo: "elegir"; estiloId: string };
 
@@ -1007,7 +1006,7 @@ export async function rehacerPortada(
 ): Promise<AutorizarResult> {
   const supabase = await createClient();
 
-  // Estilo de la portada vigente actual (para "mismo" y para excluir en "ia_elige").
+  // Estilo de la portada vigente actual (para excluir en "ia_elige").
   const { data: vigente } = await supabase
     .from("portadas")
     .select("estilo_id")
@@ -1021,11 +1020,6 @@ export async function rehacerPortada(
 
   if (opcion.tipo === "elegir") {
     estiloId = opcion.estiloId;
-  } else if (opcion.tipo === "mismo") {
-    if (!estiloActual) {
-      return { error: "La portada actual no tiene un estilo asociado. Probá 'elegir diseño'." };
-    }
-    estiloId = estiloActual;
   } else {
     // ia_elige: leer estilos activos y pedirle a Groq que elija uno distinto al actual.
     const { data: estilos, error: estilosError } = await supabase

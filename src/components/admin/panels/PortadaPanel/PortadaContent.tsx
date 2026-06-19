@@ -15,7 +15,6 @@ type PortadaContentProps = {
   rehaciendoTitulo?: boolean;
   onRehacerPortada?: (
     opcion:
-      | { tipo: "mismo" }
       | { tipo: "ia_elige" }
       | { tipo: "elegir"; estiloId: string },
   ) => void;
@@ -186,17 +185,6 @@ export function PortadaContent({
                       <button
                         type="button"
                         className="px-3 py-2 text-left text-xs hover:bg-gray-100"
-                        onClick={() => {
-                          setMenuRehacerAbierto(false);
-                          setMostrandoGaleria(false);
-                          onRehacerPortada?.({ tipo: "mismo" });
-                        }}
-                      >
-                        Con el mismo estilo
-                      </button>
-                      <button
-                        type="button"
-                        className="border-t border-admin-ink/10 px-3 py-2 text-left text-xs hover:bg-gray-100"
                         onClick={() => {
                           setMenuRehacerAbierto(false);
                           setMostrandoGaleria(false);
