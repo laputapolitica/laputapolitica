@@ -8,6 +8,7 @@ export type CandidataRelevamiento = {
   id: string;
   titulo: string;
   ranking: number;
+  orden: number | null;
   fuente_url: string | null;
 };
 
@@ -19,32 +20,30 @@ type NoticiasRelevamiento = {
 export interface RelevamientoPanelProps {
   status: "running" | "ready";
   noticias?: NoticiasRelevamiento;
-  onSubir?: (id: string) => void;
-  onBajar?: (id: string) => void;
+  onReordenar?: (ordenIds: string[]) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
 }
 
 const defaultNoticias: NoticiasRelevamiento = {
   activas: [
-    { id: "mock-1", titulo: "El Senado aprobó el pliego de la jueza que el Gobierno había intentado vetar", ranking: 1, fuente_url: null },
-    { id: "mock-2", titulo: "Negociaciones con el FMI", ranking: 2, fuente_url: null },
-    { id: "mock-3", titulo: "Primer cimbronazo por la reforma laboral: el Gobierno intimará a empresas y sindicatos para renegociar 150 convenios colectivos", ranking: 3, fuente_url: null },
-    { id: "mock-4", titulo: "Conflicto con gobernadores por la coparticipación", ranking: 4, fuente_url: null },
-    { id: "mock-5", titulo: "Clima social y protestas", ranking: 5, fuente_url: null },
+    { id: "mock-1", titulo: "El Senado aprobó el pliego de la jueza que el Gobierno había intentado vetar", ranking: 1, orden: 1, fuente_url: null },
+    { id: "mock-2", titulo: "Negociaciones con el FMI", ranking: 2, orden: 2, fuente_url: null },
+    { id: "mock-3", titulo: "Primer cimbronazo por la reforma laboral: el Gobierno intimará a empresas y sindicatos para renegociar 150 convenios colectivos", ranking: 3, orden: 3, fuente_url: null },
+    { id: "mock-4", titulo: "Conflicto con gobernadores por la coparticipación", ranking: 4, orden: 4, fuente_url: null },
+    { id: "mock-5", titulo: "Clima social y protestas", ranking: 5, orden: 5, fuente_url: null },
   ],
   descartadas: [
-    { id: "mock-6", titulo: "La inflación vuelve a acelerarse", ranking: 6, fuente_url: null },
-    { id: "mock-7", titulo: "Polémica por la reforma de la Ley de Glaciares", ranking: 7, fuente_url: null },
-    { id: "mock-8", titulo: "Despidos en el Estado (Servicio Meteorológico)", ranking: 8, fuente_url: null },
+    { id: "mock-6", titulo: "La inflación vuelve a acelerarse", ranking: 6, orden: null, fuente_url: null },
+    { id: "mock-7", titulo: "Polémica por la reforma de la Ley de Glaciares", ranking: 7, orden: null, fuente_url: null },
+    { id: "mock-8", titulo: "Despidos en el Estado (Servicio Meteorológico)", ranking: 8, orden: null, fuente_url: null },
   ],
 };
 
 export function RelevamientoPanel({
   status,
   noticias = defaultNoticias,
-  onSubir,
-  onBajar,
+  onReordenar,
   onEliminar,
   onAgregar,
 }: RelevamientoPanelProps) {
@@ -62,8 +61,7 @@ export function RelevamientoPanel({
         <NoticiasList
           activas={noticias.activas}
           descartadas={noticias.descartadas}
-          onSubir={onSubir}
-          onBajar={onBajar}
+          onReordenar={onReordenar}
           onEliminar={onEliminar}
           onAgregar={onAgregar}
         />

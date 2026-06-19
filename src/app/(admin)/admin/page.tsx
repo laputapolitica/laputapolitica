@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   getPipelineEnCurso,
   getCandidatasRelevamiento,
@@ -12,7 +12,7 @@ import {
   getEstilosBanco,
   getEstadoVentanaOpinion,
   autorizarEtapa,
-  moverCandidata,
+  reordenarCandidatas,
   eliminarCandidata,
   agregarCandidata,
   guardarTituloResumen,
@@ -33,7 +33,6 @@ import {
   type EstiloBanco,
   type EstadoVentanaOpinion,
   type AutorizarEtapa,
-  type DireccionMover,
   type OpcionRehacer,
 } from "./actions";
 import {
@@ -121,6 +120,109 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
 
 type NoticiasRelevamientoState = NoticiasRelevamiento | null;
 type NoticiasTitulosState = NoticiaTituloResumen[] | null;
+type ResultadoOptimistaRelevamiento =
+  | { estado: NoticiasRelevamiento }
+  | { motivo: "minimo-activas" | "maximo-activas" | "sin-cambio" };
+
+function ordenarActivas(
+  activas: NoticiasRelevamiento["activas"],
+): NoticiasRelevamiento["activas"] {
+  return [...activas].sort((a, b) => {
+    const ordenA = a.orden ?? Number.MAX_SAFE_INTEGER;
+    const ordenB = b.orden ?? Number.MAX_SAFE_INTEGER;
+
+    return ordenA - ordenB || a.ranking - b.ranking;
+  });
+}
+
+function ordenarDescartadas(
+  descartadas: NoticiasRelevamiento["descartadas"],
+): NoticiasRelevamiento["descartadas"] {
+  return [...descartadas].sort((a, b) => a.ranking - b.ranking);
+}
+
+function compactarOrdenes(
+  activas: NoticiasRelevamiento["activas"],
+): NoticiasRelevamiento["activas"] {
+  return activas.map((candidata, index) => ({
+    ...candidata,
+    orden: index + 1,
+  }));
+}
+
+function aplicarEliminar(
+  state: NoticiasRelevamiento,
+  id: string,
+): ResultadoOptimistaRelevamiento {
+  if (state.activas.length <= 3) {
+    return { motivo: "minimo-activas" };
+  }
+
+  const activasOrdenadas = ordenarActivas(state.activas);
+  const candidata = activasOrdenadas.find((item) => item.id === id);
+
+  if (!candidata) {
+    return { motivo: "sin-cambio" };
+  }
+
+  return {
+    estado: {
+      activas: compactarOrdenes(activasOrdenadas.filter((item) => item.id !== id)),
+      descartadas: ordenarDescartadas([
+        ...state.descartadas,
+        { ...candidata, orden: null },
+      ]),
+    },
+  };
+}
+
+function aplicarAgregar(
+  state: NoticiasRelevamiento,
+  id: string,
+): ResultadoOptimistaRelevamiento {
+  if (state.activas.length >= 5) {
+    return { motivo: "maximo-activas" };
+  }
+
+  const descartadasOrdenadas = ordenarDescartadas(state.descartadas);
+  const candidata = descartadasOrdenadas.find((item) => item.id === id);
+
+  if (!candidata) {
+    return { motivo: "sin-cambio" };
+  }
+
+  const activasOrdenadas = ordenarActivas(state.activas);
+
+  return {
+    estado: {
+      activas: [
+        ...activasOrdenadas,
+        { ...candidata, orden: activasOrdenadas.length + 1 },
+      ],
+      descartadas: descartadasOrdenadas.filter((item) => item.id !== id),
+    },
+  };
+}
+
+function aplicarReordenar(
+  state: NoticiasRelevamiento,
+  ordenIds: string[],
+): NoticiasRelevamiento {
+  const activasOrdenadas = ordenarActivas(state.activas);
+  const activasPorId = new Map(
+    activasOrdenadas.map((candidata) => [candidata.id, candidata]),
+  );
+  const nuevasActivas = ordenIds
+    .map((id) => activasPorId.get(id))
+    .filter((candidata): candidata is NoticiasRelevamiento["activas"][number] =>
+      Boolean(candidata),
+    );
+
+  return {
+    activas: compactarOrdenes(nuevasActivas),
+    descartadas: state.descartadas,
+  };
+}
 
 function getReviewNode(state: PipelineState): PipelineNodeId | null {
   const reviewGate = REVIEW_GATES.find(
@@ -143,8 +245,7 @@ function ActivePanel({
   historialPortadas,
   estilosBancoProp,
   estadoVentana,
-  onSubir,
-  onBajar,
+  onReordenar,
   onEliminar,
   onAgregar,
   onSaveTitulo,
@@ -170,8 +271,7 @@ function ActivePanel({
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
   estadoVentana?: EstadoVentanaOpinion;
-  onSubir?: (id: string) => void;
-  onBajar?: (id: string) => void;
+  onReordenar?: (ordenIds: string[]) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
@@ -194,8 +294,7 @@ function ActivePanel({
       <RelevamientoPanel
         status="ready"
         noticias={noticiasRelev ?? undefined}
-        onSubir={onSubir}
-        onBajar={onBajar}
+        onReordenar={onReordenar}
         onEliminar={onEliminar}
         onAgregar={onAgregar}
       />
@@ -254,8 +353,7 @@ function PipelineActivePanel({
   historialPortadas,
   estilosBancoProp,
   estadoVentana,
-  onSubir,
-  onBajar,
+  onReordenar,
   onEliminar,
   onAgregar,
   onSaveTitulo,
@@ -281,8 +379,7 @@ function PipelineActivePanel({
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
   estadoVentana?: EstadoVentanaOpinion;
-  onSubir?: (id: string) => void;
-  onBajar?: (id: string) => void;
+  onReordenar?: (ordenIds: string[]) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
   onSaveTitulo?: (id: string, val: string) => void;
@@ -320,8 +417,7 @@ function PipelineActivePanel({
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
         estadoVentana={estadoVentana}
-        onSubir={onSubir}
-        onBajar={onBajar}
+        onReordenar={onReordenar}
         onEliminar={onEliminar}
         onAgregar={onAgregar}
         onSaveTitulo={onSaveTitulo}
@@ -364,7 +460,7 @@ function PipelineActivePanel({
   return <PublicacionPanel status="ready" />;
 }
 
-export default function AdminPage() {
+function AdminPageContent() {
   const searchParams = useSearchParams();
   const scenarioParam = searchParams.get("scenario");
   const panelParam = searchParams.get("panel") as PipelineNodeId | null;
@@ -472,31 +568,72 @@ export default function AdminPage() {
     }
   }
 
-  async function handleMoverCandidata(candidataId: string, direccion: DireccionMover) {
-    if (!enCurso) return;
-    const res = await moverCandidata(enCurso.edicionId, candidataId, direccion);
-    if (res.success) {
-      await recargarPipeline();
+  async function handleReordenarCandidatas(ordenIds: string[]) {
+    if (!enCurso || !noticiasRelev) return;
+    const snapshot = noticiasRelev;
+    setNoticiasRelev(aplicarReordenar(noticiasRelev, ordenIds));
+
+    try {
+      const res = await reordenarCandidatas(enCurso.edicionId, ordenIds);
+      if (res?.error) {
+        setNoticiasRelev(snapshot);
+        alert(res.error);
+      }
+    } catch {
+      setNoticiasRelev(snapshot);
+      alert("No se pudo completar la acción. Intentá de nuevo.");
     }
   }
 
   async function handleEliminarCandidata(candidataId: string) {
-    if (!enCurso) return;
-    const res = await eliminarCandidata(enCurso.edicionId, candidataId);
-    if (res.success) {
-      await recargarPipeline();
-    } else if (res.error) {
-      alert(res.error);
+    if (!enCurso || !noticiasRelev) return;
+    const resultado = aplicarEliminar(noticiasRelev, candidataId);
+
+    if ("motivo" in resultado) {
+      if (resultado.motivo === "minimo-activas") {
+        alert("Tenés que mantener al menos 3 noticias activas.");
+      }
+      return;
+    }
+
+    const snapshot = noticiasRelev;
+    setNoticiasRelev(resultado.estado);
+
+    try {
+      const res = await eliminarCandidata(enCurso.edicionId, candidataId);
+      if (res?.error) {
+        setNoticiasRelev(snapshot);
+        alert(res.error);
+      }
+    } catch {
+      setNoticiasRelev(snapshot);
+      alert("No se pudo completar la acción. Intentá de nuevo.");
     }
   }
 
   async function handleAgregarCandidata(candidataId: string) {
-    if (!enCurso) return;
-    const res = await agregarCandidata(enCurso.edicionId, candidataId);
-    if (res.success) {
-      await recargarPipeline();
-    } else if (res.error) {
-      alert(res.error);
+    if (!enCurso || !noticiasRelev) return;
+    const resultado = aplicarAgregar(noticiasRelev, candidataId);
+
+    if ("motivo" in resultado) {
+      if (resultado.motivo === "maximo-activas") {
+        alert("Ya tenés 5 noticias activas (el máximo).");
+      }
+      return;
+    }
+
+    const snapshot = noticiasRelev;
+    setNoticiasRelev(resultado.estado);
+
+    try {
+      const res = await agregarCandidata(enCurso.edicionId, candidataId);
+      if (res?.error) {
+        setNoticiasRelev(snapshot);
+        alert(res.error);
+      }
+    } catch {
+      setNoticiasRelev(snapshot);
+      alert("No se pudo completar la acción. Intentá de nuevo.");
     }
   }
 
@@ -667,8 +804,7 @@ export default function AdminPage() {
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
             estadoVentana={estadoVentana}
-            onSubir={(id) => handleMoverCandidata(id, "subir")}
-            onBajar={(id) => handleMoverCandidata(id, "bajar")}
+            onReordenar={handleReordenarCandidatas}
             onEliminar={handleEliminarCandidata}
             onAgregar={handleAgregarCandidata}
             onSaveTitulo={(id, val) =>
@@ -700,8 +836,7 @@ export default function AdminPage() {
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
             estadoVentana={estadoVentana}
-            onSubir={(id) => handleMoverCandidata(id, "subir")}
-            onBajar={(id) => handleMoverCandidata(id, "bajar")}
+            onReordenar={handleReordenarCandidatas}
             onEliminar={handleEliminarCandidata}
             onAgregar={handleAgregarCandidata}
             onSaveTitulo={(id, val) =>
@@ -726,5 +861,19 @@ export default function AdminPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center">
+          <span className="font-ui text-sm text-text-secondary">Cargando…</span>
+        </div>
+      }
+    >
+      <AdminPageContent />
+    </Suspense>
   );
 }

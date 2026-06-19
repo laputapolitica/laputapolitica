@@ -332,6 +332,67 @@ export async function moverCandidata(
   return { success: true };
 }
 
+export async function reordenarCandidatas(
+  edicionId: string,
+  ordenIds: string[],
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  // Traer las ACTIVAS para validar que el cliente esté reordenando el mismo set.
+  const { data, error } = await supabase
+    .from("relevamiento_candidatas")
+    .select("id")
+    .eq("edicion_id", edicionId)
+    .eq("activa", true);
+
+  if (error || !data) {
+    console.error("Error leyendo candidatas para reordenar:", error?.message);
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  const activas = data as { id: string }[];
+  const idsActivas = activas.map((c) => c.id);
+  const idsOrden = new Set(ordenIds);
+  const esMismaPermutacion =
+    ordenIds.length === idsActivas.length &&
+    idsOrden.size === ordenIds.length &&
+    idsActivas.every((id) => idsOrden.has(id));
+
+  if (!esMismaPermutacion) {
+    return { error: "No se pudo reordenar. Intentá de nuevo." };
+  }
+
+  // Fase A: mandar a valores temporales negativos para no violar el unique parcial.
+  for (let i = 0; i < ordenIds.length; i++) {
+    const res = await supabase
+      .from("relevamiento_candidatas")
+      .update({ orden: -(i + 1) })
+      .eq("id", ordenIds[i])
+      .eq("edicion_id", edicionId);
+
+    if (res.error) {
+      console.error("Error reordenar fase A:", res.error.message);
+      return { error: "No se pudo reordenar. Intentá de nuevo." };
+    }
+  }
+
+  // Fase B: asignar 1..N definitivo según el orden recibido.
+  for (let i = 0; i < ordenIds.length; i++) {
+    const res = await supabase
+      .from("relevamiento_candidatas")
+      .update({ orden: i + 1 })
+      .eq("id", ordenIds[i])
+      .eq("edicion_id", edicionId);
+
+    if (res.error) {
+      console.error("Error reordenar fase B:", res.error.message);
+      return { error: "No se pudo reordenar. Intentá de nuevo." };
+    }
+  }
+
+  return { success: true };
+}
+
 export async function eliminarCandidata(
   edicionId: string,
   candidataId: string,
