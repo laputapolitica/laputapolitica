@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   getPostulaciones,
   rechazarPostulacion,
@@ -456,7 +456,7 @@ function DetallePostulacion({
   );
 }
 
-export default function AdminOpinadoresPage() {
+function AdminOpinadoresContent() {
   const [vista, setVista] = useState<VistaOpinadores>("lista");
   const [selectedOpinador, setSelectedOpinador] =
     useState<OpinadorAdmin | null>(null);
@@ -560,5 +560,13 @@ export default function AdminOpinadoresPage() {
       onPendientes={() => setVista("pendientes")}
       onRechazados={() => setVista("rechazados")}
     />
+  );
+}
+
+export default function AdminOpinadoresPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminOpinadoresContent />
+    </Suspense>
   );
 }

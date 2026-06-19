@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -21,7 +22,7 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminSidebar() {
+function AdminSidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -148,5 +149,13 @@ export function AdminSidebar() {
         </button>
       </nav>
     </aside>
+  );
+}
+
+export function AdminSidebar() {
+  return (
+    <Suspense fallback={<aside className="h-full w-[180px] bg-bg-base" />}>
+      <AdminSidebarContent />
+    </Suspense>
   );
 }
