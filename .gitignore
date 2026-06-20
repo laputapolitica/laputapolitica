@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Masters de ilustraciones de clima (no se sirven; los optimizados están en public/clima)
+clima-masters/

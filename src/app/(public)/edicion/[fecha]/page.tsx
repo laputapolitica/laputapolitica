@@ -1,6 +1,7 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { getClimaMock } from "@/lib/mock-data";
+import { DEFAULT_CITY_ID, findNearestCity, getClimaEdicion } from "@/lib/clima";
 import { createClient } from "@/lib/supabase/server";
 import type { Edicion, Noticia } from "@/lib/mock-data";
 
@@ -60,10 +61,33 @@ function pickPulso(value: NoticiaRow["el_pulso_noticia"]): Noticia["el_pulso"] {
   };
 }
 
+function getValidCoordinate(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const coordinate = Number.parseFloat(value);
+  return Number.isFinite(coordinate) ? coordinate : null;
+}
+
+function getInitialCityId(headersList: Headers): string {
+  const country = headersList.get("x-vercel-ip-country");
+  const latitude = getValidCoordinate(headersList.get("x-vercel-ip-latitude"));
+  const longitude = getValidCoordinate(headersList.get("x-vercel-ip-longitude"));
+
+  if (country !== "AR" || latitude === null || longitude === null) {
+    return DEFAULT_CITY_ID;
+  }
+
+  return findNearestCity(latitude, longitude)?.id ?? DEFAULT_CITY_ID;
+}
+
 export default async function EdicionPage({ params }: EdicionPageProps) {
   const { fecha } = await params;
   const slug = toDbSlug(fecha);
 
+  const headersList = await headers();
+  const initialCityId = getInitialCityId(headersList);
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("ediciones")
@@ -103,7 +127,12 @@ export default async function EdicionPage({ params }: EdicionPageProps) {
     noticias,
   };
 
-  const clima = getClimaMock();
+  const ciudadesClima = await getClimaEdicion(supabase, edicion.id);
 
-  return <EdicionClient clima={clima} edicion={edicion} />;
+  return (
+    <EdicionClient
+      clima={{ ciudades: ciudadesClima, initialCityId }}
+      edicion={edicion}
+    />
+  );
 }

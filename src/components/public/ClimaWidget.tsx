@@ -1,19 +1,47 @@
+import { useState } from "react";
 import Image from "next/image";
 
-import type { Clima, ClimaDia } from "@/lib/mock-data";
+import { climaIconPath, type ClimaCiudadData, type ClimaDiaData } from "@/lib/clima";
 
 type ClimaWidgetProps = {
-  clima: Clima;
+  clima: { ciudades: ClimaCiudadData[]; initialCityId: string };
 };
 
 export function ClimaWidget({ clima }: ClimaWidgetProps) {
+  const { ciudades, initialCityId } = clima;
+  const [activeCityIndex, setActiveCityIndex] = useState(() => {
+    const initialIndex = ciudades.findIndex((ciudad) => ciudad.id === initialCityId);
+    return initialIndex >= 0 ? initialIndex : 0;
+  });
+
+  if (ciudades.length === 0) {
+    return null;
+  }
+
+  const activeCity = ciudades[activeCityIndex] ?? ciudades[0];
+  const canCycleCities = ciudades.length > 1;
+
+  function goToPrevCity() {
+    setActiveCityIndex((currentIndex) =>
+      currentIndex === 0 ? ciudades.length - 1 : currentIndex - 1,
+    );
+  }
+
+  function goToNextCity() {
+    setActiveCityIndex((currentIndex) =>
+      currentIndex === ciudades.length - 1 ? 0 : currentIndex + 1,
+    );
+  }
+
   return (
     <section className="mx-auto w-full max-w-[360px]">
       <div className="flex items-center">
         <button
           type="button"
           aria-label="Provincia anterior"
-          className="flex-1 bg-transparent p-0"
+          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-0"
+          disabled={!canCycleCities}
+          onClick={goToPrevCity}
         >
           <svg
             aria-hidden="true"
@@ -32,13 +60,15 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
         </button>
 
         <h3 className="mx-4 shrink-0 whitespace-nowrap font-display text-xl font-normal text-text-primary">
-          {clima.provincia}
+          {activeCity.label}
         </h3>
 
         <button
           type="button"
           aria-label="Provincia siguiente"
-          className="flex-1 bg-transparent p-0"
+          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-0"
+          disabled={!canCycleCities}
+          onClick={goToNextCity}
         >
           <svg
             aria-hidden="true"
@@ -58,15 +88,21 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-4">
-        {clima.dias.map((dia) => (
-          <article key={dia.dia} className="text-center">
+        {activeCity.dias.map((dia) => (
+          <article key={dia.fecha} className="text-center">
             <ClimaIcon dia={dia} />
             <div className="mt-3 font-ui text-sm text-text-primary">
-              <span className="text-text-secondary">{dia.temp_min}°</span>
+              <span className="text-text-secondary">
+                {formatTemperature(dia.temperaturaMin)}
+              </span>
               <span>/</span>
-              <span className="text-state-required">{dia.temp_max}°</span>
+              <span className="text-state-required">
+                {formatTemperature(dia.temperaturaMax)}
+              </span>
             </div>
-            <div className="mt-2 font-ui text-sm text-text-secondary">{dia.dia}</div>
+            <div className="mt-2 font-ui text-sm text-text-secondary">
+              {dia.diaLabel}
+            </div>
           </article>
         ))}
       </div>
@@ -74,13 +110,17 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
   );
 }
 
-function ClimaIcon({ dia }: { dia: ClimaDia }) {
+function formatTemperature(value: number | null): string {
+  return value === null ? "--°" : `${value}°`;
+}
+
+function ClimaIcon({ dia }: { dia: ClimaDiaData }) {
   return (
     <Image
-      alt={`Clima ${dia.condicion}`}
+      alt={dia.condicion ?? dia.icono}
       className="mx-auto h-12 w-12 object-contain"
       height={48}
-      src="/placeholder.svg"
+      src={climaIconPath(dia.icono)}
       width={48}
     />
   );

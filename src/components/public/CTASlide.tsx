@@ -2,12 +2,12 @@ import { forwardRef } from "react";
 import Link from "next/link";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
-import type { Clima } from "@/lib/mock-data";
+import type { ClimaCiudadData } from "@/lib/clima";
 
 import { ClimaWidget } from "./ClimaWidget";
 
 type CTASlideProps = {
-  clima: Clima;
+  clima: { ciudades: ClimaCiudadData[]; initialCityId: string };
 };
 
 export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(

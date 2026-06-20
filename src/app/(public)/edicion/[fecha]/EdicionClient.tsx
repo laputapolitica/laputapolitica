@@ -15,11 +15,12 @@ import {
   NoticiaSlide,
   PortadaSlide,
 } from "@/components/public";
-import type { Clima, Edicion, Noticia } from "@/lib/mock-data";
+import type { ClimaCiudadData } from "@/lib/clima";
+import type { Edicion, Noticia } from "@/lib/mock-data";
 
 type EdicionClientProps = {
   edicion: Edicion;
-  clima: Clima;
+  clima: { ciudades: ClimaCiudadData[]; initialCityId: string };
 };
 
 function getOrderFromParam(value: string | null) {

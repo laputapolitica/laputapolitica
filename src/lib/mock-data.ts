@@ -20,18 +20,6 @@ export interface Edicion {
   noticias: Noticia[];
 }
 
-export interface ClimaDia {
-  dia: string;
-  temp_min: number;
-  temp_max: number;
-  condicion: "sol" | "nublado" | "lluvia";
-}
-
-export interface Clima {
-  provincia: string;
-  dias: ClimaDia[];
-}
-
 const MOCK_NOTICIAS: Noticia[] = [
   {
     id: "noticia-transporte",
@@ -132,31 +120,5 @@ export function getEdicionMock(fecha: string): Edicion {
     titulo: "Equilibrio ciego",
     portada_illustracion_url: "/placeholder.svg",
     noticias: MOCK_NOTICIAS,
-  };
-}
-
-export function getClimaMock(): Clima {
-  return {
-    provincia: "Buenos Aires",
-    dias: [
-      {
-        dia: "Miércoles",
-        temp_min: 15,
-        temp_max: 25,
-        condicion: "sol",
-      },
-      {
-        dia: "Jueves",
-        temp_min: 17,
-        temp_max: 23,
-        condicion: "nublado",
-      },
-      {
-        dia: "Viernes",
-        temp_min: 14,
-        temp_max: 20,
-        condicion: "lluvia",
-      },
-    ],
   };
 }
