@@ -5,6 +5,7 @@ import { canales } from "./mocks";
 import { TabPrimary, TabSecondary } from "@/components/admin/shared";
 import { CanalIcon } from "./shared/CanalIcon";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
+import type { HiloTwitter } from "@/app/(admin)/admin/actions";
 
 export type PublicacionState = {
   activeCanal: Canal;
@@ -16,11 +17,13 @@ export type PublicacionState = {
 type PublicacionHeaderProps = {
   state: PublicacionState;
   onChange: (state: PublicacionState) => void;
+  twitter?: HiloTwitter[];
 };
 
-export function PublicacionHeader({ state, onChange }: PublicacionHeaderProps) {
+export function PublicacionHeader({ state, onChange, twitter }: PublicacionHeaderProps) {
   const { activeCanal, activeSlide, selectedOpinador } = state;
-  const slideCount = activeCanal === "twitter" ? 12 : activeCanal === "instagram" ? 4 : 7;
+  const slideCount =
+    activeCanal === "twitter" ? (twitter?.length ?? 0) : activeCanal === "instagram" ? 4 : 7;
 
   function setActiveCanal(canal: Canal) {
     onChange({ ...state, activeCanal: canal, activeSlide: 1 });

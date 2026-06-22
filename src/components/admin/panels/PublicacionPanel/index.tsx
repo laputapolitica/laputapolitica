@@ -7,7 +7,7 @@ import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
 import { PublicacionHeader, type PublicacionState } from "./PublicacionHeader";
 import { PublicacionContent } from "./PublicacionContent";
 import type { ClimaCiudadData } from "@/lib/clima";
-import type { SlideInstagram } from "@/app/(admin)/admin/actions";
+import type { HiloTwitter, SlideInstagram } from "@/app/(admin)/admin/actions";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
@@ -17,6 +17,7 @@ interface PublicacionPanelProps {
   portadaUrl?: string | null;
   clima?: ClimaCiudadData[];
   instagram?: SlideInstagram[];
+  twitter?: HiloTwitter[];
 }
 
 const initialState: PublicacionState = {
@@ -34,6 +35,7 @@ export function PublicacionPanel({
   portadaUrl,
   clima,
   instagram,
+  twitter,
 }: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
@@ -51,7 +53,7 @@ export function PublicacionPanel({
 
   return (
     <PanelLayout
-      header={<PublicacionHeader state={state} onChange={setState} />}
+      header={<PublicacionHeader state={state} onChange={setState} twitter={twitter} />}
       content={
         <PublicacionContent
           state={state}
@@ -62,6 +64,7 @@ export function PublicacionPanel({
           portadaUrl={portadaUrl}
           clima={clima}
           instagram={instagram}
+          twitter={twitter}
         />
       }
     />

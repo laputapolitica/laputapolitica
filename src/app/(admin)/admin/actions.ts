@@ -706,6 +706,13 @@ export type SlideInstagram = {
   payload: Record<string, unknown>;
 };
 
+export type HiloTwitter = {
+  orden: number;
+  texto: string | null;
+  imagenUrl: string | null;
+  payload: Record<string, unknown>;
+};
+
 type PulsoPublicacionRow = {
   texto_resumen: string | null;
   pct_positiva: number | null;
@@ -726,6 +733,17 @@ type PublicacionInstagramRow = {
 };
 
 type SlideInstagramRow = {
+  orden: number;
+  texto: string | null;
+  imagen_url: string | null;
+  payload: unknown;
+};
+
+type PublicacionTwitterRow = {
+  id: string;
+};
+
+type HiloTwitterRow = {
   orden: number;
   texto: string | null;
   imagen_url: string | null;
@@ -823,6 +841,47 @@ export async function getSlidesInstagram(
     payload:
       slide.payload && typeof slide.payload === "object" && !Array.isArray(slide.payload)
         ? (slide.payload as Record<string, unknown>)
+        : {},
+  }));
+}
+
+export async function getHilosTwitter(
+  edicionId: string,
+): Promise<HiloTwitter[]> {
+  const supabase = await createClient();
+
+  const { data: publicacion, error: publicacionError } = await supabase
+    .from("publicacion_twitter")
+    .select("id")
+    .eq("edicion_id", edicionId)
+    .maybeSingle();
+
+  if (publicacionError) {
+    console.error("Error leyendo publicación de X:", publicacionError.message);
+    return [];
+  }
+
+  if (!publicacion) return [];
+
+  const row = publicacion as PublicacionTwitterRow;
+  const { data, error } = await supabase
+    .from("hilos_twitter")
+    .select("orden, texto, imagen_url, payload")
+    .eq("publicacion_twitter_id", row.id)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error leyendo hilos de X:", error.message);
+    return [];
+  }
+
+  return ((data ?? []) as HiloTwitterRow[]).map((hilo) => ({
+    orden: hilo.orden,
+    texto: hilo.texto,
+    imagenUrl: hilo.imagen_url,
+    payload:
+      hilo.payload && typeof hilo.payload === "object" && !Array.isArray(hilo.payload)
+        ? (hilo.payload as Record<string, unknown>)
         : {},
   }));
 }

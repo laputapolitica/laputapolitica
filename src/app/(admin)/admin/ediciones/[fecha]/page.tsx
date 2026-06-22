@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   getDatosPublicacionWeb,
+  getHilosTwitter,
   getSlidesInstagram,
 } from "@/app/(admin)/admin/actions";
 import { DataPill, HeaderPanel, PanelLayout } from "@/components/admin/shared";
@@ -103,9 +104,10 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
         },
       };
     });
-  const [datosWeb, instagram] = await Promise.all([
+  const [datosWeb, instagram, twitter] = await Promise.all([
     getDatosPublicacionWeb(row.id),
     getSlidesInstagram(row.id),
+    getHilosTwitter(row.id),
   ]);
 
   return (
@@ -127,6 +129,7 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
           portadaUrl={datosWeb.portadaUrl}
           clima={datosWeb.clima}
           instagram={instagram}
+          twitter={twitter}
         />
       }
     />

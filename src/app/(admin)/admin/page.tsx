@@ -11,6 +11,7 @@ import {
   getPortadaVigente,
   getDatosPublicacionWeb,
   getSlidesInstagram,
+  getHilosTwitter,
   getHistorialPortadas,
   getEstilosBanco,
   getEstadoVentanaOpinion,
@@ -33,6 +34,7 @@ import {
   type NoticiaElPulso,
   type DatosPublicacionWeb,
   type SlideInstagram,
+  type HiloTwitter,
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
@@ -256,6 +258,7 @@ function ActivePanel({
   noticiasPublicacion,
   datosWeb,
   instagram,
+  twitter,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -287,6 +290,7 @@ function ActivePanel({
   noticiasPublicacion?: NoticiaPublicacion[] | null;
   datosWeb?: DatosPublicacionWeb;
   instagram?: SlideInstagram[];
+  twitter?: HiloTwitter[];
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -370,6 +374,7 @@ function ActivePanel({
       portadaUrl={datosWeb?.portadaUrl}
       clima={datosWeb?.clima}
       instagram={instagram}
+      twitter={twitter}
     />
   );
 }
@@ -384,6 +389,7 @@ function PipelineActivePanel({
   noticiasPublicacion,
   datosWeb,
   instagram,
+  twitter,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -415,6 +421,7 @@ function PipelineActivePanel({
   noticiasPublicacion?: NoticiaPublicacion[] | null;
   datosWeb?: DatosPublicacionWeb;
   instagram?: SlideInstagram[];
+  twitter?: HiloTwitter[];
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -458,6 +465,7 @@ function PipelineActivePanel({
         noticiasPublicacion={noticiasPublicacion}
         datosWeb={datosWeb}
         instagram={instagram}
+        twitter={twitter}
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
@@ -496,6 +504,7 @@ function PipelineActivePanel({
         portadaUrl={datosWeb?.portadaUrl}
         clima={datosWeb?.clima}
         instagram={instagram}
+        twitter={twitter}
       />
     );
   }
@@ -521,6 +530,7 @@ function PipelineActivePanel({
       portadaUrl={datosWeb?.portadaUrl}
       clima={datosWeb?.clima}
       instagram={instagram}
+      twitter={twitter}
     />
   );
 }
@@ -541,6 +551,7 @@ function AdminPageContent() {
   const [datosWeb, setDatosWeb] =
     useState<DatosPublicacionWeb>(DATOS_WEB_INICIAL);
   const [instagram, setInstagram] = useState<SlideInstagram[]>([]);
+  const [twitter, setTwitter] = useState<HiloTwitter[]>([]);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
@@ -564,6 +575,7 @@ function AdminPageContent() {
         portadaData,
         datosWebData,
         instagramData,
+        twitterData,
         hist,
         ev,
       ] = await Promise.all([
@@ -574,6 +586,7 @@ function AdminPageContent() {
         getPortadaVigente(data.edicionId),
         getDatosPublicacionWeb(data.edicionId),
         getSlidesInstagram(data.edicionId),
+        getHilosTwitter(data.edicionId),
         getHistorialPortadas(data.edicionId),
         getEstadoVentanaOpinion(data.edicionId),
       ]);
@@ -584,6 +597,7 @@ function AdminPageContent() {
       setPortada(portadaData);
       setDatosWeb(datosWebData);
       setInstagram(instagramData);
+      setTwitter(twitterData);
       setHistorialPortadas(hist);
       setEstadoVentana(ev);
     } else {
@@ -594,6 +608,7 @@ function AdminPageContent() {
       setPortada(null);
       setDatosWeb(DATOS_WEB_INICIAL);
       setInstagram([]);
+      setTwitter([]);
       setHistorialPortadas([]);
       setEstadoVentana(undefined);
     }
@@ -613,6 +628,7 @@ function AdminPageContent() {
             portadaData,
             datosWebData,
             instagramData,
+            twitterData,
             hist,
             ev,
           ] = await Promise.all([
@@ -623,6 +639,7 @@ function AdminPageContent() {
             getPortadaVigente(data.edicionId),
             getDatosPublicacionWeb(data.edicionId),
             getSlidesInstagram(data.edicionId),
+            getHilosTwitter(data.edicionId),
             getHistorialPortadas(data.edicionId),
             getEstadoVentanaOpinion(data.edicionId),
           ]);
@@ -634,6 +651,7 @@ function AdminPageContent() {
             setPortada(portadaData);
             setDatosWeb(datosWebData);
             setInstagram(instagramData);
+            setTwitter(twitterData);
             setHistorialPortadas(hist);
             setEstadoVentana(ev);
           }
@@ -645,6 +663,7 @@ function AdminPageContent() {
           setPortada(null);
           setDatosWeb(DATOS_WEB_INICIAL);
           setInstagram([]);
+          setTwitter([]);
           setHistorialPortadas([]);
           setEstadoVentana(undefined);
         }
@@ -917,6 +936,7 @@ function AdminPageContent() {
             noticiasPublicacion={noticiasPublicacion}
             datosWeb={datosWeb}
             instagram={instagram}
+            twitter={twitter}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -954,6 +974,7 @@ function AdminPageContent() {
             noticiasPublicacion={noticiasPublicacion}
             datosWeb={datosWeb}
             instagram={instagram}
+            twitter={twitter}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
