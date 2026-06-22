@@ -38,6 +38,7 @@ lista de ciudades; mantenerlo en sync con `src/lib/clima/condiciones.ts` y
 | `e8KVd0IakuilqmCF.json` | **El Pulso** | Calcula el pulso (votos + síntesis IA) y deja la etapa lista para revisión. |
 | `2JAU2EQvZniZzurN.json` | **Instagram** | Genera el carrusel IG (4 slides: tapa, noticia #1 + bullets, su pulso + votos, titulares de las otras 4) → `publicacion_instagram` + `slides_instagram`. Lee de core. Usa Groq (temporal → Claude). `caption` no generado por ahora. |
 | `EyVPAdRhzlfwDaDK.json` | **X (Twitter)** | Genera el hilo de X (7: tapa, 5 noticias con titular propio + pulso + barra de votos, cierre con link) → `publicacion_twitter` + `hilos_twitter`. Lee de core. Usa Groq (temporal → Claude). |
+| `4Tf7jxyo3JDRVn49.json` | **Publicación** | Convergencia: cuando Web + Instagram + X están `done`, marca `publicacion_status='running'` (habilita el panel de revisión + botón Publicar). |
 | `zmdH54sxTzxEbEj2.json` | **Cerrar Ventana** | Polling que cierra la ventana de opinión cuando vence `ventana_opinion_cierra_en`. |
 | `DA04YHIGaX0j5TVO.json` | **Web** | Genera el clima (OpenWeatherMap, 26 ciudades × 3 días) → `clima_diario` y cierra `web_status`. No materializa `slides_web` (modelo de referencia). |
 
