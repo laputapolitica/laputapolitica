@@ -7,6 +7,7 @@ import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
 import { PublicacionHeader, type PublicacionState } from "./PublicacionHeader";
 import { PublicacionContent } from "./PublicacionContent";
 import type { ClimaCiudadData } from "@/lib/clima";
+import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
@@ -15,6 +16,7 @@ interface PublicacionPanelProps {
   noticias?: NoticiaPublicacion[];
   portadaUrl?: string | null;
   clima?: ClimaCiudadData[];
+  instagram?: SlideInstagram[];
 }
 
 const initialState: PublicacionState = {
@@ -31,6 +33,7 @@ export function PublicacionPanel({
   noticias,
   portadaUrl,
   clima,
+  instagram,
 }: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
@@ -58,6 +61,7 @@ export function PublicacionPanel({
           noticias={noticias}
           portadaUrl={portadaUrl}
           clima={clima}
+          instagram={instagram}
         />
       }
     />

@@ -1,22 +1,36 @@
-import { noticias } from "../mocks";
 import { InstagramBulletRows, InstagramEditablePill } from "./shared";
+import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
-export function InstagramSlide02() {
-  const noticia = noticias[0];
-  const bullets = [
-    "El Gobierno reabrió la discusión por los subsidios al transporte.",
-    "Las provincias buscan evitar que el ajuste caiga sobre los usuarios.",
-    "La tarifa volvió al centro de la agenda económica.",
-    "El costo político se reparte entre Nación y gobernadores.",
-    "El impacto diario se concentra en quienes viajan para trabajar.",
-  ];
+function stringFromPayload(
+  payload: Record<string, unknown>,
+  key: string,
+): string {
+  const value = payload[key];
+  return typeof value === "string" ? value : "";
+}
+
+function stringsFromPayload(
+  payload: Record<string, unknown>,
+  key: string,
+): string[] {
+  const value = payload[key];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+export function InstagramSlide02({ slide }: { slide: SlideInstagram }) {
+  const expediente = stringFromPayload(slide.payload, "expediente");
+  const titulo = stringFromPayload(slide.payload, "titulo");
+  const bullets = stringsFromPayload(slide.payload, "bullets");
+  const fecha = stringFromPayload(slide.payload, "fecha");
 
   return (
     <div className="space-y-5">
-      <InstagramEditablePill value="EXPEDIENTE Nº: 2026_080-AR-01" />
-      <InstagramEditablePill value={noticia.titulo} />
+      <InstagramEditablePill value={expediente} />
+      <InstagramEditablePill value={titulo} />
       <InstagramBulletRows bullets={bullets} />
-      <InstagramEditablePill value="21 MAR 2026" />
+      <InstagramEditablePill value={fecha} />
     </div>
   );
 }

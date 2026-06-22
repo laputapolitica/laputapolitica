@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { getDatosPublicacionWeb } from "@/app/(admin)/admin/actions";
+import {
+  getDatosPublicacionWeb,
+  getSlidesInstagram,
+} from "@/app/(admin)/admin/actions";
 import { DataPill, HeaderPanel, PanelLayout } from "@/components/admin/shared";
 import { PublicacionPanel } from "@/components/admin/panels/PublicacionPanel";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
@@ -100,7 +103,10 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
         },
       };
     });
-  const datosWeb = await getDatosPublicacionWeb(row.id);
+  const [datosWeb, instagram] = await Promise.all([
+    getDatosPublicacionWeb(row.id),
+    getSlidesInstagram(row.id),
+  ]);
 
   return (
     <PanelLayout
@@ -120,6 +126,7 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
           noticias={noticias}
           portadaUrl={datosWeb.portadaUrl}
           clima={datosWeb.clima}
+          instagram={instagram}
         />
       }
     />

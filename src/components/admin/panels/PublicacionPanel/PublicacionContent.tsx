@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/sections/opinadores";
 import type { PublicacionState } from "./PublicacionHeader";
 import type { ClimaCiudadData } from "@/lib/clima";
+import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
 type PublicacionContentProps = {
   state: PublicacionState;
@@ -23,6 +24,7 @@ type PublicacionContentProps = {
   noticias?: NoticiaPublicacion[];
   portadaUrl?: string | null;
   clima?: ClimaCiudadData[];
+  instagram?: SlideInstagram[];
 };
 
 function SlideContent({
@@ -33,6 +35,7 @@ function SlideContent({
   noticias,
   portadaUrl,
   clima,
+  instagram,
 }: {
   activeCanal: Canal;
   activeSlide: number;
@@ -41,9 +44,10 @@ function SlideContent({
   noticias: NoticiaPublicacion[];
   portadaUrl?: string | null;
   clima: ClimaCiudadData[];
+  instagram: SlideInstagram[];
 }) {
   if (activeCanal === "instagram") {
-    return <InstagramSlideContent activeSlide={activeSlide} />;
+    return <InstagramSlideContent activeSlide={activeSlide} instagram={instagram} />;
   }
 
   if (activeCanal === "twitter") {
@@ -79,10 +83,12 @@ export function PublicacionContent({
   noticias,
   portadaUrl,
   clima,
+  instagram,
 }: PublicacionContentProps) {
   const { activeCanal, activeSlide, selectedOpinador, noticiaIndex } = state;
   const noticiasData = noticias ?? mockNoticias;
   const climaData = clima ?? [];
+  const instagramData = instagram ?? [];
 
   function setSelectedOpinador(opinador: MockOpinador | null) {
     onChange({ ...state, selectedOpinador: opinador });
@@ -117,6 +123,7 @@ export function PublicacionContent({
           noticias={noticiasData}
           portadaUrl={portadaUrl}
           clima={climaData}
+          instagram={instagramData}
         />
       )}
     </div>

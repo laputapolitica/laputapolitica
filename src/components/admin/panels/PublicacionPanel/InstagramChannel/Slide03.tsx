@@ -1,44 +1,78 @@
 import { VOTE_COLORS } from "@/lib/constants";
-import { noticias } from "../mocks";
 import {
   InstagramBulletRows,
   InstagramEditablePill,
   InstagramVoteRow,
 } from "./shared";
+import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
-export function InstagramSlide03() {
-  const noticia = noticias[0];
-  const bullets = [
-    noticia.pulso,
-    "La corrección aparece como necesaria para una parte de la comunidad.",
-    "El riesgo social queda asociado al bolsillo cotidiano.",
-    "La incertidumbre se concentra en el alcance real del aumento.",
-    "El debate mezcla ajuste fiscal, transporte y humor social.",
-  ];
+type InstagramVotos = {
+  positiva: number;
+  negativa: number;
+  incierta: number;
+};
+
+function stringFromPayload(
+  payload: Record<string, unknown>,
+  key: string,
+): string {
+  const value = payload[key];
+  return typeof value === "string" ? value : "";
+}
+
+function stringsFromPayload(
+  payload: Record<string, unknown>,
+  key: string,
+): string[] {
+  const value = payload[key];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function votosFromPayload(payload: Record<string, unknown>): InstagramVotos {
+  const value = payload.votos;
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { positiva: 0, negativa: 0, incierta: 0 };
+  }
+
+  const votos = value as Record<string, unknown>;
+  return {
+    positiva: typeof votos.positiva === "number" ? votos.positiva : 0,
+    negativa: typeof votos.negativa === "number" ? votos.negativa : 0,
+    incierta: typeof votos.incierta === "number" ? votos.incierta : 0,
+  };
+}
+
+export function InstagramSlide03({ slide }: { slide: SlideInstagram }) {
+  const anexo = stringFromPayload(slide.payload, "anexo");
+  const bullets = stringsFromPayload(slide.payload, "bullets");
+  const votos = votosFromPayload(slide.payload);
+  const fecha = stringFromPayload(slide.payload, "fecha");
   const votes = [
     {
       label: "Positiva",
       borderColor: VOTE_COLORS.positiva,
-      pxValue: `${noticia.interpretacion.positiva * 2}px`,
-      percentValue: `${noticia.interpretacion.positiva}%`,
+      pxValue: `${votos.positiva * 2}px`,
+      percentValue: `${votos.positiva}%`,
     },
     {
       label: "Negativa",
       borderColor: VOTE_COLORS.negativa,
-      pxValue: `${noticia.interpretacion.negativa * 2}px`,
-      percentValue: `${noticia.interpretacion.negativa}%`,
+      pxValue: `${votos.negativa * 2}px`,
+      percentValue: `${votos.negativa}%`,
     },
     {
       label: "Incierta",
       borderColor: VOTE_COLORS.incierta,
-      pxValue: `${noticia.interpretacion.incierta * 2}px`,
-      percentValue: `${noticia.interpretacion.incierta}%`,
+      pxValue: `${votos.incierta * 2}px`,
+      percentValue: `${votos.incierta}%`,
     },
   ];
 
   return (
     <div className="space-y-5">
-      <InstagramEditablePill value="ANEXO SOCIAL: 2026_080-AR-01-S" />
+      <InstagramEditablePill value={anexo} />
       <InstagramBulletRows bullets={bullets} />
       <div className="flex flex-col gap-2">
         {votes.map((vote) => (
@@ -51,7 +85,7 @@ export function InstagramSlide03() {
           />
         ))}
       </div>
-      <InstagramEditablePill value="21 MAR 2026" />
+      <InstagramEditablePill value={fecha} />
     </div>
   );
 }

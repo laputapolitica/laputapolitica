@@ -699,6 +699,13 @@ export type DatosPublicacionWeb = {
   clima: ClimaCiudadData[];
 };
 
+export type SlideInstagram = {
+  orden: number;
+  texto: string | null;
+  imagenUrl: string | null;
+  payload: Record<string, unknown>;
+};
+
 type PulsoPublicacionRow = {
   texto_resumen: string | null;
   pct_positiva: number | null;
@@ -712,6 +719,17 @@ type NoticiaPublicacionRow = {
   titulo: string;
   cuerpo: string | null;
   el_pulso_noticia: PulsoPublicacionRow | PulsoPublicacionRow[] | null;
+};
+
+type PublicacionInstagramRow = {
+  id: string;
+};
+
+type SlideInstagramRow = {
+  orden: number;
+  texto: string | null;
+  imagen_url: string | null;
+  payload: unknown;
 };
 
 function pickPulsoPublicacion(value: NoticiaPublicacionRow["el_pulso_noticia"]) {
@@ -763,6 +781,50 @@ export async function getDatosPublicacionWeb(
     portadaUrl: portada?.imagenUrl ?? null,
     clima,
   };
+}
+
+export async function getSlidesInstagram(
+  edicionId: string,
+): Promise<SlideInstagram[]> {
+  const supabase = await createClient();
+
+  const { data: publicacion, error: publicacionError } = await supabase
+    .from("publicacion_instagram")
+    .select("id")
+    .eq("edicion_id", edicionId)
+    .maybeSingle();
+
+  if (publicacionError) {
+    console.error(
+      "Error leyendo publicación de Instagram:",
+      publicacionError.message,
+    );
+    return [];
+  }
+
+  if (!publicacion) return [];
+
+  const row = publicacion as PublicacionInstagramRow;
+  const { data, error } = await supabase
+    .from("slides_instagram")
+    .select("orden, texto, imagen_url, payload")
+    .eq("publicacion_instagram_id", row.id)
+    .order("orden", { ascending: true });
+
+  if (error) {
+    console.error("Error leyendo slides de Instagram:", error.message);
+    return [];
+  }
+
+  return ((data ?? []) as SlideInstagramRow[]).map((slide) => ({
+    orden: slide.orden,
+    texto: slide.texto,
+    imagenUrl: slide.imagen_url,
+    payload:
+      slide.payload && typeof slide.payload === "object" && !Array.isArray(slide.payload)
+        ? (slide.payload as Record<string, unknown>)
+        : {},
+  }));
 }
 
 export async function getNoticiasPublicacionWeb(

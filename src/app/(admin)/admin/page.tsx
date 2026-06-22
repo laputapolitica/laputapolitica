@@ -10,6 +10,7 @@ import {
   getNoticiasPublicacionWeb,
   getPortadaVigente,
   getDatosPublicacionWeb,
+  getSlidesInstagram,
   getHistorialPortadas,
   getEstilosBanco,
   getEstadoVentanaOpinion,
@@ -31,6 +32,7 @@ import {
   type NoticiaTituloResumen,
   type NoticiaElPulso,
   type DatosPublicacionWeb,
+  type SlideInstagram,
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
@@ -253,6 +255,7 @@ function ActivePanel({
   noticiasElPulso,
   noticiasPublicacion,
   datosWeb,
+  instagram,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -283,6 +286,7 @@ function ActivePanel({
   noticiasElPulso?: NoticiaElPulso[] | null;
   noticiasPublicacion?: NoticiaPublicacion[] | null;
   datosWeb?: DatosPublicacionWeb;
+  instagram?: SlideInstagram[];
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -365,6 +369,7 @@ function ActivePanel({
       noticias={noticiasPublicacion ?? undefined}
       portadaUrl={datosWeb?.portadaUrl}
       clima={datosWeb?.clima}
+      instagram={instagram}
     />
   );
 }
@@ -378,6 +383,7 @@ function PipelineActivePanel({
   noticiasElPulso,
   noticiasPublicacion,
   datosWeb,
+  instagram,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -408,6 +414,7 @@ function PipelineActivePanel({
   noticiasElPulso?: NoticiaElPulso[] | null;
   noticiasPublicacion?: NoticiaPublicacion[] | null;
   datosWeb?: DatosPublicacionWeb;
+  instagram?: SlideInstagram[];
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -450,6 +457,7 @@ function PipelineActivePanel({
         noticiasElPulso={noticiasElPulso}
         noticiasPublicacion={noticiasPublicacion}
         datosWeb={datosWeb}
+        instagram={instagram}
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
@@ -487,6 +495,7 @@ function PipelineActivePanel({
         noticias={noticiasPublicacion ?? undefined}
         portadaUrl={datosWeb?.portadaUrl}
         clima={datosWeb?.clima}
+        instagram={instagram}
       />
     );
   }
@@ -511,6 +520,7 @@ function PipelineActivePanel({
       noticias={noticiasPublicacion ?? undefined}
       portadaUrl={datosWeb?.portadaUrl}
       clima={datosWeb?.clima}
+      instagram={instagram}
     />
   );
 }
@@ -530,6 +540,7 @@ function AdminPageContent() {
     useState<NoticiaPublicacion[] | null>(null);
   const [datosWeb, setDatosWeb] =
     useState<DatosPublicacionWeb>(DATOS_WEB_INICIAL);
+  const [instagram, setInstagram] = useState<SlideInstagram[]>([]);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
@@ -552,6 +563,7 @@ function AdminPageContent() {
         publicacionNoticias,
         portadaData,
         datosWebData,
+        instagramData,
         hist,
         ev,
       ] = await Promise.all([
@@ -561,6 +573,7 @@ function AdminPageContent() {
         getNoticiasPublicacionWeb(data.edicionId),
         getPortadaVigente(data.edicionId),
         getDatosPublicacionWeb(data.edicionId),
+        getSlidesInstagram(data.edicionId),
         getHistorialPortadas(data.edicionId),
         getEstadoVentanaOpinion(data.edicionId),
       ]);
@@ -570,6 +583,7 @@ function AdminPageContent() {
       setNoticiasPublicacion(publicacionNoticias);
       setPortada(portadaData);
       setDatosWeb(datosWebData);
+      setInstagram(instagramData);
       setHistorialPortadas(hist);
       setEstadoVentana(ev);
     } else {
@@ -579,6 +593,7 @@ function AdminPageContent() {
       setNoticiasPublicacion(null);
       setPortada(null);
       setDatosWeb(DATOS_WEB_INICIAL);
+      setInstagram([]);
       setHistorialPortadas([]);
       setEstadoVentana(undefined);
     }
@@ -597,6 +612,7 @@ function AdminPageContent() {
             publicacionNoticias,
             portadaData,
             datosWebData,
+            instagramData,
             hist,
             ev,
           ] = await Promise.all([
@@ -606,6 +622,7 @@ function AdminPageContent() {
             getNoticiasPublicacionWeb(data.edicionId),
             getPortadaVigente(data.edicionId),
             getDatosPublicacionWeb(data.edicionId),
+            getSlidesInstagram(data.edicionId),
             getHistorialPortadas(data.edicionId),
             getEstadoVentanaOpinion(data.edicionId),
           ]);
@@ -616,6 +633,7 @@ function AdminPageContent() {
             setNoticiasPublicacion(publicacionNoticias);
             setPortada(portadaData);
             setDatosWeb(datosWebData);
+            setInstagram(instagramData);
             setHistorialPortadas(hist);
             setEstadoVentana(ev);
           }
@@ -626,6 +644,7 @@ function AdminPageContent() {
           setNoticiasPublicacion(null);
           setPortada(null);
           setDatosWeb(DATOS_WEB_INICIAL);
+          setInstagram([]);
           setHistorialPortadas([]);
           setEstadoVentana(undefined);
         }
@@ -897,6 +916,7 @@ function AdminPageContent() {
             noticiasElPulso={noticiasElPulso}
             noticiasPublicacion={noticiasPublicacion}
             datosWeb={datosWeb}
+            instagram={instagram}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -933,6 +953,7 @@ function AdminPageContent() {
             noticiasElPulso={noticiasElPulso}
             noticiasPublicacion={noticiasPublicacion}
             datosWeb={datosWeb}
+            instagram={instagram}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
