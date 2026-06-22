@@ -12,6 +12,7 @@ import {
   OpinadorOpinionView,
 } from "@/components/admin/sections/opinadores";
 import type { PublicacionState } from "./PublicacionHeader";
+import type { ClimaCiudadData } from "@/lib/clima";
 
 type PublicacionContentProps = {
   state: PublicacionState;
@@ -20,6 +21,8 @@ type PublicacionContentProps = {
   edicionId?: string;
   titulo?: string;
   noticias?: NoticiaPublicacion[];
+  portadaUrl?: string | null;
+  clima?: ClimaCiudadData[];
 };
 
 function SlideContent({
@@ -28,12 +31,16 @@ function SlideContent({
   edicionId,
   titulo,
   noticias,
+  portadaUrl,
+  clima,
 }: {
   activeCanal: Canal;
   activeSlide: number;
   edicionId?: string;
   titulo?: string;
   noticias: NoticiaPublicacion[];
+  portadaUrl?: string | null;
+  clima: ClimaCiudadData[];
 }) {
   if (activeCanal === "instagram") {
     return <InstagramSlideContent activeSlide={activeSlide} />;
@@ -44,11 +51,17 @@ function SlideContent({
   }
 
   if (activeSlide === 1) {
-    return <PortadaSlide edicionId={edicionId} titulo={titulo} />;
+    return (
+      <PortadaSlide
+        edicionId={edicionId}
+        titulo={titulo}
+        portadaUrl={portadaUrl}
+      />
+    );
   }
 
   if (activeSlide === 7) {
-    return <ClimaSlide />;
+    return <ClimaSlide clima={clima} />;
   }
 
   const noticia = noticias[activeSlide - 2];
@@ -64,9 +77,12 @@ export function PublicacionContent({
   edicionId,
   titulo,
   noticias,
+  portadaUrl,
+  clima,
 }: PublicacionContentProps) {
   const { activeCanal, activeSlide, selectedOpinador, noticiaIndex } = state;
   const noticiasData = noticias ?? mockNoticias;
+  const climaData = clima ?? [];
 
   function setSelectedOpinador(opinador: MockOpinador | null) {
     onChange({ ...state, selectedOpinador: opinador });
@@ -99,6 +115,8 @@ export function PublicacionContent({
           edicionId={edicionId}
           titulo={titulo}
           noticias={noticiasData}
+          portadaUrl={portadaUrl}
+          clima={climaData}
         />
       )}
     </div>

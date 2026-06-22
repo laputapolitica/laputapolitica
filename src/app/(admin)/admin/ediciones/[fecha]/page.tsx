@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getDatosPublicacionWeb } from "@/app/(admin)/admin/actions";
 import { DataPill, HeaderPanel, PanelLayout } from "@/components/admin/shared";
 import { PublicacionPanel } from "@/components/admin/panels/PublicacionPanel";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
@@ -99,6 +100,7 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
         },
       };
     });
+  const datosWeb = await getDatosPublicacionWeb(row.id);
 
   return (
     <PanelLayout
@@ -116,6 +118,8 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
           edicionId={row.id}
           titulo={row.titulo}
           noticias={noticias}
+          portadaUrl={datosWeb.portadaUrl}
+          clima={datosWeb.clima}
         />
       }
     />

@@ -6,12 +6,15 @@ import { LoadingTextGrid, PanelLayout } from "@/components/admin/shared";
 import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
 import { PublicacionHeader, type PublicacionState } from "./PublicacionHeader";
 import { PublicacionContent } from "./PublicacionContent";
+import type { ClimaCiudadData } from "@/lib/clima";
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
   edicionId?: string;
   titulo?: string;
   noticias?: NoticiaPublicacion[];
+  portadaUrl?: string | null;
+  clima?: ClimaCiudadData[];
 }
 
 const initialState: PublicacionState = {
@@ -21,7 +24,14 @@ const initialState: PublicacionState = {
   noticiaIndex: 0,
 };
 
-export function PublicacionPanel({ status, edicionId, titulo, noticias }: PublicacionPanelProps) {
+export function PublicacionPanel({
+  status,
+  edicionId,
+  titulo,
+  noticias,
+  portadaUrl,
+  clima,
+}: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
   if (status === "loading") {
@@ -46,6 +56,8 @@ export function PublicacionPanel({ status, edicionId, titulo, noticias }: Public
           edicionId={edicionId}
           titulo={titulo}
           noticias={noticias}
+          portadaUrl={portadaUrl}
+          clima={clima}
         />
       }
     />

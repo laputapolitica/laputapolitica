@@ -3,7 +3,9 @@
 import { Buffer } from "node:buffer";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
+import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
 type PipelineRow = {
   relevamiento_status: string;
@@ -692,6 +694,36 @@ export type PortadaVigente = {
   titulo: string;
 } | null;
 
+export type DatosPublicacionWeb = {
+  portadaUrl: string | null;
+  clima: ClimaCiudadData[];
+};
+
+type PulsoPublicacionRow = {
+  texto_resumen: string | null;
+  pct_positiva: number | null;
+  pct_negativa: number | null;
+  pct_incierta: number | null;
+};
+
+type NoticiaPublicacionRow = {
+  id: string;
+  orden: number;
+  titulo: string;
+  cuerpo: string | null;
+  el_pulso_noticia: PulsoPublicacionRow | PulsoPublicacionRow[] | null;
+};
+
+function pickPulsoPublicacion(value: NoticiaPublicacionRow["el_pulso_noticia"]) {
+  const row = Array.isArray(value) ? value[0] : value;
+  return {
+    texto: row?.texto_resumen ?? "",
+    positiva: row?.pct_positiva ?? 0,
+    negativa: row?.pct_negativa ?? 0,
+    incierta: row?.pct_incierta ?? 0,
+  };
+}
+
 export async function getPortadaVigente(
   edicionId: string,
 ): Promise<PortadaVigente> {
@@ -716,6 +748,59 @@ export async function getPortadaVigente(
     imagenUrl: data.imagen_url,
     titulo: data.titulo,
   };
+}
+
+export async function getDatosPublicacionWeb(
+  edicionId: string,
+): Promise<DatosPublicacionWeb> {
+  const supabase = await createClient();
+  const [portada, clima] = await Promise.all([
+    getPortadaVigente(edicionId),
+    getClimaEdicion(supabase, edicionId),
+  ]);
+
+  return {
+    portadaUrl: portada?.imagenUrl ?? null,
+    clima,
+  };
+}
+
+export async function getNoticiasPublicacionWeb(
+  edicionId: string,
+): Promise<NoticiaPublicacion[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("noticias")
+    .select(
+      "id, orden, titulo, cuerpo, el_pulso_noticia(texto_resumen, pct_positiva, pct_negativa, pct_incierta)",
+    )
+    .eq("edicion_id", edicionId);
+
+  if (error) {
+    console.error("Error leyendo noticias para publicación web:", error.message);
+    return [];
+  }
+
+  const rows = (data ?? []) as unknown as NoticiaPublicacionRow[];
+
+  return rows
+    .slice()
+    .sort((a, b) => a.orden - b.orden)
+    .map((noticia) => {
+      const pulso = pickPulsoPublicacion(noticia.el_pulso_noticia);
+      return {
+        id: noticia.id,
+        titulo: noticia.titulo,
+        resumen: noticia.cuerpo ?? "",
+        pulso: pulso.texto,
+        pulsoTwitter: `EL PULSO\n${pulso.texto}\n🟢 ${pulso.positiva}% Positiva\n🔴 ${pulso.negativa}% Negativa\n🟣 ${pulso.incierta}% Incierta`,
+        interpretacion: {
+          positiva: pulso.positiva,
+          negativa: pulso.negativa,
+          incierta: pulso.incierta,
+        },
+      };
+    });
 }
 
 export async function guardarTituloPortada(

@@ -7,7 +7,9 @@ import {
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
   getNoticiasElPulso,
+  getNoticiasPublicacionWeb,
   getPortadaVigente,
+  getDatosPublicacionWeb,
   getHistorialPortadas,
   getEstilosBanco,
   getEstadoVentanaOpinion,
@@ -28,6 +30,7 @@ import {
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
   type NoticiaElPulso,
+  type DatosPublicacionWeb,
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
@@ -60,6 +63,7 @@ import {
   mockStateTitulosRunning,
 } from "@/components/admin/PipelineDiagram";
 import type { PipelineNodeId, PipelineState } from "@/components/admin/PipelineDiagram";
+import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
 const VALID_NODES: PipelineNodeId[] = [
   "relevamiento",
@@ -120,6 +124,10 @@ const SCENARIO_STATES: Record<string, PipelineState> = {
 
 type NoticiasRelevamientoState = NoticiasRelevamiento | null;
 type NoticiasTitulosState = NoticiaTituloResumen[] | null;
+const DATOS_WEB_INICIAL: DatosPublicacionWeb = {
+  portadaUrl: null,
+  clima: [],
+};
 type ResultadoOptimistaRelevamiento =
   | { estado: NoticiasRelevamiento }
   | { motivo: "minimo-activas" | "maximo-activas" | "sin-cambio" };
@@ -238,9 +246,13 @@ function getRunningNodes(state: PipelineState): PipelineNodeId[] {
 
 function ActivePanel({
   nodeId,
+  edicionId,
+  titulo,
   noticiasRelev,
   noticiasTitulos,
   noticiasElPulso,
+  noticiasPublicacion,
+  datosWeb,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -264,9 +276,13 @@ function ActivePanel({
   onRehacerElPulso,
 }: {
   nodeId: PipelineNodeId;
+  edicionId?: string;
+  titulo?: string;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
   noticiasElPulso?: NoticiaElPulso[] | null;
+  noticiasPublicacion?: NoticiaPublicacion[] | null;
+  datosWeb?: DatosPublicacionWeb;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -341,14 +357,27 @@ function ActivePanel({
       />
     );
   }
-  return <PublicacionPanel status="ready" />;
+  return (
+    <PublicacionPanel
+      status="ready"
+      edicionId={edicionId}
+      titulo={titulo}
+      noticias={noticiasPublicacion ?? undefined}
+      portadaUrl={datosWeb?.portadaUrl}
+      clima={datosWeb?.clima}
+    />
+  );
 }
 
 function PipelineActivePanel({
   state,
+  edicionId,
+  titulo,
   noticiasRelev,
   noticiasTitulos,
   noticiasElPulso,
+  noticiasPublicacion,
+  datosWeb,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -372,9 +401,13 @@ function PipelineActivePanel({
   onRehacerElPulso,
 }: {
   state: PipelineState;
+  edicionId?: string;
+  titulo?: string;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
   noticiasElPulso?: NoticiaElPulso[] | null;
+  noticiasPublicacion?: NoticiaPublicacion[] | null;
+  datosWeb?: DatosPublicacionWeb;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -410,9 +443,13 @@ function PipelineActivePanel({
     return (
       <ActivePanel
         nodeId={reviewNode}
+        edicionId={edicionId}
+        titulo={titulo}
         noticiasRelev={noticiasRelev}
         noticiasTitulos={noticiasTitulos}
         noticiasElPulso={noticiasElPulso}
+        noticiasPublicacion={noticiasPublicacion}
+        datosWeb={datosWeb}
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
@@ -442,7 +479,16 @@ function PipelineActivePanel({
 
   // Si el único nodo running es publicacion → mostrar PublicacionPanel
   if (runningNodes.length === 1 && runningNodes[0] === "publicacion") {
-    return <PublicacionPanel status="ready" />;
+    return (
+      <PublicacionPanel
+        status="ready"
+        edicionId={edicionId}
+        titulo={titulo}
+        noticias={noticiasPublicacion ?? undefined}
+        portadaUrl={datosWeb?.portadaUrl}
+        clima={datosWeb?.clima}
+      />
+    );
   }
 
   if (runningNodes.includes("ventanaOpinion")) {
@@ -457,7 +503,16 @@ function PipelineActivePanel({
     );
   }
 
-  return <PublicacionPanel status="ready" />;
+  return (
+    <PublicacionPanel
+      status="ready"
+      edicionId={edicionId}
+      titulo={titulo}
+      noticias={noticiasPublicacion ?? undefined}
+      portadaUrl={datosWeb?.portadaUrl}
+      clima={datosWeb?.clima}
+    />
+  );
 }
 
 function AdminPageContent() {
@@ -471,6 +526,10 @@ function AdminPageContent() {
     useState<NoticiasTitulosState>(null);
   const [noticiasElPulso, setNoticiasElPulso] =
     useState<NoticiaElPulso[] | null>(null);
+  const [noticiasPublicacion, setNoticiasPublicacion] =
+    useState<NoticiaPublicacion[] | null>(null);
+  const [datosWeb, setDatosWeb] =
+    useState<DatosPublicacionWeb>(DATOS_WEB_INICIAL);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
@@ -486,23 +545,40 @@ function AdminPageContent() {
     const data = await getPipelineEnCurso();
     setEnCurso(data);
     if (data) {
-      const candidatas = await getCandidatasRelevamiento(data.edicionId);
-      const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
-      const pulsoNoticias = await getNoticiasElPulso(data.edicionId);
-      const portadaData = await getPortadaVigente(data.edicionId);
-      const hist = await getHistorialPortadas(data.edicionId);
-      const ev = await getEstadoVentanaOpinion(data.edicionId);
+      const [
+        candidatas,
+        titNoticias,
+        pulsoNoticias,
+        publicacionNoticias,
+        portadaData,
+        datosWebData,
+        hist,
+        ev,
+      ] = await Promise.all([
+        getCandidatasRelevamiento(data.edicionId),
+        getNoticiasTitulosResumenes(data.edicionId),
+        getNoticiasElPulso(data.edicionId),
+        getNoticiasPublicacionWeb(data.edicionId),
+        getPortadaVigente(data.edicionId),
+        getDatosPublicacionWeb(data.edicionId),
+        getHistorialPortadas(data.edicionId),
+        getEstadoVentanaOpinion(data.edicionId),
+      ]);
       setNoticiasRelev(candidatas);
       setNoticiasTitulos(titNoticias);
       setNoticiasElPulso(pulsoNoticias);
+      setNoticiasPublicacion(publicacionNoticias);
       setPortada(portadaData);
+      setDatosWeb(datosWebData);
       setHistorialPortadas(hist);
       setEstadoVentana(ev);
     } else {
       setNoticiasRelev(null);
       setNoticiasTitulos(null);
       setNoticiasElPulso(null);
+      setNoticiasPublicacion(null);
       setPortada(null);
+      setDatosWeb(DATOS_WEB_INICIAL);
       setHistorialPortadas([]);
       setEstadoVentana(undefined);
     }
@@ -514,17 +590,32 @@ function AdminPageContent() {
       if (activo) {
         setEnCurso(data);
         if (data) {
-          const candidatas = await getCandidatasRelevamiento(data.edicionId);
-          const titNoticias = await getNoticiasTitulosResumenes(data.edicionId);
-          const pulsoNoticias = await getNoticiasElPulso(data.edicionId);
-          const portadaData = await getPortadaVigente(data.edicionId);
-          const hist = await getHistorialPortadas(data.edicionId);
-          const ev = await getEstadoVentanaOpinion(data.edicionId);
+          const [
+            candidatas,
+            titNoticias,
+            pulsoNoticias,
+            publicacionNoticias,
+            portadaData,
+            datosWebData,
+            hist,
+            ev,
+          ] = await Promise.all([
+            getCandidatasRelevamiento(data.edicionId),
+            getNoticiasTitulosResumenes(data.edicionId),
+            getNoticiasElPulso(data.edicionId),
+            getNoticiasPublicacionWeb(data.edicionId),
+            getPortadaVigente(data.edicionId),
+            getDatosPublicacionWeb(data.edicionId),
+            getHistorialPortadas(data.edicionId),
+            getEstadoVentanaOpinion(data.edicionId),
+          ]);
           if (activo) {
             setNoticiasRelev(candidatas);
             setNoticiasTitulos(titNoticias);
             setNoticiasElPulso(pulsoNoticias);
+            setNoticiasPublicacion(publicacionNoticias);
             setPortada(portadaData);
+            setDatosWeb(datosWebData);
             setHistorialPortadas(hist);
             setEstadoVentana(ev);
           }
@@ -532,7 +623,9 @@ function AdminPageContent() {
           setNoticiasRelev(null);
           setNoticiasTitulos(null);
           setNoticiasElPulso(null);
+          setNoticiasPublicacion(null);
           setPortada(null);
+          setDatosWeb(DATOS_WEB_INICIAL);
           setHistorialPortadas([]);
           setEstadoVentana(undefined);
         }
@@ -797,9 +890,13 @@ function AdminPageContent() {
         {forcedNodeId ? (
           <ActivePanel
             nodeId={forcedNodeId}
+            edicionId={enCurso?.edicionId}
+            titulo={enCurso?.titulo}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
             noticiasElPulso={noticiasElPulso}
+            noticiasPublicacion={noticiasPublicacion}
+            datosWeb={datosWeb}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -829,9 +926,13 @@ function AdminPageContent() {
         ) : (
           <PipelineActivePanel
             state={pipelineState}
+            edicionId={enCurso?.edicionId}
+            titulo={enCurso?.titulo}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
             noticiasElPulso={noticiasElPulso}
+            noticiasPublicacion={noticiasPublicacion}
+            datosWeb={datosWeb}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}

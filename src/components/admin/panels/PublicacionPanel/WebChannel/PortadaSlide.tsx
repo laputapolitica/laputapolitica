@@ -8,9 +8,11 @@ import { guardarTituloEdicion } from "@/app/(admin)/admin/ediciones/[fecha]/acti
 export function PortadaSlide({
   edicionId,
   titulo: tituloInicial,
+  portadaUrl,
 }: {
   edicionId?: string;
   titulo?: string;
+  portadaUrl?: string | null;
 }) {
   const [titulo, setTitulo] = useState(tituloInicial ?? "Equilibrio ciego");
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
@@ -60,7 +62,16 @@ export function PortadaSlide({
           PORTADA
         </span>
         <div className="flex items-start gap-4">
-          <div className="h-[200px] w-[200px] shrink-0 rounded-lg border border-admin-ink bg-gray-200" />
+          <div className="h-[200px] w-[200px] shrink-0 overflow-hidden rounded-lg border border-admin-ink bg-gray-200">
+            {portadaUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={portadaUrl}
+                alt="Portada vigente"
+                className="h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
           <div className="flex flex-col items-start gap-2">
             <IconButton onClick={() => {}}>
               <IconBajar width={11} height={11} />

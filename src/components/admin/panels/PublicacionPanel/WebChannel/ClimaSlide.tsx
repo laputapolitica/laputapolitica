@@ -1,52 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconEditar } from "@/components/admin/icons";
 import { AdminSelect, IconButton, TextField } from "@/components/admin/shared";
-import { clima } from "../mocks";
+import { climaIconPath, type ClimaCiudadData, type ClimaDiaData } from "@/lib/clima";
 
-export function ClimaSlide() {
-  const [ciudad, setCiudad] = useState("Buenos Aires");
+export function ClimaSlide({ clima }: { clima: ClimaCiudadData[] }) {
+  const defaultCiudadId = clima[0]?.id ?? "";
+  const [ciudadId, setCiudadId] = useState(defaultCiudadId);
+
+  useEffect(() => {
+    if (ciudadId !== defaultCiudadId && !clima.some((ciudad) => ciudad.id === ciudadId)) {
+      setCiudadId(defaultCiudadId);
+    }
+  }, [ciudadId, clima, defaultCiudadId]);
+
+  if (clima.length === 0) {
+    return (
+      <div className="font-ui text-sm text-text-secondary">
+        Sin datos de clima
+      </div>
+    );
+  }
+
+  const ciudadSeleccionada =
+    clima.find((ciudad) => ciudad.id === ciudadId) ?? clima[0];
 
   return (
     <div className="flex flex-col gap-4 font-ui">
       {/* Selector de ciudad */}
       <AdminSelect
-        value={ciudad}
-        onChange={setCiudad}
+        value={ciudadSeleccionada.id}
+        onChange={setCiudadId}
         size="sm"
         className="w-fit"
-        options={[
-          { value: "Buenos Aires", label: "Buenos Aires" },
-          { value: "Córdoba", label: "Córdoba" },
-          { value: "Santa Fe", label: "Santa Fe" },
-        ]}
+        options={clima.map((ciudad) => ({
+          value: ciudad.id,
+          label: ciudad.label,
+        }))}
       />
 
       {/* Días */}
       <div className="flex gap-6 items-start">
-        {clima.map((dia) => (
-          <DiaClima key={dia.dia} dia={dia.dia} min={dia.min} max={dia.max} />
+        {ciudadSeleccionada.dias.map((dia) => (
+          <DiaClima
+            key={`${ciudadSeleccionada.id}-${dia.fecha}`}
+            dia={dia}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function DiaClima({ dia, min, max }: { dia: string; min: number; max: number }) {
-  const [minValue, setMinValue] = useState(`${min}°`);
-  const [maxValue, setMaxValue] = useState(`${max}°`);
+function formatTemperatura(value: number | null): string {
+  return value === null ? "—" : `${value}°`;
+}
+
+function DiaClima({ dia }: { dia: ClimaDiaData }) {
+  const [minValue, setMinValue] = useState(formatTemperatura(dia.temperaturaMin));
+  const [maxValue, setMaxValue] = useState(formatTemperatura(dia.temperaturaMax));
   const [isEditingMin, setIsEditingMin] = useState(false);
   const [isEditingMax, setIsEditingMax] = useState(false);
 
+  useEffect(() => {
+    setMinValue(formatTemperatura(dia.temperaturaMin));
+    setMaxValue(formatTemperatura(dia.temperaturaMax));
+  }, [dia.temperaturaMin, dia.temperaturaMax]);
+
   return (
     <article className="flex flex-col items-start gap-3">
-      <TextField value={dia} variant="subtle" readOnly />
+      <TextField value={dia.diaLabel} variant="subtle" readOnly />
 
       {/* Imagen + botón Editar */}
       <div className="flex items-start gap-2">
         <div className="rounded-lg border border-admin-ink bg-white p-2">
-          <div className="h-[100px] w-[100px] rounded-[4px] bg-gray-200" />
+          <div className="h-[100px] w-[100px] overflow-hidden rounded-[4px] bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={climaIconPath(dia.icono)}
+              alt={dia.condicion ?? dia.icono}
+              className="h-full w-full object-contain"
+            />
+          </div>
         </div>
         <IconButton onClick={() => {}}>
           <IconEditar width={11} height={11} />
