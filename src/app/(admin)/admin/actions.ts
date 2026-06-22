@@ -4,6 +4,7 @@ import { Buffer } from "node:buffer";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
+import { VOTE_COLORS } from "@/lib/constants";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
@@ -713,6 +714,23 @@ export type HiloTwitter = {
   payload: Record<string, unknown>;
 };
 
+export type OpinionEdicion = {
+  noticia: string;
+  texto: string;
+  interpretacion: string;
+  color: string;
+};
+
+export type OpinadorEdicion = {
+  id: string;
+  nombre: string;
+  email: string;
+  ciudad: string;
+  votos: (string | null)[];
+  completadas: number;
+  opiniones: OpinionEdicion[];
+};
+
 type PulsoPublicacionRow = {
   texto_resumen: string | null;
   pct_positiva: number | null;
@@ -750,6 +768,30 @@ type HiloTwitterRow = {
   payload: unknown;
 };
 
+type SentimentOpinion = "positiva" | "negativa" | "incierta";
+
+type NoticiaEdicionRow = {
+  id: string;
+  orden: number;
+  titulo: string;
+};
+
+type OpinadorOpinionRow = {
+  id: string;
+  nombre: string;
+  email: string;
+  provincia: string;
+};
+
+type OpinionEdicionRow = {
+  noticia_id: string;
+  opinador_id: string;
+  texto: string | null;
+  sentiment: SentimentOpinion | null;
+  enviada_en: string | null;
+  opinadores: OpinadorOpinionRow | OpinadorOpinionRow[] | null;
+};
+
 function pickPulsoPublicacion(value: NoticiaPublicacionRow["el_pulso_noticia"]) {
   const row = Array.isArray(value) ? value[0] : value;
   return {
@@ -759,6 +801,22 @@ function pickPulsoPublicacion(value: NoticiaPublicacionRow["el_pulso_noticia"]) 
     incierta: row?.pct_incierta ?? 0,
   };
 }
+
+function pickOpinadorOpinion(
+  value: OpinionEdicionRow["opinadores"],
+): OpinadorOpinionRow | null {
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
+function isSentimentOpinion(value: string | null): value is SentimentOpinion {
+  return value === "positiva" || value === "negativa" || value === "incierta";
+}
+
+const INTERPRETACION_LABEL: Record<SentimentOpinion, string> = {
+  positiva: "Positiva",
+  negativa: "Negativa",
+  incierta: "Incierta",
+};
 
 export async function getPortadaVigente(
   edicionId: string,
@@ -922,6 +980,132 @@ export async function getNoticiasPublicacionWeb(
         },
       };
     });
+}
+
+export async function getOpinadoresEdicion(
+  edicionId: string,
+): Promise<{ opinadores: OpinadorEdicion[]; totalOpinadores: number }> {
+  const supabase = await createClient();
+
+  const [
+    { data: noticiasData, error: noticiasError },
+    { count, error: countError },
+  ] = await Promise.all([
+    supabase
+      .from("noticias")
+      .select("id, orden, titulo")
+      .eq("edicion_id", edicionId)
+      .order("orden", { ascending: true }),
+    supabase
+      .from("opinadores")
+      .select("id", { count: "exact", head: true })
+      .eq("activo", true),
+  ]);
+
+  if (noticiasError) {
+    console.error("Error leyendo noticias para El Pulso:", noticiasError.message);
+    return { opinadores: [], totalOpinadores: count ?? 0 };
+  }
+
+  if (countError) {
+    console.error("Error contando opinadores activos:", countError.message);
+  }
+
+  const noticias = ((noticiasData ?? []) as NoticiaEdicionRow[]).sort(
+    (a, b) => a.orden - b.orden,
+  );
+
+  if (noticias.length === 0) {
+    return { opinadores: [], totalOpinadores: count ?? 0 };
+  }
+
+  const noticiasPorId = new Map(
+    noticias.map((noticia, index) => [noticia.id, { noticia, index }]),
+  );
+
+  const { data: opinionesData, error: opinionesError } = await supabase
+    .from("opiniones")
+    .select(
+      "noticia_id, opinador_id, texto, sentiment, enviada_en, opinadores(id, nombre, email, provincia)",
+    )
+    .in(
+      "noticia_id",
+      noticias.map((noticia) => noticia.id),
+    )
+    .order("enviada_en", { ascending: true });
+
+  if (opinionesError) {
+    console.error("Error leyendo opiniones de El Pulso:", opinionesError.message);
+    return { opinadores: [], totalOpinadores: count ?? 0 };
+  }
+
+  const grupos = new Map<
+    string,
+    {
+      opinador: OpinadorOpinionRow;
+      opinionesPorNoticia: Map<string, OpinionEdicionRow>;
+    }
+  >();
+
+  for (const opinion of (opinionesData ?? []) as unknown as OpinionEdicionRow[]) {
+    if (!noticiasPorId.has(opinion.noticia_id)) continue;
+
+    const opinador = pickOpinadorOpinion(opinion.opinadores);
+    if (!opinador) continue;
+
+    const grupo =
+      grupos.get(opinion.opinador_id) ??
+      {
+        opinador,
+        opinionesPorNoticia: new Map<string, OpinionEdicionRow>(),
+      };
+
+    grupo.opinionesPorNoticia.set(opinion.noticia_id, opinion);
+    grupos.set(opinion.opinador_id, grupo);
+  }
+
+  const opinadores = Array.from(grupos.values())
+    .map(({ opinador, opinionesPorNoticia }): OpinadorEdicion => {
+      const votos: (string | null)[] = Array.from(
+        { length: noticias.length },
+        () => null,
+      );
+
+      const opiniones = noticias.map((noticia): OpinionEdicion => {
+        const opinion = opinionesPorNoticia.get(noticia.id);
+        const sentimentRaw = opinion?.sentiment ?? null;
+        const sentiment = isSentimentOpinion(sentimentRaw) ? sentimentRaw : null;
+
+        const color = sentiment ? VOTE_COLORS[sentiment] : VOTE_COLORS.nula;
+        const index = noticiasPorId.get(noticia.id)?.index;
+        if (typeof index === "number" && sentiment) {
+          votos[index] = color;
+        }
+
+        return {
+          noticia: noticia.titulo,
+          texto: opinion?.texto ?? "",
+          interpretacion: sentiment ? INTERPRETACION_LABEL[sentiment] : "",
+          color,
+        };
+      });
+
+      return {
+        id: opinador.id,
+        nombre: opinador.nombre,
+        email: opinador.email,
+        ciudad: opinador.provincia,
+        votos,
+        completadas: opinionesPorNoticia.size,
+        opiniones,
+      };
+    })
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+
+  return {
+    opinadores,
+    totalOpinadores: count ?? 0,
+  };
 }
 
 export async function guardarTituloPortada(

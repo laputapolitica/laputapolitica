@@ -29,7 +29,8 @@ import {
   OpinadoresList,
 } from "@/components/admin/sections/opinadores";
 import { EdicionesOpinadorList } from "@/components/admin/sections/ediciones";
-import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
+import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
+import { VOTE_COLORS } from "@/lib/constants";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
 type VistaOpinadores = "lista" | "pendientes" | "rechazados";
@@ -234,21 +235,31 @@ function OpinionesEnEdicion({
 function mockOpinadorParaDetalle(
   op: OpinadorAdmin,
   edicion?: EdicionSeleccionada
-): MockOpinador {
+): OpinadorEdicion {
   const edicionData = edicion
     ? op.ediciones.find(e => e.fechaISO === edicion.fechaISO)
     : undefined;
   const votos = edicionData?.votos ?? [];
   const completadas = votos.filter(v => v !== null).length;
+  const interpretacionPorColor: Record<string, string> = {
+    [VOTE_COLORS.positiva]: "Positiva",
+    [VOTE_COLORS.negativa]: "Negativa",
+    [VOTE_COLORS.incierta]: "Incierta",
+  };
 
   return {
-    id: op.id,
+    id: String(op.id),
     nombre: op.nombre,
     email: op.email,
     ciudad: op.ciudad,
     votos,
     completadas,
-    ultimaRespuesta: "00:00",
+    opiniones: votos.map((color, index) => ({
+      noticia: `Noticia ${index + 1}`,
+      texto: "",
+      interpretacion: color ? (interpretacionPorColor[color] ?? "") : "",
+      color: color ?? VOTE_COLORS.nula,
+    })),
   };
 }
 

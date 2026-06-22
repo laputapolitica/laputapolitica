@@ -1,7 +1,7 @@
 "use client";
 
-import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
-import { mockOpinadores, noticias as mockNoticias } from "./mocks";
+import type { Canal, NoticiaPublicacion } from "./types";
+import { noticias as mockNoticias } from "./mocks";
 import { PortadaSlide } from "./WebChannel/PortadaSlide";
 import { NoticiaSlide } from "./WebChannel/NoticiaSlide";
 import { ClimaSlide } from "./WebChannel/ClimaSlide";
@@ -13,7 +13,11 @@ import {
 } from "@/components/admin/sections/opinadores";
 import type { PublicacionState } from "./PublicacionHeader";
 import type { ClimaCiudadData } from "@/lib/clima";
-import type { HiloTwitter, SlideInstagram } from "@/app/(admin)/admin/actions";
+import type {
+  HiloTwitter,
+  OpinadorEdicion,
+  SlideInstagram,
+} from "@/app/(admin)/admin/actions";
 
 type PublicacionContentProps = {
   state: PublicacionState;
@@ -26,6 +30,10 @@ type PublicacionContentProps = {
   clima?: ClimaCiudadData[];
   instagram?: SlideInstagram[];
   twitter?: HiloTwitter[];
+  elPulso?: {
+    opinadores: OpinadorEdicion[];
+    totalOpinadores: number;
+  };
 };
 
 function SlideContent({
@@ -88,15 +96,17 @@ export function PublicacionContent({
   clima,
   instagram,
   twitter,
+  elPulso,
 }: PublicacionContentProps) {
   const { activeCanal, activeSlide, selectedOpinador, noticiaIndex } = state;
   const noticiasData = noticias ?? mockNoticias;
   const climaData = clima ?? [];
   const instagramData = instagram ?? [];
   const twitterData = twitter ?? [];
+  const opinadores = elPulso?.opinadores ?? [];
 
-  function setSelectedOpinador(opinador: MockOpinador | null) {
-    onChange({ ...state, selectedOpinador: opinador });
+  function setSelectedOpinador(opinador: OpinadorEdicion | null) {
+    onChange({ ...state, selectedOpinador: opinador, noticiaIndex: 0 });
   }
 
   function setNoticiaIndex(index: number) {
@@ -115,7 +125,7 @@ export function PublicacionContent({
           />
         ) : (
           <OpinadoresEdicionList
-            opinadores={mockOpinadores}
+            opinadores={opinadores}
             onSelect={setSelectedOpinador}
           />
         )

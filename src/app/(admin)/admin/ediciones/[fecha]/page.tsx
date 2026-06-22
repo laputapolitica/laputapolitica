@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getDatosPublicacionWeb,
   getHilosTwitter,
+  getOpinadoresEdicion,
   getSlidesInstagram,
 } from "@/app/(admin)/admin/actions";
 import { DataPill, HeaderPanel, PanelLayout } from "@/components/admin/shared";
@@ -104,10 +105,11 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
         },
       };
     });
-  const [datosWeb, instagram, twitter] = await Promise.all([
+  const [datosWeb, instagram, twitter, elPulso] = await Promise.all([
     getDatosPublicacionWeb(row.id),
     getSlidesInstagram(row.id),
     getHilosTwitter(row.id),
+    getOpinadoresEdicion(row.id),
   ]);
 
   return (
@@ -130,6 +132,7 @@ export default async function EdicionDetallePage({ params }: EdicionDetallePageP
           clima={datosWeb.clima}
           instagram={instagram}
           twitter={twitter}
+          elPulso={elPulso}
         />
       }
     />

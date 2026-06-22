@@ -12,6 +12,7 @@ import {
   getDatosPublicacionWeb,
   getSlidesInstagram,
   getHilosTwitter,
+  getOpinadoresEdicion,
   getHistorialPortadas,
   getEstilosBanco,
   getEstadoVentanaOpinion,
@@ -35,6 +36,7 @@ import {
   type DatosPublicacionWeb,
   type SlideInstagram,
   type HiloTwitter,
+  type OpinadorEdicion,
   type PortadaVigente,
   type PortadaHistorial,
   type EstiloBanco,
@@ -131,6 +133,14 @@ type NoticiasTitulosState = NoticiaTituloResumen[] | null;
 const DATOS_WEB_INICIAL: DatosPublicacionWeb = {
   portadaUrl: null,
   clima: [],
+};
+const EL_PULSO_INICIAL: ElPulsoEdicionState = {
+  opinadores: [],
+  totalOpinadores: 0,
+};
+type ElPulsoEdicionState = {
+  opinadores: OpinadorEdicion[];
+  totalOpinadores: number;
 };
 type ResultadoOptimistaRelevamiento =
   | { estado: NoticiasRelevamiento }
@@ -259,6 +269,7 @@ function ActivePanel({
   datosWeb,
   instagram,
   twitter,
+  elPulso,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -291,6 +302,7 @@ function ActivePanel({
   datosWeb?: DatosPublicacionWeb;
   instagram?: SlideInstagram[];
   twitter?: HiloTwitter[];
+  elPulso?: ElPulsoEdicionState;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -375,6 +387,7 @@ function ActivePanel({
       clima={datosWeb?.clima}
       instagram={instagram}
       twitter={twitter}
+      elPulso={elPulso}
     />
   );
 }
@@ -390,6 +403,7 @@ function PipelineActivePanel({
   datosWeb,
   instagram,
   twitter,
+  elPulso,
   portada,
   historialPortadas,
   estilosBancoProp,
@@ -422,6 +436,7 @@ function PipelineActivePanel({
   datosWeb?: DatosPublicacionWeb;
   instagram?: SlideInstagram[];
   twitter?: HiloTwitter[];
+  elPulso?: ElPulsoEdicionState;
   portada?: PortadaVigente;
   historialPortadas?: PortadaHistorial[];
   estilosBancoProp?: EstiloBanco[];
@@ -466,6 +481,7 @@ function PipelineActivePanel({
         datosWeb={datosWeb}
         instagram={instagram}
         twitter={twitter}
+        elPulso={elPulso}
         portada={portada}
         historialPortadas={historialPortadas}
         estilosBancoProp={estilosBancoProp}
@@ -505,6 +521,7 @@ function PipelineActivePanel({
         clima={datosWeb?.clima}
         instagram={instagram}
         twitter={twitter}
+        elPulso={elPulso}
       />
     );
   }
@@ -531,6 +548,7 @@ function PipelineActivePanel({
       clima={datosWeb?.clima}
       instagram={instagram}
       twitter={twitter}
+      elPulso={elPulso}
     />
   );
 }
@@ -552,6 +570,8 @@ function AdminPageContent() {
     useState<DatosPublicacionWeb>(DATOS_WEB_INICIAL);
   const [instagram, setInstagram] = useState<SlideInstagram[]>([]);
   const [twitter, setTwitter] = useState<HiloTwitter[]>([]);
+  const [elPulso, setElPulso] =
+    useState<ElPulsoEdicionState>(EL_PULSO_INICIAL);
   const [portada, setPortada] = useState<PortadaVigente>(null);
   const [historialPortadas, setHistorialPortadas] = useState<PortadaHistorial[]>([]);
   const [estilosBanco, setEstilosBanco] = useState<EstiloBanco[]>([]);
@@ -576,6 +596,7 @@ function AdminPageContent() {
         datosWebData,
         instagramData,
         twitterData,
+        elPulsoData,
         hist,
         ev,
       ] = await Promise.all([
@@ -587,6 +608,7 @@ function AdminPageContent() {
         getDatosPublicacionWeb(data.edicionId),
         getSlidesInstagram(data.edicionId),
         getHilosTwitter(data.edicionId),
+        getOpinadoresEdicion(data.edicionId),
         getHistorialPortadas(data.edicionId),
         getEstadoVentanaOpinion(data.edicionId),
       ]);
@@ -598,6 +620,7 @@ function AdminPageContent() {
       setDatosWeb(datosWebData);
       setInstagram(instagramData);
       setTwitter(twitterData);
+      setElPulso(elPulsoData);
       setHistorialPortadas(hist);
       setEstadoVentana(ev);
     } else {
@@ -609,6 +632,7 @@ function AdminPageContent() {
       setDatosWeb(DATOS_WEB_INICIAL);
       setInstagram([]);
       setTwitter([]);
+      setElPulso(EL_PULSO_INICIAL);
       setHistorialPortadas([]);
       setEstadoVentana(undefined);
     }
@@ -629,6 +653,7 @@ function AdminPageContent() {
             datosWebData,
             instagramData,
             twitterData,
+            elPulsoData,
             hist,
             ev,
           ] = await Promise.all([
@@ -640,6 +665,7 @@ function AdminPageContent() {
             getDatosPublicacionWeb(data.edicionId),
             getSlidesInstagram(data.edicionId),
             getHilosTwitter(data.edicionId),
+            getOpinadoresEdicion(data.edicionId),
             getHistorialPortadas(data.edicionId),
             getEstadoVentanaOpinion(data.edicionId),
           ]);
@@ -652,6 +678,7 @@ function AdminPageContent() {
             setDatosWeb(datosWebData);
             setInstagram(instagramData);
             setTwitter(twitterData);
+            setElPulso(elPulsoData);
             setHistorialPortadas(hist);
             setEstadoVentana(ev);
           }
@@ -664,6 +691,7 @@ function AdminPageContent() {
           setDatosWeb(DATOS_WEB_INICIAL);
           setInstagram([]);
           setTwitter([]);
+          setElPulso(EL_PULSO_INICIAL);
           setHistorialPortadas([]);
           setEstadoVentana(undefined);
         }
@@ -937,6 +965,7 @@ function AdminPageContent() {
             datosWeb={datosWeb}
             instagram={instagram}
             twitter={twitter}
+            elPulso={elPulso}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}
@@ -975,6 +1004,7 @@ function AdminPageContent() {
             datosWeb={datosWeb}
             instagram={instagram}
             twitter={twitter}
+            elPulso={elPulso}
             portada={portada}
             historialPortadas={historialPortadas}
             estilosBancoProp={estilosBanco}

@@ -3,11 +3,20 @@
 import { useState } from "react";
 
 import { LoadingTextGrid, PanelLayout } from "@/components/admin/shared";
-import type { Canal, MockOpinador, NoticiaPublicacion } from "./types";
+import type { Canal, NoticiaPublicacion } from "./types";
 import { PublicacionHeader, type PublicacionState } from "./PublicacionHeader";
 import { PublicacionContent } from "./PublicacionContent";
 import type { ClimaCiudadData } from "@/lib/clima";
-import type { HiloTwitter, SlideInstagram } from "@/app/(admin)/admin/actions";
+import type {
+  HiloTwitter,
+  OpinadorEdicion,
+  SlideInstagram,
+} from "@/app/(admin)/admin/actions";
+
+type PublicacionElPulso = {
+  opinadores: OpinadorEdicion[];
+  totalOpinadores: number;
+};
 
 interface PublicacionPanelProps {
   status: "loading" | "ready";
@@ -18,12 +27,13 @@ interface PublicacionPanelProps {
   clima?: ClimaCiudadData[];
   instagram?: SlideInstagram[];
   twitter?: HiloTwitter[];
+  elPulso?: PublicacionElPulso;
 }
 
 const initialState: PublicacionState = {
   activeCanal: "web" satisfies Canal,
   activeSlide: 1,
-  selectedOpinador: null as MockOpinador | null,
+  selectedOpinador: null,
   noticiaIndex: 0,
 };
 
@@ -36,6 +46,7 @@ export function PublicacionPanel({
   clima,
   instagram,
   twitter,
+  elPulso,
 }: PublicacionPanelProps) {
   const [state, setState] = useState<PublicacionState>(initialState);
 
@@ -53,7 +64,14 @@ export function PublicacionPanel({
 
   return (
     <PanelLayout
-      header={<PublicacionHeader state={state} onChange={setState} twitter={twitter} />}
+      header={
+        <PublicacionHeader
+          state={state}
+          onChange={setState}
+          twitter={twitter}
+          elPulso={elPulso}
+        />
+      }
       content={
         <PublicacionContent
           state={state}
@@ -65,6 +83,7 @@ export function PublicacionPanel({
           clima={clima}
           instagram={instagram}
           twitter={twitter}
+          elPulso={elPulso}
         />
       }
     />

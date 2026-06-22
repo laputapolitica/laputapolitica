@@ -1,6 +1,7 @@
 "use client";
 
-import type { Canal, MockOpinador } from "./types";
+import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
+import type { Canal } from "./types";
 import { canales } from "./mocks";
 import { TabPrimary, TabSecondary } from "@/components/admin/shared";
 import { CanalIcon } from "./shared/CanalIcon";
@@ -10,7 +11,7 @@ import type { HiloTwitter } from "@/app/(admin)/admin/actions";
 export type PublicacionState = {
   activeCanal: Canal;
   activeSlide: number;
-  selectedOpinador: MockOpinador | null;
+  selectedOpinador: OpinadorEdicion | null;
   noticiaIndex: number;
 };
 
@@ -18,9 +19,18 @@ type PublicacionHeaderProps = {
   state: PublicacionState;
   onChange: (state: PublicacionState) => void;
   twitter?: HiloTwitter[];
+  elPulso?: {
+    opinadores: OpinadorEdicion[];
+    totalOpinadores: number;
+  };
 };
 
-export function PublicacionHeader({ state, onChange, twitter }: PublicacionHeaderProps) {
+export function PublicacionHeader({
+  state,
+  onChange,
+  twitter,
+  elPulso,
+}: PublicacionHeaderProps) {
   const { activeCanal, activeSlide, selectedOpinador } = state;
   const slideCount =
     activeCanal === "twitter" ? (twitter?.length ?? 0) : activeCanal === "instagram" ? 4 : 7;
@@ -62,7 +72,9 @@ export function PublicacionHeader({ state, onChange, twitter }: PublicacionHeade
       {activeCanal === "elpulso" && !selectedOpinador && (
         <div className="mt-2 flex items-center justify-between">
           <div className="inline-flex h-[24px] items-center rounded-[4px] border-2 border-admin-ink bg-white px-2 font-ui text-xs font-semibold text-admin-ink">
-            14/25 opiniones
+            {elPulso
+              ? `${elPulso.opinadores.length}/${elPulso.totalOpinadores} opinadores`
+              : "0/0 opinadores"}
           </div>
         </div>
       )}

@@ -9,11 +9,11 @@ import {
 } from "@/components/admin/shared";
 import { getStatusColor } from "@/lib/colors";
 import { VOTE_COLORS } from "@/lib/constants";
-import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
+import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
 
 type OpinadoresEdicionListProps = {
-  opinadores: MockOpinador[];
-  onSelect?: (opinador: MockOpinador) => void;
+  opinadores: OpinadorEdicion[];
+  onSelect?: (opinador: OpinadorEdicion) => void;
 };
 
 export function OpinadoresEdicionList({ opinadores, onSelect }: OpinadoresEdicionListProps) {
@@ -37,12 +37,17 @@ export function OpinadoresEdicionList({ opinadores, onSelect }: OpinadoresEdicio
                 />
               ))}
             </RowCardCell>
-            {/* Completadas/5 con dot de status */}
+            {/* Completadas con dot de status */}
             <RowCardCell>
-              {op.completadas}/5
+              {op.completadas}/{op.votos.length}
               <span
                 className="h-[8px] w-[8px] rounded-full"
-                style={{ backgroundColor: getStatusColor(op.completadas, 5) }}
+                style={{
+                  backgroundColor: getStatusColor(
+                    op.completadas,
+                    op.votos.length,
+                  ),
+                }}
               />
             </RowCardCell>
           </RowCardRight>

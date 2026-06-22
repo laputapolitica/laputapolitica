@@ -1,8 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
-import type { MockOpinador } from "@/components/admin/panels/PublicacionPanel/types";
-import { mockOpiniones } from "@/components/admin/panels/PublicacionPanel/mocks";
+import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
 import { IconAtras } from "@/components/admin/icons";
 import {
   AdminButton,
@@ -14,10 +13,9 @@ import { getStatusColor } from "@/lib/colors";
 import { VOTE_COLORS } from "@/lib/constants";
 
 type OpinadorOpinionViewProps = {
-  opinador: MockOpinador;
+  opinador: OpinadorEdicion;
   noticiaIndex: number;
   onNoticiaIndexChange: (index: number) => void;
-  totalNoticias?: number;
   onBack?: () => void;
   leftHeader?: ReactNode;
 };
@@ -26,11 +24,16 @@ export function OpinadorOpinionView({
   opinador,
   noticiaIndex,
   onNoticiaIndexChange,
-  totalNoticias = 5,
   onBack,
   leftHeader,
 }: OpinadorOpinionViewProps) {
-  const opinion = mockOpiniones[noticiaIndex];
+  const totalNoticias = opinador.opiniones.length;
+  const opinion = opinador.opiniones[noticiaIndex] ?? {
+    noticia: "",
+    texto: "",
+    interpretacion: "",
+    color: VOTE_COLORS.nula,
+  };
 
   return (
     <div className="flex h-full min-h-0 flex-col font-ui">
@@ -61,7 +64,7 @@ export function OpinadorOpinionView({
                 Math.min(totalNoticias - 1, noticiaIndex + 1),
               )
             }
-            disabled={noticiaIndex === totalNoticias - 1}
+            disabled={totalNoticias === 0 || noticiaIndex === totalNoticias - 1}
           >
             →
           </AdminButton>
