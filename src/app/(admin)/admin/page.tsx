@@ -17,6 +17,7 @@ import {
   getEstilosBanco,
   getEstadoVentanaOpinion,
   autorizarEtapa,
+  publicarEdicion,
   reordenarCandidatas,
   eliminarCandidata,
   agregarCandidata,
@@ -721,7 +722,7 @@ function AdminPageContent() {
 
   async function handlePublicar() {
     if (!enCurso) return;
-    const res = await autorizarEtapa(enCurso.edicionId, "publicacion");
+    const res = await publicarEdicion(enCurso.edicionId);
     if (res.success) {
       await recargarPipeline();
     }

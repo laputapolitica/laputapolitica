@@ -203,6 +203,67 @@ export async function autorizarEtapa(
   return { success: true };
 }
 
+export async function publicarEdicion(edicionId: string): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const ahora = new Date().toISOString();
+
+  const { error: edicionError } = await supabase
+    .from("ediciones")
+    .update({
+      estado: "published",
+      publicada_en: ahora,
+    })
+    .eq("id", edicionId);
+
+  if (edicionError) {
+    console.error("Error publicando edición:", edicionError.message);
+    return { error: "No se pudo publicar. Intentá de nuevo." };
+  }
+
+  const { error: pipelineError } = await supabase
+    .from("pipeline_state")
+    .update({
+      publicacion_status: "done",
+      publicacion_aprobado_por: user.id,
+      publicacion_aprobado_en: ahora,
+    })
+    .eq("edicion_id", edicionId);
+
+  if (pipelineError) {
+    console.error("Error actualizando estado de publicación:", pipelineError.message);
+    return { error: "No se pudo publicar. Intentá de nuevo." };
+  }
+
+  const { error: instagramError } = await supabase
+    .from("publicacion_instagram")
+    .update({ estado: "ready" })
+    .eq("edicion_id", edicionId);
+
+  if (instagramError) {
+    console.error("Error marcando Instagram como listo:", instagramError.message);
+    return { error: "No se pudo publicar. Intentá de nuevo." };
+  }
+
+  const { error: twitterError } = await supabase
+    .from("publicacion_twitter")
+    .update({ estado: "ready" })
+    .eq("edicion_id", edicionId);
+
+  if (twitterError) {
+    console.error("Error marcando X como listo:", twitterError.message);
+    return { error: "No se pudo publicar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
 // ---- Candidatas del relevamiento ----
 
 export type CandidataRelevamiento = {
