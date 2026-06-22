@@ -22,6 +22,12 @@ Storage necesita la legacy. La app (Next.js) sí usa las keys nuevas (`sb_secret
 > Al re-importar estos workflows en otro n8n hay que re-crear/seleccionar la
 > credencial "Custom Auth" con la key, porque la credencial no se exporta.
 
+El workflow **Web** usa, además de la Custom Auth del `service_role`, la credencial
+**Query Auth "OpenWeatherMap"** (`appid`). Al re-importarlo hay que
+re-crear/seleccionar ambas. El Code node "Agregar clima" duplica `owmToClave` y la
+lista de ciudades; mantenerlo en sync con `src/lib/clima/condiciones.ts` y
+`src/lib/clima/cities.ts`.
+
 ## Pipeline de producción
 
 | Archivo | Nombre | Qué hace |
@@ -31,6 +37,7 @@ Storage necesita la legacy. La app (Next.js) sí usa las keys nuevas (`sb_secret
 | `tiqjLbIfjwGAVZtQ.json` | **Portada** | Genera la portada: Gemini elige estilo → Gemini genera imagen → Storage. |
 | `e8KVd0IakuilqmCF.json` | **El Pulso** | Calcula el pulso (votos + síntesis IA) y deja la etapa lista para revisión. |
 | `zmdH54sxTzxEbEj2.json` | **Cerrar Ventana** | Polling que cierra la ventana de opinión cuando vence `ventana_opinion_cierra_en`. |
+| `DA04YHIGaX0j5TVO.json` | **Web** | Genera el clima (OpenWeatherMap, 26 ciudades × 3 días) → `clima_diario` y cierra `web_status`. No materializa `slides_web` (modelo de referencia). |
 
 ## Pruebas / scratch
 
