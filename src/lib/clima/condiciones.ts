@@ -38,6 +38,24 @@ export const CLIMA_CLAVES: readonly ClimaClave[] = [
   "granizo",
 ] as const;
 
+/** Nombres legibles para mostrar la taxonomía en UI. */
+export const CLIMA_LABELS: Record<ClimaClave, string> = {
+  despejado: "Despejado",
+  "parcialmente-nublado": "Parcialmente nublado",
+  neblina: "Neblina",
+  niebla: "Niebla",
+  viento: "Viento",
+  nublado: "Nublado",
+  tormenta: "Tormenta",
+  lluvia: "Lluvia",
+  "lluvia-intensa": "Lluvia intensa",
+  llovizna: "Llovizna",
+  nieve: "Nieve",
+  "nieve-intensa": "Nieve intensa",
+  aguanieve: "Aguanieve",
+  granizo: "Granizo",
+};
+
 /** Ruta del asset ilustrado para una clave de clima. */
 export function climaIconPath(clave: ClimaClave): string {
   return `/clima/${clave}.webp`;

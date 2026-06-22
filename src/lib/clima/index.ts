@@ -10,6 +10,7 @@ export type { ClimaCity } from "./cities";
 
 export {
   CLIMA_CLAVES,
+  CLIMA_LABELS,
   VIENTO_UMBRAL_MS,
   climaIconPath,
   owmToClave,

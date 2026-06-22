@@ -3,7 +3,7 @@
 import { Buffer } from "node:buffer";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
+import { CLIMA_CLAVES, getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
 import { VOTE_COLORS } from "@/lib/constants";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
@@ -101,6 +101,8 @@ export type AutorizarResult = {
   error?: string;
   success?: boolean;
 };
+
+const CLIMA_CLAVES_SET = new Set<string>(CLIMA_CLAVES);
 
 // Mapea el nodeId del diagrama al prefijo de columna en pipeline_state.
 const COLUMNA_APROBACION: Record<AutorizarEtapa, string> = {
@@ -259,6 +261,39 @@ export async function publicarEdicion(edicionId: string): Promise<AutorizarResul
   if (twitterError) {
     console.error("Error marcando X como listo:", twitterError.message);
     return { error: "No se pudo publicar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
+export async function actualizarIconoClima(
+  edicionId: string,
+  provincia: string,
+  fecha: string,
+  icono: string,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  if (!CLIMA_CLAVES_SET.has(icono)) {
+    return { error: "El tipo de clima no es válido." };
+  }
+
+  const { error } = await supabase
+    .from("clima_diario")
+    .update({ icono })
+    .eq("edicion_id", edicionId)
+    .eq("provincia", provincia)
+    .eq("fecha", fecha);
+
+  if (error) {
+    console.error("Error actualizando icono de clima:", error.message);
+    return { error: "No se pudo actualizar el clima. Intentá de nuevo." };
   }
 
   return { success: true };

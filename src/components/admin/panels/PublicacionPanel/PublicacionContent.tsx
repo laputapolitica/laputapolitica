@@ -76,7 +76,7 @@ function SlideContent({
   }
 
   if (activeSlide === 7) {
-    return <ClimaSlide clima={clima} />;
+    return <ClimaSlide clima={clima} edicionId={edicionId} />;
   }
 
   const noticia = noticias[activeSlide - 2];

@@ -3,9 +3,31 @@
 import { useEffect, useState } from "react";
 import { IconEditar } from "@/components/admin/icons";
 import { AdminSelect, IconButton, TextField } from "@/components/admin/shared";
-import { climaIconPath, type ClimaCiudadData, type ClimaDiaData } from "@/lib/clima";
+import { actualizarIconoClima } from "@/app/(admin)/admin/actions";
+import {
+  CLIMA_CLAVES,
+  CLIMA_LABELS,
+  climaIconPath,
+  type ClimaCiudadData,
+  type ClimaClave,
+  type ClimaDiaData,
+} from "@/lib/clima";
 
-export function ClimaSlide({ clima }: { clima: ClimaCiudadData[] }) {
+type ClimaSlideProps = {
+  clima: ClimaCiudadData[];
+  edicionId?: string;
+};
+
+const CLIMA_OPTIONS = CLIMA_CLAVES.map((clave) => ({
+  value: clave,
+  label: CLIMA_LABELS[clave],
+}));
+
+function isClimaClave(value: string): value is ClimaClave {
+  return CLIMA_CLAVES.includes(value as ClimaClave);
+}
+
+export function ClimaSlide({ clima, edicionId }: ClimaSlideProps) {
   const defaultCiudadId = clima[0]?.id ?? "";
   const [ciudadId, setCiudadId] = useState(defaultCiudadId);
 
@@ -46,6 +68,8 @@ export function ClimaSlide({ clima }: { clima: ClimaCiudadData[] }) {
           <DiaClima
             key={`${ciudadSeleccionada.id}-${dia.fecha}`}
             dia={dia}
+            ciudadId={ciudadSeleccionada.id}
+            edicionId={edicionId}
           />
         ))}
       </div>
@@ -57,37 +81,67 @@ function formatTemperatura(value: number | null): string {
   return value === null ? "—" : `${value}°`;
 }
 
-function DiaClima({ dia }: { dia: ClimaDiaData }) {
+function DiaClima({
+  dia,
+  ciudadId,
+  edicionId,
+}: {
+  dia: ClimaDiaData;
+  ciudadId: string;
+  edicionId?: string;
+}) {
+  const [icono, setIcono] = useState<ClimaClave>(dia.icono);
   const [minValue, setMinValue] = useState(formatTemperatura(dia.temperaturaMin));
   const [maxValue, setMaxValue] = useState(formatTemperatura(dia.temperaturaMax));
   const [isEditingMin, setIsEditingMin] = useState(false);
   const [isEditingMax, setIsEditingMax] = useState(false);
 
   useEffect(() => {
+    setIcono(dia.icono);
     setMinValue(formatTemperatura(dia.temperaturaMin));
     setMaxValue(formatTemperatura(dia.temperaturaMax));
-  }, [dia.temperaturaMin, dia.temperaturaMax]);
+  }, [dia.icono, dia.temperaturaMin, dia.temperaturaMax]);
+
+  async function handleIconoChange(value: string) {
+    if (!isClimaClave(value)) {
+      return;
+    }
+
+    const iconoAnterior = icono;
+    setIcono(value);
+
+    if (!edicionId) {
+      return;
+    }
+
+    const result = await actualizarIconoClima(edicionId, ciudadId, dia.fecha, value);
+    if (result.error) {
+      setIcono(iconoAnterior);
+      alert(result.error);
+    }
+  }
 
   return (
     <article className="flex flex-col items-start gap-3">
       <TextField value={dia.diaLabel} variant="subtle" readOnly />
+      <AdminSelect
+        value={icono}
+        onChange={handleIconoChange}
+        options={CLIMA_OPTIONS}
+        size="sm"
+        className="w-[170px]"
+      />
 
-      {/* Imagen + botón Editar */}
-      <div className="flex items-start gap-2">
-        <div className="rounded-lg border border-admin-ink bg-white p-2">
-          <div className="h-[100px] w-[100px] overflow-hidden rounded-[4px] bg-white">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={climaIconPath(dia.icono)}
-              alt={dia.condicion ?? dia.icono}
-              className="h-full w-full object-contain"
-            />
-          </div>
+      {/* Imagen */}
+      <div className="rounded-lg border border-admin-ink bg-white p-2">
+        <div className="h-[100px] w-[100px] overflow-hidden rounded-[4px] bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={climaIconPath(icono)}
+            alt={dia.condicion ?? CLIMA_LABELS[icono]}
+            className="h-full w-full object-contain"
+          />
         </div>
-        <IconButton onClick={() => {}}>
-          <IconEditar width={11} height={11} />
-          Editar
-        </IconButton>
       </div>
 
       {/* Min */}
