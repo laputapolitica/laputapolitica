@@ -1,6 +1,7 @@
 import { IconCopiar } from "@/components/admin/icons";
 import { IconButton } from "@/components/admin/shared";
 import { InstagramEditablePill } from "./shared";
+import { formatFechaCorta } from "@/lib/fecha";
 import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
 function stringFromPayload(
@@ -13,7 +14,7 @@ function stringFromPayload(
 
 export function InstagramSlide01({ slide }: { slide: SlideInstagram }) {
   const titulo = stringFromPayload(slide.payload, "titulo_edicion");
-  const fecha = stringFromPayload(slide.payload, "fecha");
+  const fecha = formatFechaCorta(stringFromPayload(slide.payload, "fecha"));
 
   return (
     <div>

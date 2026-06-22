@@ -1,4 +1,5 @@
 import { InstagramBulletRows, InstagramEditablePill } from "./shared";
+import { formatFechaCorta } from "@/lib/fecha";
 import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
 function stringFromPayload(
@@ -23,7 +24,7 @@ export function InstagramSlide02({ slide }: { slide: SlideInstagram }) {
   const expediente = stringFromPayload(slide.payload, "expediente");
   const titulo = stringFromPayload(slide.payload, "titulo");
   const bullets = stringsFromPayload(slide.payload, "bullets");
-  const fecha = stringFromPayload(slide.payload, "fecha");
+  const fecha = formatFechaCorta(stringFromPayload(slide.payload, "fecha"));
 
   return (
     <div className="space-y-5">

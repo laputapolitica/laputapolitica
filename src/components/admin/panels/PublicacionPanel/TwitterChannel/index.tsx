@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { IconCopiar, IconEditar } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
+import { formatFechaLarga } from "@/lib/fecha";
 import type { HiloTwitter } from "@/app/(admin)/admin/actions";
 
 function copyToClipboard(value: string) {
@@ -18,7 +19,12 @@ function stringFromPayload(
 }
 
 function HiloTapa({ hilo }: { hilo: HiloTwitter }) {
-  const initialTitle = stringFromPayload(hilo.payload, "titulo_edicion") || hilo.texto || "";
+  const fecha = stringFromPayload(hilo.payload, "fecha");
+  const tituloEdicion = stringFromPayload(hilo.payload, "titulo_edicion");
+  const initialTitle =
+    fecha && tituloEdicion
+      ? `Edición del ${formatFechaLarga(fecha)} — ${tituloEdicion}`
+      : tituloEdicion || hilo.texto || "";
   const [titulo, setTitulo] = useState(initialTitle);
   const [isEditing, setIsEditing] = useState(false);
 

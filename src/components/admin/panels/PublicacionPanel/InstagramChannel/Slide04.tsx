@@ -1,4 +1,5 @@
 import { InstagramEditablePill, InstagramTitularRow } from "./shared";
+import { formatFechaCorta } from "@/lib/fecha";
 import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
 type InstagramTitular = {
@@ -35,7 +36,7 @@ function titularesFromPayload(payload: Record<string, unknown>): InstagramTitula
 
 export function InstagramSlide04({ slide }: { slide: SlideInstagram }) {
   const titulares = titularesFromPayload(slide.payload);
-  const fecha = stringFromPayload(slide.payload, "fecha");
+  const fecha = formatFechaCorta(stringFromPayload(slide.payload, "fecha"));
 
   return (
     <div className="space-y-5">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
-import { IconEditar, IconRehacer } from "@/components/admin/icons";
+import { IconEditar } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
 import {
   guardarTituloNoticia,
@@ -128,10 +128,6 @@ export function NoticiaSlide({ noticia }: { noticia: NoticiaPublicacion }) {
                 <IconButton onClick={() => setIsEditingPulso(true)}>
                   <IconEditar width={11} height={11} />
                   Editar
-                </IconButton>
-                <IconButton onClick={() => {}}>
-                  <IconRehacer width={11} height={11} />
-                  Rehacer
                 </IconButton>
               </div>
             )}

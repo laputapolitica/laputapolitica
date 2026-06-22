@@ -31,7 +31,15 @@ type ClimaDiarioRow = {
 
 const CLIMA_CLAVES_SET = new Set<string>(CLIMA_CLAVES);
 const FALLBACK_ICONO: ClimaClave = "parcialmente-nublado";
-const DIA_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
+const DIA_LABELS = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+] as const;
 
 function isClimaClave(value: string | null): value is ClimaClave {
   return value !== null && CLIMA_CLAVES_SET.has(value);
