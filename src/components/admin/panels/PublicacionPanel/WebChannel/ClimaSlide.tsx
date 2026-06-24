@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { IconEditar } from "@/components/admin/icons";
 import { AdminSelect, IconButton, TextField } from "@/components/admin/shared";
-import { actualizarIconoClima } from "@/app/(admin)/admin/actions";
+import { actualizarIconoClima, actualizarTempClima } from "@/app/(admin)/admin/actions";
 import {
   CLIMA_CLAVES,
   CLIMA_LABELS,
@@ -81,6 +81,17 @@ function formatTemperatura(value: number | null): string {
   return value === null ? "—" : `${value}°`;
 }
 
+function parseTemperatura(value: string): number | null {
+  const cleaned = value.replace(/[^\d-]/g, "");
+  const normalized = `${cleaned.startsWith("-") ? "-" : ""}${cleaned.replace(/-/g, "")}`;
+
+  if (normalized === "" || normalized === "-") {
+    return null;
+  }
+
+  return Number.parseInt(normalized, 10);
+}
+
 function DiaClima({
   dia,
   ciudadId,
@@ -121,6 +132,56 @@ function DiaClima({
     }
   }
 
+  async function handleMinSave(value: string) {
+    const previousValue = minValue;
+    const temperaturaMin = parseTemperatura(value);
+    const temperaturaMax = parseTemperatura(maxValue);
+
+    setMinValue(formatTemperatura(temperaturaMin));
+
+    if (!edicionId) {
+      return;
+    }
+
+    const result = await actualizarTempClima(
+      edicionId,
+      ciudadId,
+      dia.fecha,
+      temperaturaMin,
+      temperaturaMax,
+    );
+
+    if (result.error) {
+      setMinValue(previousValue);
+      alert(result.error);
+    }
+  }
+
+  async function handleMaxSave(value: string) {
+    const previousValue = maxValue;
+    const temperaturaMin = parseTemperatura(minValue);
+    const temperaturaMax = parseTemperatura(value);
+
+    setMaxValue(formatTemperatura(temperaturaMax));
+
+    if (!edicionId) {
+      return;
+    }
+
+    const result = await actualizarTempClima(
+      edicionId,
+      ciudadId,
+      dia.fecha,
+      temperaturaMin,
+      temperaturaMax,
+    );
+
+    if (result.error) {
+      setMaxValue(previousValue);
+      alert(result.error);
+    }
+  }
+
   return (
     <article className="flex flex-col items-start gap-3">
       <TextField value={dia.diaLabel} variant="subtle" readOnly />
@@ -154,7 +215,7 @@ function DiaClima({
         />
         <TextField
           value={minValue}
-          onSave={setMinValue}
+          onSave={handleMinSave}
           isEditing={isEditingMin}
           onEditingChange={setIsEditingMin}
         />
@@ -176,7 +237,7 @@ function DiaClima({
         />
         <TextField
           value={maxValue}
-          onSave={setMaxValue}
+          onSave={handleMaxSave}
           isEditing={isEditingMax}
           onEditingChange={setIsEditingMax}
         />

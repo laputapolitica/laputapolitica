@@ -299,6 +299,39 @@ export async function actualizarIconoClima(
   return { success: true };
 }
 
+export async function actualizarTempClima(
+  edicionId: string,
+  provincia: string,
+  fecha: string,
+  temperaturaMin: number | null,
+  temperaturaMax: number | null,
+): Promise<AutorizarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const { error } = await supabase
+    .from("clima_diario")
+    .update({
+      temperatura_min: temperaturaMin,
+      temperatura_max: temperaturaMax,
+    })
+    .eq("edicion_id", edicionId)
+    .eq("provincia", provincia)
+    .eq("fecha", fecha);
+
+  if (error) {
+    console.error("Error actualizando temperaturas de clima:", error.message);
+    return { error: "No se pudo actualizar el clima. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
 // ---- Candidatas del relevamiento ----
 
 export type CandidataRelevamiento = {

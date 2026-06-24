@@ -1,6 +1,9 @@
+"use client";
+
 import { IconCopiar } from "@/components/admin/icons";
 import { IconButton } from "@/components/admin/shared";
 import { InstagramEditablePill } from "./shared";
+import { copyImageToClipboard } from "@/lib/clipboard";
 import { formatFechaCorta } from "@/lib/fecha";
 import type { SlideInstagram } from "@/app/(admin)/admin/actions";
 
@@ -15,6 +18,15 @@ function stringFromPayload(
 export function InstagramSlide01({ slide }: { slide: SlideInstagram }) {
   const titulo = stringFromPayload(slide.payload, "titulo_edicion");
   const fecha = formatFechaCorta(stringFromPayload(slide.payload, "fecha"));
+  const handleCopyImage = async () => {
+    if (!slide.imagenUrl) return;
+
+    try {
+      await copyImageToClipboard(slide.imagenUrl);
+    } catch {
+      alert("No se pudo copiar la imagen.");
+    }
+  };
 
   return (
     <div>
@@ -31,7 +43,7 @@ export function InstagramSlide01({ slide }: { slide: SlideInstagram }) {
             />
           ) : null}
         </div>
-        <IconButton>
+        <IconButton onClick={handleCopyImage}>
           <IconCopiar width={12} height={12} />
           Copiar
         </IconButton>

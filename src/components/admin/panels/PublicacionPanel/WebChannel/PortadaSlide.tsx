@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { IconBajar, IconEditar, IconSubir } from "@/components/admin/icons";
+import { IconBajar, IconEditar } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
 import { guardarTituloEdicion } from "@/app/(admin)/admin/ediciones/[fecha]/actions";
 
@@ -28,6 +28,26 @@ export function PortadaSlide({
     if (!edicionId) return;
     const res = await guardarTituloEdicion(edicionId, value);
     if (res.error) setError(res.error);
+  }
+
+  async function handleDescargar() {
+    if (!portadaUrl) return;
+
+    try {
+      const res = await fetch(portadaUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = `portada-${edicionId ?? "edicion"}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Error al descargar la portada:", e);
+    }
   }
 
   return (
@@ -73,13 +93,9 @@ export function PortadaSlide({
             ) : null}
           </div>
           <div className="flex flex-col items-start gap-2">
-            <IconButton onClick={() => {}}>
+            <IconButton onClick={handleDescargar}>
               <IconBajar width={11} height={11} />
               Descargar
-            </IconButton>
-            <IconButton onClick={() => {}}>
-              <IconSubir width={11} height={11} />
-              Subir portada
             </IconButton>
           </div>
         </div>

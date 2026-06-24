@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { IconCopiar, IconEditar } from "@/components/admin/icons";
 import { IconButton, TextArea, TextField } from "@/components/admin/shared";
+import { copyImageToClipboard } from "@/lib/clipboard";
 import { formatFechaLarga } from "@/lib/fecha";
 import type { HiloTwitter } from "@/app/(admin)/admin/actions";
 
@@ -27,6 +28,15 @@ function HiloTapa({ hilo }: { hilo: HiloTwitter }) {
       : tituloEdicion || hilo.texto || "";
   const [titulo, setTitulo] = useState(initialTitle);
   const [isEditing, setIsEditing] = useState(false);
+  const handleCopyImage = async () => {
+    if (!hilo.imagenUrl) return;
+
+    try {
+      await copyImageToClipboard(hilo.imagenUrl);
+    } catch {
+      alert("No se pudo copiar la imagen.");
+    }
+  };
 
   useEffect(() => {
     setTitulo(initialTitle);
@@ -67,7 +77,7 @@ function HiloTapa({ hilo }: { hilo: HiloTwitter }) {
             />
           ) : null}
         </div>
-        <IconButton onClick={() => copyToClipboard(hilo.imagenUrl ?? "")}>
+        <IconButton onClick={handleCopyImage}>
           <IconCopiar width={12} height={12} />
           Copiar
         </IconButton>
