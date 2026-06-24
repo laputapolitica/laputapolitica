@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CLIMA_CLAVES, getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
 import { VOTE_COLORS } from "@/lib/constants";
+import { formatFechaCorta } from "@/lib/fecha";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
@@ -39,6 +40,20 @@ export type PipelineEnCurso = {
   titulo: string;
   state: PipelineState;
 } | null;
+
+export type EdicionPublicadaReciente = {
+  titulo: string;
+  fecha: string;
+  horaPublicacion: string;
+} | null;
+
+const HORA_PUBLICACION_FORMATTER = new Intl.DateTimeFormat("es-AR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZone: "America/Argentina/Buenos_Aires",
+});
 
 export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
   const supabase = await createClient();
@@ -93,6 +108,35 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
   };
 
   return { edicionId: ed.id, fecha: ed.fecha, titulo: ed.titulo, state };
+}
+
+export async function getEdicionPublicadaReciente(): Promise<EdicionPublicadaReciente> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("ediciones")
+    .select("titulo, fecha, publicada_en")
+    .eq("estado", "published")
+    .order("publicada_en", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error leyendo última edición publicada:", error.message);
+  }
+  if (!data) {
+    return null;
+  }
+
+  const publicadaEn = data.publicada_en ? new Date(data.publicada_en) : null;
+
+  return {
+    titulo: data.titulo,
+    fecha: formatFechaCorta(data.fecha),
+    horaPublicacion: publicadaEn
+      ? HORA_PUBLICACION_FORMATTER.format(publicadaEn)
+      : "--:--:--",
+  };
 }
 
 export type AutorizarEtapa = "relevamiento" | "titulosResumenes" | "portada" | "publicacion" | "elPulso";

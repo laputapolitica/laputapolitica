@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import {
   getPipelineEnCurso,
+  getEdicionPublicadaReciente,
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
   getNoticiasElPulso,
@@ -31,6 +32,7 @@ import {
   rehacerResumenElPulso,
   guardarResumenElPulso,
   type PipelineEnCurso,
+  type EdicionPublicadaReciente,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
   type NoticiaElPulso,
@@ -560,6 +562,8 @@ function AdminPageContent() {
   const panelParam = searchParams.get("panel") as PipelineNodeId | null;
 
   const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
+  const [edicionPublicadaReciente, setEdicionPublicadaReciente] =
+    useState<EdicionPublicadaReciente>(null);
   const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
@@ -585,8 +589,12 @@ function AdminPageContent() {
   const [cargando, setCargando] = useState(true);
 
   async function recargarPipeline() {
-    const data = await getPipelineEnCurso();
+    const [data, publicadaReciente] = await Promise.all([
+      getPipelineEnCurso(),
+      getEdicionPublicadaReciente(),
+    ]);
     setEnCurso(data);
+    setEdicionPublicadaReciente(publicadaReciente);
     if (data) {
       const [
         candidatas,
@@ -641,64 +649,67 @@ function AdminPageContent() {
 
   useEffect(() => {
     let activo = true;
-    getPipelineEnCurso().then(async (data) => {
-      if (activo) {
-        setEnCurso(data);
-        if (data) {
-          const [
-            candidatas,
-            titNoticias,
-            pulsoNoticias,
-            publicacionNoticias,
-            portadaData,
-            datosWebData,
-            instagramData,
-            twitterData,
-            elPulsoData,
-            hist,
-            ev,
-          ] = await Promise.all([
-            getCandidatasRelevamiento(data.edicionId),
-            getNoticiasTitulosResumenes(data.edicionId),
-            getNoticiasElPulso(data.edicionId),
-            getNoticiasPublicacionWeb(data.edicionId),
-            getPortadaVigente(data.edicionId),
-            getDatosPublicacionWeb(data.edicionId),
-            getSlidesInstagram(data.edicionId),
-            getHilosTwitter(data.edicionId),
-            getOpinadoresEdicion(data.edicionId),
-            getHistorialPortadas(data.edicionId),
-            getEstadoVentanaOpinion(data.edicionId),
-          ]);
-          if (activo) {
-            setNoticiasRelev(candidatas);
-            setNoticiasTitulos(titNoticias);
-            setNoticiasElPulso(pulsoNoticias);
-            setNoticiasPublicacion(publicacionNoticias);
-            setPortada(portadaData);
-            setDatosWeb(datosWebData);
-            setInstagram(instagramData);
-            setTwitter(twitterData);
-            setElPulso(elPulsoData);
-            setHistorialPortadas(hist);
-            setEstadoVentana(ev);
+    Promise.all([getPipelineEnCurso(), getEdicionPublicadaReciente()]).then(
+      async ([data, publicadaReciente]) => {
+        if (activo) {
+          setEnCurso(data);
+          setEdicionPublicadaReciente(publicadaReciente);
+          if (data) {
+            const [
+              candidatas,
+              titNoticias,
+              pulsoNoticias,
+              publicacionNoticias,
+              portadaData,
+              datosWebData,
+              instagramData,
+              twitterData,
+              elPulsoData,
+              hist,
+              ev,
+            ] = await Promise.all([
+              getCandidatasRelevamiento(data.edicionId),
+              getNoticiasTitulosResumenes(data.edicionId),
+              getNoticiasElPulso(data.edicionId),
+              getNoticiasPublicacionWeb(data.edicionId),
+              getPortadaVigente(data.edicionId),
+              getDatosPublicacionWeb(data.edicionId),
+              getSlidesInstagram(data.edicionId),
+              getHilosTwitter(data.edicionId),
+              getOpinadoresEdicion(data.edicionId),
+              getHistorialPortadas(data.edicionId),
+              getEstadoVentanaOpinion(data.edicionId),
+            ]);
+            if (activo) {
+              setNoticiasRelev(candidatas);
+              setNoticiasTitulos(titNoticias);
+              setNoticiasElPulso(pulsoNoticias);
+              setNoticiasPublicacion(publicacionNoticias);
+              setPortada(portadaData);
+              setDatosWeb(datosWebData);
+              setInstagram(instagramData);
+              setTwitter(twitterData);
+              setElPulso(elPulsoData);
+              setHistorialPortadas(hist);
+              setEstadoVentana(ev);
+            }
+          } else {
+            setNoticiasRelev(null);
+            setNoticiasTitulos(null);
+            setNoticiasElPulso(null);
+            setNoticiasPublicacion(null);
+            setPortada(null);
+            setDatosWeb(DATOS_WEB_INICIAL);
+            setInstagram([]);
+            setTwitter([]);
+            setElPulso(EL_PULSO_INICIAL);
+            setHistorialPortadas([]);
+            setEstadoVentana(undefined);
           }
-        } else {
-          setNoticiasRelev(null);
-          setNoticiasTitulos(null);
-          setNoticiasElPulso(null);
-          setNoticiasPublicacion(null);
-          setPortada(null);
-          setDatosWeb(DATOS_WEB_INICIAL);
-          setInstagram([]);
-          setTwitter([]);
-          setElPulso(EL_PULSO_INICIAL);
-          setHistorialPortadas([]);
-          setEstadoVentana(undefined);
+          setCargando(false);
         }
-        setCargando(false);
-      }
-    });
+      },
+    );
     return () => {
       activo = false;
     };
@@ -937,6 +948,16 @@ function AdminPageContent() {
 
   // Sin scenario y sin edición en curso.
   if (!pipelineState) {
+    if (edicionPublicadaReciente) {
+      return (
+        <PublicadoPanel
+          titulo={edicionPublicadaReciente.titulo}
+          fecha={edicionPublicadaReciente.fecha}
+          horaPublicacion={edicionPublicadaReciente.horaPublicacion}
+        />
+      );
+    }
+
     return (
       <div className="flex h-full items-center justify-center">
         <span className="font-ui text-sm text-text-secondary">

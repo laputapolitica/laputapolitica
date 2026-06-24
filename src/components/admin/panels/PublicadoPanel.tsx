@@ -46,14 +46,17 @@ function getProximaEdicion(): { fecha: string; countdown: string } {
   return { fecha, countdown };
 }
 
-// Mock de la edición publicada — luego viene de Supabase
-const mockEdicionPublicada = {
-  titulo: "Equilibrio Ciego",
-  fecha: "04 MAY 2026",
-  horaPublicacion: "22:00:47",
+type PublicadoPanelProps = {
+  titulo?: string;
+  fecha?: string;
+  horaPublicacion?: string;
 };
 
-export function PublicadoPanel() {
+export function PublicadoPanel({
+  titulo = "Sin título",
+  fecha = "-- --- ----",
+  horaPublicacion = "--:--:--",
+}: PublicadoPanelProps) {
   const [proxima, setProxima] = useState(getProximaEdicion());
 
   useEffect(() => {
@@ -68,12 +71,10 @@ export function PublicadoPanel() {
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="flex flex-col items-center gap-1">
           <span className="font-ui text-sm font-semibold text-admin-ink">
-            Edición &quot;{mockEdicionPublicada.titulo}&quot; —{" "}
-            {mockEdicionPublicada.fecha}
+            Edición &quot;{titulo}&quot; — {fecha}
           </span>
           <span className="font-ui text-sm font-medium text-text-secondary">
-            Publicada a las {mockEdicionPublicada.horaPublicacion} (hora
-            Argentina)
+            Publicada a las {horaPublicacion} (hora Argentina)
           </span>
         </div>
 
