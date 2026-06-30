@@ -727,8 +727,10 @@ function AdminPageContent() {
 
     if (!edicionId) return;
 
-    let activo = true;
+    let cancelado = false;
     const supabase = createClient();
+    let pipelineChannel: ReturnType<typeof supabase.channel> | null = null;
+    let opinionesChannel: ReturnType<typeof supabase.channel> | null = null;
     const debouncedReload = () => {
       if (recargaTimeoutRef.current) {
         clearTimeout(recargaTimeoutRef.current);
@@ -740,42 +742,53 @@ function AdminPageContent() {
       }, 600);
     };
 
-    const pipelineChannel = supabase
-      .channel(`pipeline-${edicionId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "pipeline_state",
-          filter: `edicion_id=eq.${edicionId}`,
-        },
-        debouncedReload,
-      )
-      .subscribe();
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      supabase.realtime.setAuth(data.session?.access_token ?? null);
 
-    const opinionesChannel = supabase
-      .channel(`opiniones-${edicionId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "opiniones" },
-        async () => {
-          const ev = await getEstadoVentanaOpinion(edicionId);
-          if (activo) {
-            setEstadoVentana(ev);
-          }
-        },
-      )
-      .subscribe();
+      if (cancelado) return;
+
+      pipelineChannel = supabase
+        .channel(`pipeline-${edicionId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "pipeline_state",
+            filter: `edicion_id=eq.${edicionId}`,
+          },
+          debouncedReload,
+        )
+        .subscribe();
+
+      opinionesChannel = supabase
+        .channel(`opiniones-${edicionId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "opiniones" },
+          async () => {
+            const ev = await getEstadoVentanaOpinion(edicionId);
+            if (!cancelado) {
+              setEstadoVentana(ev);
+            }
+          },
+        )
+        .subscribe();
+    })();
 
     return () => {
-      activo = false;
+      cancelado = true;
       if (recargaTimeoutRef.current) {
         clearTimeout(recargaTimeoutRef.current);
         recargaTimeoutRef.current = null;
       }
-      void supabase.removeChannel(pipelineChannel);
-      void supabase.removeChannel(opinionesChannel);
+      if (pipelineChannel) {
+        void supabase.removeChannel(pipelineChannel);
+      }
+      if (opinionesChannel) {
+        void supabase.removeChannel(opinionesChannel);
+      }
     };
   }, [enCurso?.edicionId]);
 
