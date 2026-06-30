@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   getPipelineEnCurso,
   getEdicionPublicadaReciente,
@@ -71,6 +71,7 @@ import {
   mockStateRevisionTitulos,
   mockStateTitulosRunning,
 } from "@/components/admin/PipelineDiagram";
+import { createClient } from "@/lib/supabase/client";
 import type { PipelineNodeId, PipelineState } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
@@ -587,6 +588,8 @@ function AdminPageContent() {
   const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
   const [rehaciendoPortada, setRehaciendoPortada] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const recargarRef = useRef<() => Promise<void>>(async () => {});
+  const recargaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function recargarPipeline() {
     const [data, publicadaReciente] = await Promise.all([
@@ -646,6 +649,10 @@ function AdminPageContent() {
       setEstadoVentana(undefined);
     }
   }
+
+  useEffect(() => {
+    recargarRef.current = recargarPipeline;
+  });
 
   useEffect(() => {
     let activo = true;
@@ -714,6 +721,63 @@ function AdminPageContent() {
       activo = false;
     };
   }, []);
+
+  useEffect(() => {
+    const edicionId = enCurso?.edicionId;
+
+    if (!edicionId) return;
+
+    let activo = true;
+    const supabase = createClient();
+    const debouncedReload = () => {
+      if (recargaTimeoutRef.current) {
+        clearTimeout(recargaTimeoutRef.current);
+      }
+
+      recargaTimeoutRef.current = setTimeout(() => {
+        recargaTimeoutRef.current = null;
+        void recargarRef.current();
+      }, 600);
+    };
+
+    const pipelineChannel = supabase
+      .channel(`pipeline-${edicionId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pipeline_state",
+          filter: `edicion_id=eq.${edicionId}`,
+        },
+        debouncedReload,
+      )
+      .subscribe();
+
+    const opinionesChannel = supabase
+      .channel(`opiniones-${edicionId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "opiniones" },
+        async () => {
+          const ev = await getEstadoVentanaOpinion(edicionId);
+          if (activo) {
+            setEstadoVentana(ev);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      activo = false;
+      if (recargaTimeoutRef.current) {
+        clearTimeout(recargaTimeoutRef.current);
+        recargaTimeoutRef.current = null;
+      }
+      void supabase.removeChannel(pipelineChannel);
+      void supabase.removeChannel(opinionesChannel);
+    };
+  }, [enCurso?.edicionId]);
 
   async function handleAutorizar(nodeId: string) {
     if (!enCurso) return;
