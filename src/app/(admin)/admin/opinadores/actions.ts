@@ -2,6 +2,9 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { VOTE_COLORS } from "@/lib/constants";
+import type { EdicionOpinador } from "@/types/admin";
+import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
 import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 type PostulacionRow = {
@@ -375,4 +378,172 @@ export async function desactivarOpinador(
   }
 
   return { success: true };
+}
+
+const MESES_OPINADOR = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+function formatFechaEdicion(slug: string): { fecha: string; fechaISO: string } {
+  const [dd, mm, yyyy] = slug.split("-");
+  const mesIdx = Number(mm) - 1;
+  return {
+    fecha: `${dd} ${MESES_OPINADOR[mesIdx] ?? mm} ${yyyy}`,
+    fechaISO: `${yyyy}-${mm}-${dd}`,
+  };
+}
+
+type SentimentOpinion = "positiva" | "negativa" | "incierta";
+
+function isSentimentOpinion(v: string | null): v is SentimentOpinion {
+  return v === "positiva" || v === "negativa" || v === "incierta";
+}
+
+const INTERPRETACION_LABEL_OPINADOR: Record<SentimentOpinion, string> = {
+  positiva: "Positiva",
+  negativa: "Negativa",
+  incierta: "Incierta",
+};
+
+export async function getEdicionesOpinador(
+  numeroUsuario: number,
+): Promise<EdicionOpinador[]> {
+  const supabase = await createClient();
+
+  const { data: op } = await supabase
+    .from("opinadores")
+    .select("id, ingreso_en")
+    .eq("numero_usuario", numeroUsuario)
+    .maybeSingle();
+  if (!op) return [];
+
+  const { data: edData, error: edError } = await supabase
+    .from("ediciones")
+    .select("id, fecha, titulo, publicada_en")
+    .eq("estado", "published")
+    .gte("publicada_en", op.ingreso_en)
+    .order("publicada_en", { ascending: false });
+  if (edError || !edData || edData.length === 0) return [];
+
+  const ediciones = edData as {
+    id: string;
+    fecha: string;
+    titulo: string;
+    publicada_en: string | null;
+  }[];
+  const edIds = ediciones.map((e) => e.id);
+
+  const { data: ntData } = await supabase
+    .from("noticias")
+    .select("id, edicion_id, orden")
+    .in("edicion_id", edIds);
+  const noticias = (ntData ?? []) as {
+    id: string;
+    edicion_id: string;
+    orden: number;
+  }[];
+
+  const ntIds = noticias.map((n) => n.id);
+  let opiniones: { noticia_id: string; sentiment: string | null }[] = [];
+  if (ntIds.length > 0) {
+    const { data: opData } = await supabase
+      .from("opiniones")
+      .select("noticia_id, sentiment")
+      .eq("opinador_id", op.id)
+      .in("noticia_id", ntIds);
+    opiniones = (opData ?? []) as {
+      noticia_id: string;
+      sentiment: string | null;
+    }[];
+  }
+  const sentimentPorNoticia = new Map(
+    opiniones.map((o) => [o.noticia_id, o.sentiment]),
+  );
+
+  return ediciones.map((ed) => {
+    const ntEd = noticias
+      .filter((n) => n.edicion_id === ed.id)
+      .sort((a, b) => a.orden - b.orden);
+    const votos = ntEd.map((n) => {
+      const s = sentimentPorNoticia.get(n.id) ?? null;
+      return isSentimentOpinion(s) ? VOTE_COLORS[s] : null;
+    });
+    const participo = ntEd.some((n) => sentimentPorNoticia.has(n.id));
+    const { fecha, fechaISO } = formatFechaEdicion(ed.fecha);
+    return { edicionId: ed.id, fecha, fechaISO, titulo: ed.titulo, votos, participo };
+  });
+}
+
+export async function getOpinionesOpinadorEdicion(
+  numeroUsuario: number,
+  edicionId: string,
+): Promise<OpinadorEdicion | null> {
+  const supabase = await createClient();
+
+  const { data: op } = await supabase
+    .from("opinadores")
+    .select("id, nombre, email, provincia")
+    .eq("numero_usuario", numeroUsuario)
+    .maybeSingle();
+  if (!op) return null;
+
+  const { data: ntData } = await supabase
+    .from("noticias")
+    .select("id, orden, titulo")
+    .eq("edicion_id", edicionId)
+    .order("orden", { ascending: true });
+  const noticias = ((ntData ?? []) as {
+    id: string;
+    orden: number;
+    titulo: string;
+  }[]).sort((a, b) => a.orden - b.orden);
+
+  if (noticias.length === 0) {
+    return {
+      id: op.id,
+      nombre: op.nombre,
+      email: op.email,
+      ciudad: op.provincia,
+      votos: [],
+      completadas: 0,
+      opiniones: [],
+    };
+  }
+
+  const { data: opData } = await supabase
+    .from("opiniones")
+    .select("noticia_id, texto, sentiment")
+    .eq("opinador_id", op.id)
+    .in("noticia_id", noticias.map((n) => n.id));
+  const porNoticia = new Map(
+    ((opData ?? []) as {
+      noticia_id: string;
+      texto: string | null;
+      sentiment: string | null;
+    }[]).map((o) => [o.noticia_id, o]),
+  );
+
+  const votos: (string | null)[] = [];
+  let completadas = 0;
+  const opinionesView = noticias.map((n) => {
+    const o = porNoticia.get(n.id);
+    if (o) completadas += 1;
+    const s = o && isSentimentOpinion(o.sentiment) ? o.sentiment : null;
+    const color = s ? VOTE_COLORS[s] : VOTE_COLORS.nula;
+    votos.push(s ? color : null);
+    return {
+      noticia: n.titulo,
+      texto: o?.texto ?? "",
+      interpretacion: s ? INTERPRETACION_LABEL_OPINADOR[s] : "",
+      color,
+    };
+  });
+
+  return {
+    id: op.id,
+    nombre: op.nombre,
+    email: op.email,
+    ciudad: op.provincia,
+    votos,
+    completadas,
+    opiniones: opinionesView,
+  };
 }

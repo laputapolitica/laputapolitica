@@ -7,6 +7,8 @@ import {
   aprobarPostulacion,
   getOpinadores,
   desactivarOpinador,
+  getEdicionesOpinador,
+  getOpinionesOpinadorEdicion,
 } from "./actions";
 import { useSearchParams } from "next/navigation";
 import {
@@ -30,12 +32,13 @@ import {
 } from "@/components/admin/sections/opinadores";
 import { EdicionesOpinadorList } from "@/components/admin/sections/ediciones";
 import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
-import { VOTE_COLORS } from "@/lib/constants";
+import type { EdicionOpinador } from "@/types/admin";
 import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
 
 type VistaOpinadores = "lista" | "pendientes" | "rechazados";
 
 type EdicionSeleccionada = {
+  edicionId: string;
   fecha: string;
   fechaISO: string;
   titulo: string;
@@ -74,10 +77,12 @@ function ListaOpinadores({
 
 function DetalleOpinador({
   opinador,
+  ediciones,
   onSelectEdicion,
   onEliminado,
 }: {
   opinador: OpinadorAdmin;
+  ediciones: EdicionOpinador[];
   onSelectEdicion: (ed: EdicionSeleccionada) => void;
   onEliminado: () => void;
 }) {
@@ -102,7 +107,6 @@ function DetalleOpinador({
     <PanelLayout
       header={
         <HeaderPanel>
-          {/* Fila 1: identidad + acción */}
           <div className="flex items-center justify-between">
             <TitlePill>{opinador.nombre}</TitlePill>
             {confirmando ? (
@@ -129,7 +133,6 @@ function DetalleOpinador({
             )}
           </div>
 
-          {/* Fila 2: contacto + atributos */}
           <div className="flex items-center gap-2">
             <DataPill>{opinador.email}</DataPill>
             <DataPill>{opinador.telefono}</DataPill>
@@ -137,7 +140,6 @@ function DetalleOpinador({
             <DataPill>{opinador.edad} años</DataPill>
           </div>
 
-          {/* Fila 3: métricas + histórico */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <RatioPill
@@ -161,9 +163,10 @@ function DetalleOpinador({
       }
       content={
         <EdicionesOpinadorList
-          ediciones={opinador.ediciones}
+          ediciones={ediciones}
           onSelect={(ed) =>
             onSelectEdicion({
+              edicionId: ed.edicionId,
               fecha: ed.fecha,
               fechaISO: ed.fechaISO,
               titulo: ed.titulo,
@@ -185,18 +188,28 @@ function OpinionesEnEdicion({
   onBack: () => void;
 }) {
   const [noticiaIndex, setNoticiaIndex] = useState(0);
+  const [detalle, setDetalle] = useState<OpinadorEdicion | null>(null);
+
+  useEffect(() => {
+    let activo = true;
+    setDetalle(null);
+    setNoticiaIndex(0);
+    getOpinionesOpinadorEdicion(opinador.id, edicion.edicionId).then((data) => {
+      if (activo) setDetalle(data);
+    });
+    return () => {
+      activo = false;
+    };
+  }, [opinador.id, edicion.edicionId]);
 
   return (
     <PanelLayout
       header={
         <HeaderPanel>
-          {/* Fila 1: identidad + acción */}
           <div className="flex items-center justify-between">
             <TitlePill>{opinador.nombre}</TitlePill>
-            <TitlePill onClick={() => {}} borderColor="#FF5C60">Eliminar</TitlePill>
           </div>
 
-          {/* Fila 2: contacto + atributos */}
           <div className="flex items-center gap-2">
             <DataPill>{opinador.email}</DataPill>
             <DataPill>{opinador.telefono}</DataPill>
@@ -204,7 +217,6 @@ function OpinionesEnEdicion({
             <DataPill>{opinador.edad} años</DataPill>
           </div>
 
-          {/* Fila 3: métricas + histórico */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <RatioPill valor={opinador.diasParticipados} total={opinador.totalDias} sufijo="d/o" />
@@ -215,52 +227,27 @@ function OpinionesEnEdicion({
         </HeaderPanel>
       }
       content={
-        <OpinadorOpinionView
-          opinador={mockOpinadorParaDetalle(opinador, edicion)}
-          noticiaIndex={noticiaIndex}
-          onNoticiaIndexChange={setNoticiaIndex}
-          onBack={onBack}
-          leftHeader={
-            <>
-              <HeaderPill>{edicion.fecha}</HeaderPill>
-              <HeaderPill>{edicion.titulo}</HeaderPill>
-            </>
-          }
-        />
+        detalle ? (
+          <OpinadorOpinionView
+            opinador={detalle}
+            noticiaIndex={noticiaIndex}
+            onNoticiaIndexChange={setNoticiaIndex}
+            onBack={onBack}
+            leftHeader={
+              <>
+                <HeaderPill>{edicion.fecha}</HeaderPill>
+                <HeaderPill>{edicion.titulo}</HeaderPill>
+              </>
+            }
+          />
+        ) : (
+          <div className="p-4 font-ui text-sm text-text-secondary">
+            Cargando opiniones…
+          </div>
+        )
       }
     />
   );
-}
-
-function mockOpinadorParaDetalle(
-  op: OpinadorAdmin,
-  edicion?: EdicionSeleccionada
-): OpinadorEdicion {
-  const edicionData = edicion
-    ? op.ediciones.find(e => e.fechaISO === edicion.fechaISO)
-    : undefined;
-  const votos = edicionData?.votos ?? [];
-  const completadas = votos.filter(v => v !== null).length;
-  const interpretacionPorColor: Record<string, string> = {
-    [VOTE_COLORS.positiva]: "Positiva",
-    [VOTE_COLORS.negativa]: "Negativa",
-    [VOTE_COLORS.incierta]: "Incierta",
-  };
-
-  return {
-    id: String(op.id),
-    nombre: op.nombre,
-    email: op.email,
-    ciudad: op.ciudad,
-    votos,
-    completadas,
-    opiniones: votos.map((color, index) => ({
-      noticia: `Noticia ${index + 1}`,
-      texto: "",
-      interpretacion: color ? (interpretacionPorColor[color] ?? "") : "",
-      color: color ?? VOTE_COLORS.nula,
-    })),
-  };
 }
 
 function ListaPendientes({
@@ -480,6 +467,7 @@ function AdminOpinadoresContent() {
   const [pendientes, setPendientes] = useState<Postulacion[]>([]);
   const [rechazados, setRechazados] = useState<Postulacion[]>([]);
   const [opinadores, setOpinadores] = useState<OpinadorAdmin[]>([]);
+  const [edicionesOpinador, setEdicionesOpinador] = useState<EdicionOpinador[]>([]);
 
   useEffect(() => {
     let activo = true;
@@ -505,6 +493,20 @@ function AdminOpinadoresContent() {
     setSelectedPostulacion(null);
     setVista("lista");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!selectedOpinador) {
+      setEdicionesOpinador([]);
+      return;
+    }
+    let activo = true;
+    getEdicionesOpinador(selectedOpinador.id).then((data) => {
+      if (activo) setEdicionesOpinador(data);
+    });
+    return () => {
+      activo = false;
+    };
+  }, [selectedOpinador]);
 
   if (vista === "pendientes") {
     if (selectedPostulacion) {
@@ -555,6 +557,7 @@ function AdminOpinadoresContent() {
     return (
       <DetalleOpinador
         opinador={selectedOpinador}
+        ediciones={edicionesOpinador}
         onSelectEdicion={setSelectedEdicion}
         onEliminado={() => {
           getOpinadores().then(setOpinadores);

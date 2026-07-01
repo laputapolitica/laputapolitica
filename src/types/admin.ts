@@ -48,6 +48,15 @@ export type OpinadorAdmin = {
   }[];
 };
 
+export type EdicionOpinador = {
+  edicionId: string;
+  fecha: string;
+  fechaISO: string;
+  titulo: string;
+  votos: (string | null)[];
+  participo: boolean;
+};
+
 export type Postulacion = {
   id: string;
   nombre: string;
