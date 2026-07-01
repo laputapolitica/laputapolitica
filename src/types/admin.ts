@@ -4,7 +4,7 @@ import type { PipelineNodeId } from "@/components/admin/PipelineDiagram";
 export type RolAdmin = "Admin" | "Editor" | "Director";
 
 export type Usuario = {
-  id: number;
+  id: string;
   nombre: string;
   email: string;
   fechaDesde: string;
