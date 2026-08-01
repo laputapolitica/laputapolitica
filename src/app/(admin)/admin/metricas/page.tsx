@@ -1,28 +1,19 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  AreaChart,
-  Area,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import {
-  mockKPIs,
-  mockParticipacion,
-  mockVisitas,
-  mockEdicionesMasVistas,
-} from "@/lib/mock-metricas";
-import { getSentimientoColor } from "@/lib/colors";
+import { getMetricasDB, type MetricasDB } from "./actions";
 import { CHART_COLORS } from "@/lib/constants";
-import {
-  DataPill,
-  SectionPanel,
-} from "@/components/admin/shared";
+import { DataPill, SectionPanel } from "@/components/admin/shared";
+import type { KPI, ParticipacionDia } from "@/types/admin";
 
 function KPICard({ label, valor, descripcion }: { label: string; valor: string; descripcion: string }) {
   return (
@@ -36,7 +27,7 @@ function KPICard({ label, valor, descripcion }: { label: string; valor: string; 
   );
 }
 
-function GraficoParticipacion() {
+function GraficoParticipacion({ data }: { data: ParticipacionDia[] }) {
   return (
     <SectionPanel className="flex h-full min-h-0 flex-col gap-1.5">
       <DataPill className="w-fit">Participación por edición</DataPill>
@@ -56,7 +47,7 @@ function GraficoParticipacion() {
       <div className="min-h-[120px] flex-1 rounded-lg border border-admin-ink bg-white p-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={mockParticipacion}
+            data={data}
             margin={{ top: 8, right: 0, left: 0, bottom: 0 }}
             barSize={13}
             barCategoryGap="22%"
@@ -101,124 +92,46 @@ function GraficoParticipacion() {
   );
 }
 
-function GraficoVisitas() {
+function PlaceholderAnalytics({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
   return (
     <SectionPanel className="flex h-full min-h-0 flex-col gap-1.5">
-      <DataPill className="w-fit">Visitas por edición</DataPill>
-      <DataPill variant="subtle" className="w-fit">Últimas 15 ediciones</DataPill>
-
-      <div className="min-h-[120px] flex-1 rounded-lg border border-admin-ink bg-white p-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={mockVisitas}
-            margin={{ top: 8, right: 0, left: 0, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="visitasGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1A1A1A" stopOpacity={0.08} />
-                <stop offset="100%" stopColor="#1A1A1A" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="0" stroke="#E5E3DD" vertical={false} syncWithTicks />
-            <XAxis
-              dataKey="fecha"
-              tick={{ fontFamily: "var(--font-ui)", fontSize: 10, fill: "#9A968D" }}
-              axisLine={false}
-              tickLine={false}
-              angle={-25}
-              textAnchor="end"
-              height={32}
-              interval={1}
-              padding={{ left: 12, right: 12 }}
-            />
-            <YAxis
-              domain={[160, 320]}
-              ticks={[160, 200, 240, 280, 320]}
-              interval={0}
-              tick={{ fontFamily: "var(--font-ui)", fontSize: 11, fill: "#9A968D" }}
-              axisLine={false}
-              tickLine={false}
-              width={32}
-            />
-            <Tooltip
-              contentStyle={{
-                fontFamily: "var(--font-ui)",
-                fontSize: 11,
-                border: "1px solid #111111",
-                borderRadius: "4px",
-                backgroundColor: "#FAF9F5",
-              }}
-              formatter={(value) => [value, "Visitas"]}
-            />
-            <Area
-              type="monotone"
-              dataKey="visitas"
-              stroke="#111111"
-              strokeWidth={2}
-              fill="url(#visitasGradient)"
-              dot={{ fill: "#111111", r: 4, strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: "#111111" }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </SectionPanel>
-  );
-}
-
-function TablaEdicionesMasVistas() {
-  const top3 = mockEdicionesMasVistas.slice(0, 3);
-
-  return (
-    <SectionPanel className="flex flex-col gap-2">
-      <DataPill className="w-fit">Ediciones más vistas</DataPill>
-
-      <div className="flex flex-col gap-3">
-        {top3.map((ed) => (
-          <div key={ed.ranking} className="flex items-center gap-1.5">
-            <DataPill variant="subtle" style={{ fontFamily: "ui-monospace, monospace" }}>
-              {ed.ranking}
-            </DataPill>
-            <DataPill>{ed.fecha}</DataPill>
-            <DataPill>{ed.titulo}</DataPill>
-            <DataPill>{ed.opiniones}/{ed.totalOpinadores} opiniones</DataPill>
-            <DataPill>
-              El Pulso
-              <span
-                className="h-[8px] w-[8px] rounded-full shrink-0"
-                style={{ backgroundColor: getSentimientoColor(ed.pulsoSentimiento) }}
-              />
-            </DataPill>
-            <div className="flex-1" />
-            <DataPill>{ed.visitas} visitas</DataPill>
-          </div>
-        ))}
+      <DataPill className="w-fit">{titulo}</DataPill>
+      {subtitulo ? (
+        <DataPill variant="subtle" className="w-fit">{subtitulo}</DataPill>
+      ) : null}
+      <div className="flex min-h-[120px] flex-1 items-center justify-center rounded-lg border border-dashed border-admin-ink/40 bg-white p-2">
+        <span className="font-ui text-sm text-text-secondary">Pendiente de analytics (PostHog)</span>
       </div>
     </SectionPanel>
   );
 }
 
 export default function AdminMetricasPage() {
+  const [data, setData] = useState<MetricasDB | null>(null);
+
+  useEffect(() => {
+    getMetricasDB().then(setData);
+  }, []);
+
+  const kpis: KPI[] = data?.kpis ?? [];
+  const participacion: ParticipacionDia[] = data?.participacion ?? [];
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="shrink-0 grid grid-cols-4 gap-3">
-        {mockKPIs.map((kpi) => (
-          <KPICard
-            key={kpi.label}
-            label={kpi.label}
-            valor={kpi.valor}
-            descripcion={kpi.descripcion}
-          />
+        {kpis.map((kpi) => (
+          <KPICard key={kpi.label} label={kpi.label} valor={kpi.valor} descripcion={kpi.descripcion} />
         ))}
+        <KPICard label="Visitas totales" valor="—" descripcion="pendiente analytics" />
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
-        <GraficoParticipacion />
-        <GraficoVisitas />
+        <GraficoParticipacion data={participacion} />
+        <PlaceholderAnalytics titulo="Visitas por edición" subtitulo="Últimas 15 ediciones" />
       </div>
 
       <div className="shrink-0">
-        <TablaEdicionesMasVistas />
+        <PlaceholderAnalytics titulo="Ediciones más vistas" />
       </div>
     </div>
   );
