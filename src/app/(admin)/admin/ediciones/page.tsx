@@ -1,13 +1,12 @@
-import { PipelineDiagram, mockState } from "@/components/admin";
+import { PipelineDiagram } from "@/components/admin";
 import { PanelLayout } from "@/components/admin/shared";
 import { EdicionesList } from "@/components/admin/sections/ediciones";
-import { edicionDelDia } from "@/lib/mock-ediciones";
+import { getPipelineEnCurso } from "@/app/(admin)/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 import type { Edicion, EstadoEdicion } from "@/types/admin";
 
 const MESES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
 
-// En la base, ediciones.fecha es un slug "dd-mm-yyyy".
 function formatFecha(slug: string): { display: string; iso: string } {
   const [dd, mm, yyyy] = slug.split("-");
   const mesIdx = Number(mm) - 1;
@@ -43,16 +42,66 @@ type EdicionRow = {
 
 export default async function AdminEdicionesPage() {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("ediciones")
-    .select("id, fecha, titulo, estado, publicada_en")
-    .eq("estado", "published");
+
+  const [{ data, error }, enCurso] = await Promise.all([
+    supabase
+      .from("ediciones")
+      .select("id, fecha, titulo, estado, publicada_en")
+      .eq("estado", "published"),
+    getPipelineEnCurso(),
+  ]);
 
   if (error) {
     console.error("Error leyendo ediciones desde Supabase:", error.message);
   }
 
   const rows = (data ?? []) as EdicionRow[];
+
+  // Participación por edición: opinadores distintos que opinaron en cada edición,
+  // sobre el total de opinadores activos.
+  const edIds = rows.map((r) => r.id);
+  const participaronPorEdicion = new Map<string, number>();
+  let totalOpinadores = 0;
+
+  if (edIds.length > 0) {
+    const [{ data: ntData }, { count }] = await Promise.all([
+      supabase.from("noticias").select("id, edicion_id").in("edicion_id", edIds),
+      supabase
+        .from("opinadores")
+        .select("id", { count: "exact", head: true })
+        .eq("activo", true),
+    ]);
+
+    totalOpinadores = count ?? 0;
+
+    const noticias = (ntData ?? []) as { id: string; edicion_id: string }[];
+    const edicionPorNoticia = new Map(noticias.map((n) => [n.id, n.edicion_id]));
+    const ntIds = noticias.map((n) => n.id);
+
+    if (ntIds.length > 0) {
+      const { data: opData } = await supabase
+        .from("opiniones")
+        .select("opinador_id, noticia_id")
+        .in("noticia_id", ntIds);
+
+      const opiniones = (opData ?? []) as {
+        opinador_id: string;
+        noticia_id: string;
+      }[];
+
+      const setPorEdicion = new Map<string, Set<string>>();
+      for (const o of opiniones) {
+        const edId = edicionPorNoticia.get(o.noticia_id);
+        if (!edId) continue;
+        const set = setPorEdicion.get(edId) ?? new Set<string>();
+        set.add(o.opinador_id);
+        setPorEdicion.set(edId, set);
+      }
+      for (const [edId, set] of setPorEdicion) {
+        participaronPorEdicion.set(edId, set.size);
+      }
+    }
+  }
 
   const ediciones: Edicion[] = rows
     .map((row) => {
@@ -61,8 +110,8 @@ export default async function AdminEdicionesPage() {
         fecha: display,
         fechaISO: iso,
         titulo: row.titulo,
-        opiniones: 0,
-        totalOpinadores: 0,
+        opiniones: participaronPorEdicion.get(row.id) ?? 0,
+        totalOpinadores,
         horaPublicacion: formatHora(row.publicada_en),
         estado: mapEstado(row.estado),
       } satisfies Edicion;
@@ -72,8 +121,8 @@ export default async function AdminEdicionesPage() {
   return (
     <PanelLayout
       header={
-        edicionDelDia.enCurso ? (
-          <PipelineDiagram pipelineState={mockState} diagramOnly />
+        enCurso ? (
+          <PipelineDiagram pipelineState={enCurso.state} diagramOnly />
         ) : null
       }
       content={<EdicionesList ediciones={ediciones} />}
