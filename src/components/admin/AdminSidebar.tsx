@@ -7,12 +7,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { logoutAdmin } from "@/app/(admin)/admin/login/actions";
 import { getRolActual } from "@/app/(admin)/admin/actions";
 
-const navItems: { href: string; label: string; soloAdmin?: boolean }[] = [
-  { href: "/admin", label: "Edicion del dia" },
-  { href: "/admin/ediciones", label: "Lista de ediciones" },
-  { href: "/admin/opinadores", label: "Opinadores" },
-  { href: "/admin/metricas", label: "Métricas" },
-  { href: "/admin/usuarios-y-roles", label: "Usuarios y roles", soloAdmin: true },
+const navItems: { href: string; label: string; roles: string[] }[] = [
+  { href: "/admin", label: "Edicion del dia", roles: ["admin", "editor", "director"] },
+  { href: "/admin/ediciones", label: "Lista de ediciones", roles: ["admin", "director"] },
+  { href: "/admin/opinadores", label: "Opinadores", roles: ["admin", "director"] },
+  { href: "/admin/metricas", label: "Métricas", roles: ["admin", "director"] },
+  { href: "/admin/usuarios-y-roles", label: "Usuarios y roles", roles: ["admin"] },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -34,7 +34,7 @@ function AdminSidebarContent() {
   }, []);
 
   const visibleItems = navItems.filter(
-    (item) => !item.soloAdmin || rol === "admin",
+    (item) => rol !== null && item.roles.includes(rol),
   );
 
   function updateAdminQuery(key: "panel" | "scenario", value: string) {
