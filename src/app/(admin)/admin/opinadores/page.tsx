@@ -33,7 +33,7 @@ import {
 import { EdicionesOpinadorList } from "@/components/admin/sections/ediciones";
 import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
 import type { EdicionOpinador } from "@/types/admin";
-import type { OpinadorAdmin, Postulacion } from "@/lib/mock-opinadores";
+import type { OpinadorAdmin, Postulacion } from "@/types/admin";
 
 type VistaOpinadores = "lista" | "pendientes" | "rechazados";
 

@@ -8,7 +8,7 @@ import {
   RowCardList,
   RowCardRight,
 } from "@/components/admin/shared";
-import type { OpinadorAdmin } from "@/lib/mock-opinadores";
+import type { OpinadorAdmin } from "@/types/admin";
 
 type OpinadoresListProps = {
   opinadores: OpinadorAdmin[];

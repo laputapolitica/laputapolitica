@@ -9,7 +9,7 @@ import {
   RowCardList,
   RowCardRight,
 } from "@/components/admin/shared";
-import type { Edicion } from "@/lib/mock-ediciones";
+import type { Edicion } from "@/types/admin";
 
 type EdicionesListProps = {
   ediciones: Edicion[];
