@@ -5,6 +5,7 @@ import {
   getUsuarios,
   cambiarRolUsuario,
   eliminarUsuario,
+  invitarUsuario,
 } from "./actions";
 import {
   AdminButton,
@@ -23,6 +24,8 @@ export default function AdminUsuariosYRolesPage() {
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const [isInviting, setIsInviting] = useState(false);
+  const [credenciales, setCredenciales] = useState<{ email: string; password: string } | null>(null);
 
   useEffect(() => {
     getUsuarios().then(setUsuarios);
@@ -52,9 +55,24 @@ export default function AdminUsuariosYRolesPage() {
     }
   }
 
-  // El botón "Enviar invitación" se habilita solo si los 3 campos están llenos.
-  // (La invitación en sí se implementa en un prompt aparte; hoy el botón queda inerte.)
-  const isReady = nombre.trim() !== "" && email.trim() !== "" && rol !== "";
+  async function handleInvitar() {
+    setError(undefined);
+    setIsInviting(true);
+    const res = await invitarUsuario(nombre, email, rol as RolAdmin);
+    if (res.success && res.email && res.passwordTemporal) {
+      setCredenciales({ email: res.email, password: res.passwordTemporal });
+      setNombre("");
+      setEmail("");
+      setRol("");
+      await recargar();
+    } else {
+      setError(res.error ?? "No se pudo invitar.");
+    }
+    setIsInviting(false);
+  }
+
+  const isReady =
+    nombre.trim() !== "" && email.trim() !== "" && rol !== "";
 
   return (
     <PanelLayout
@@ -92,11 +110,12 @@ export default function AdminUsuariosYRolesPage() {
               <DataPill variant="subtle" className="w-fit">Invitar usuario</DataPill>
               <AdminButton
                 size="md"
-                variant={isReady ? "primary" : "default"}
-                style={!isReady ? { backgroundColor: "transparent" } : undefined}
-                className={`!text-xs !px-4 ${isReady ? "!font-bold" : ""}`}
+                variant={isReady && !isInviting ? "primary" : "default"}
+                style={!isReady || isInviting ? { backgroundColor: "transparent" } : undefined}
+                className={`!text-xs !px-4 ${isReady && !isInviting ? "!font-bold" : ""}`}
+                onClick={isReady && !isInviting ? handleInvitar : undefined}
               >
-                Enviar invitación
+                {isInviting ? "Enviando..." : "Enviar invitación"}
               </AdminButton>
             </div>
           </div>
@@ -107,11 +126,33 @@ export default function AdminUsuariosYRolesPage() {
         </HeaderPanel>
       }
       content={
-        <UsuariosList
-          usuarios={usuarios}
-          onCambiarRol={handleCambiarRol}
-          onEliminar={handleEliminar}
-        />
+        <div className="space-y-3">
+          {credenciales ? (
+            <div className="space-y-2 rounded-[4px] border border-admin-ink bg-white p-4">
+              <div className="flex items-center justify-between">
+                <p className="font-ui text-sm font-medium text-admin-ink">
+                  Usuario creado. Pasale estos datos; la contraseña no se vuelve a mostrar.
+                </p>
+                <AdminButton size="sm" onClick={() => setCredenciales(null)}>
+                  Listo
+                </AdminButton>
+              </div>
+              <p className="font-ui text-sm text-admin-ink">
+                <strong>Email:</strong> {credenciales.email}
+              </p>
+              <p className="font-ui text-sm text-admin-ink">
+                <strong>Contraseña temporal:</strong>{" "}
+                <span className="font-mono">{credenciales.password}</span>
+              </p>
+            </div>
+          ) : null}
+
+          <UsuariosList
+            usuarios={usuarios}
+            onCambiarRol={handleCambiarRol}
+            onEliminar={handleEliminar}
+          />
+        </div>
       }
     />
   );

@@ -144,3 +144,97 @@ export async function eliminarUsuario(id: string): Promise<UsuarioResult> {
 
   return { success: true };
 }
+
+function generarPasswordTemporal(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = new Uint8Array(14);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (const b of bytes) {
+    out += chars[b % chars.length];
+  }
+  return out;
+}
+
+export type InvitarResult = {
+  error?: string;
+  success?: boolean;
+  email?: string;
+  passwordTemporal?: string;
+};
+
+export async function invitarUsuario(
+  nombre: string,
+  email: string,
+  rol: RolAdmin,
+): Promise<InvitarResult> {
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  const caller = userData.user;
+  if (!caller) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  // Solo un Admin puede invitar staff.
+  const { data: callerProfile } = await supabase
+    .from("profiles")
+    .select("role, pais")
+    .eq("id", caller.id)
+    .maybeSingle();
+  if (!callerProfile || callerProfile.role !== "admin") {
+    return { error: "Solo un Admin puede invitar usuarios." };
+  }
+
+  const nombreLimpio = nombre.trim();
+  const emailLimpio = email.trim().toLowerCase();
+  if (!nombreLimpio || !emailLimpio) {
+    return { error: "Completá nombre y email." };
+  }
+
+  const roleDb = ROL_UI_A_DB[rol];
+  if (!roleDb) {
+    return { error: "Rol no válido." };
+  }
+
+  const admin = createAdminClient();
+  const passwordTemporal = generarPasswordTemporal();
+
+  // 1. Crear el usuario de auth (auto-confirmado).
+  const { data: created, error: createError } = await admin.auth.admin.createUser({
+    email: emailLimpio,
+    password: passwordTemporal,
+    email_confirm: true,
+  });
+
+  if (createError || !created.user) {
+    const msg = createError?.message ?? "";
+    if (msg.toLowerCase().includes("already") || msg.toLowerCase().includes("registered")) {
+      return { error: "Ya existe un usuario con ese email." };
+    }
+    console.error("Error creando usuario de auth:", msg);
+    return { error: "No se pudo crear el usuario. Intentá de nuevo." };
+  }
+
+  const nuevoUserId = created.user.id;
+
+  // 2. Insertar la fila en profiles (hereda el pais del admin).
+  const { error: insertError } = await admin.from("profiles").insert({
+    id: nuevoUserId,
+    email: emailLimpio,
+    nombre: nombreLimpio,
+    role: roleDb,
+    activo: true,
+    pais: callerProfile.pais ?? "AR",
+    es_global: false,
+  });
+
+  if (insertError) {
+    // Rollback: borrar el usuario de auth recién creado para no dejar basura.
+    await admin.auth.admin.deleteUser(nuevoUserId);
+    console.error("Error insertando profile:", insertError.message);
+    return { error: "No se pudo crear el usuario. Intentá de nuevo." };
+  }
+
+  return { success: true, email: emailLimpio, passwordTemporal };
+}
