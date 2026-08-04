@@ -1,17 +1,18 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { logoutAdmin } from "@/app/(admin)/admin/login/actions";
+import { getRolActual } from "@/app/(admin)/admin/actions";
 
-const navItems = [
+const navItems: { href: string; label: string; soloAdmin?: boolean }[] = [
   { href: "/admin", label: "Edicion del dia" },
   { href: "/admin/ediciones", label: "Lista de ediciones" },
   { href: "/admin/opinadores", label: "Opinadores" },
   { href: "/admin/metricas", label: "Métricas" },
-  { href: "/admin/usuarios-y-roles", label: "Usuarios y roles" },
+  { href: "/admin/usuarios-y-roles", label: "Usuarios y roles", soloAdmin: true },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -26,6 +27,15 @@ function AdminSidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [rol, setRol] = useState<string | null>(null);
+
+  useEffect(() => {
+    getRolActual().then(setRol);
+  }, []);
+
+  const visibleItems = navItems.filter(
+    (item) => !item.soloAdmin || rol === "admin",
+  );
 
   function updateAdminQuery(key: "panel" | "scenario", value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -44,7 +54,7 @@ function AdminSidebarContent() {
     <aside className="h-full w-[180px] bg-bg-base">
       <nav className="flex h-full flex-col justify-between">
         <div className="flex flex-col gap-2">
-          {navItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = isActivePath(pathname, item.href);
 
             if (item.href === "/admin/opinadores") {

@@ -2075,3 +2075,15 @@ export async function rehacerResumenElPulso(
 
   return { success: true };
 }
+
+export async function getRolActual(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return null;
+  const { data } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userData.user.id)
+    .maybeSingle();
+  return data?.role ?? null;
+}
