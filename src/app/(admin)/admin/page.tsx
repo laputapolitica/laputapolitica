@@ -19,6 +19,7 @@ import {
   getEstadoVentanaOpinion,
   autorizarEtapa,
   publicarEdicion,
+  getRolActual,
   reordenarCandidatas,
   eliminarCandidata,
   agregarCandidata,
@@ -588,6 +589,7 @@ function AdminPageContent() {
   const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
   const [rehaciendoPortada, setRehaciendoPortada] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const [rol, setRol] = useState<string | null>(null);
   const recargarRef = useRef<() => Promise<void>>(async () => {});
   const recargaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -653,6 +655,10 @@ function AdminPageContent() {
   useEffect(() => {
     recargarRef.current = recargarPipeline;
   });
+
+  useEffect(() => {
+    getRolActual().then(setRol);
+  }, []);
 
   useEffect(() => {
     let activo = true;
@@ -1050,6 +1056,7 @@ function AdminPageContent() {
         pipelineState={pipelineState}
         onAutorizar={handleAutorizar}
         onPublicar={handlePublicar}
+        soloLectura={rol === "director"}
       />
       <section className="min-h-0 flex-1 overflow-y-auto bg-bg-base w-full">
         {forcedNodeId ? (

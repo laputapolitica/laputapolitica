@@ -40,6 +40,7 @@ export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
   onAutorizar?: (nodeId: PipelineNodeId) => void;
   onPublicar?: () => void;
+  soloLectura?: boolean;
   diagramOnly?: boolean;
 };
 
@@ -273,6 +274,7 @@ export function PipelineDiagram({
   pipelineState = mockState,
   onAutorizar,
   onPublicar,
+  soloLectura = false,
   diagramOnly = false,
 }: PipelineDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -541,13 +543,19 @@ export function PipelineDiagram({
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => activeReview && onAutorizar?.(activeReview.nodeId)}
-            className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
-          >
-            Autorizar
-          </button>
+          {soloLectura ? (
+            <span className="font-ui text-xs font-medium text-text-secondary">
+              Solo lectura
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => activeReview && onAutorizar?.(activeReview.nodeId)}
+              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
+            >
+              Autorizar
+            </button>
+          )}
         </div>
       )}
       {/* Bandeja de publicación (sin R, botón Publicar) */}
@@ -560,13 +568,19 @@ export function PipelineDiagram({
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onPublicar}
-            className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
-          >
-            Publicar
-          </button>
+          {soloLectura ? (
+            <span className="font-ui text-xs font-medium text-text-secondary">
+              Solo lectura
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={onPublicar}
+              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
+            >
+              Publicar
+            </button>
+          )}
         </div>
       )}
     </div>
