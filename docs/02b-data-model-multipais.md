@@ -38,6 +38,7 @@ Catálogo de países. Fuente única del mapa país → dominio → marca. La lee
 | `marca` | `text` | no | - | Marca: `La Puta Política`, `The Damn Politics`. |
 | `orden` | `integer` | no | `100` | Orden en el selector. Menor = primero. |
 | `activo` | `boolean` | no | `true` | Permite desactivar un país sin borrarlo. |
+| `pipeline_activo` | `boolean` | no | `false` | Interruptor del pipeline diario para este país; lo controla el admin operador desde Configuración. false = pausado. |
 | `created_at` | `timestamptz` | no | `now()` | Alta. |
 
 **Constraints**
