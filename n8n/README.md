@@ -33,7 +33,7 @@ lista de ciudades; mantenerlo en sync con `src/lib/clima/condiciones.ts` y
 | Archivo | Nombre | Qué hace |
 |---|---|---|
 | `CyYEPEkDkrRqHBOR.json` | **Titulos y Resumenes** | Genera títulos y resúmenes de las noticias (lee el texto completo desde `textos_fuentes`). |
-| `JfaILkRkUvfHjke0.json` | **Relevamiento** | Levanta noticias candidatas (RSS → Gemini → Supabase). |
+| `W2hvvKKlnOQEg5W4.json` | **Relevamiento** | Relevamiento diario (Schedule 19:00 AR). Chequea el interruptor `paises.pipeline_activo` (si off, no crea nada). Crea la edición de hoy (fecha automática TZ AR) → candidatas. |
 | `tiqjLbIfjwGAVZtQ.json` | **Portada** | Genera la portada: Gemini elige estilo → Gemini genera imagen → Storage. |
 | `e8KVd0IakuilqmCF.json` | **El Pulso** | Calcula el pulso (votos + síntesis IA) y deja la etapa lista para revisión. |
 | `2JAU2EQvZniZzurN.json` | **Instagram** | Genera el carrusel IG (4 slides: tapa, noticia #1 + bullets, su pulso + votos, titulares de las otras 4) → `publicacion_instagram` + `slides_instagram`. Lee de core. Usa Groq (temporal → Claude). `caption` no generado por ahora. |
