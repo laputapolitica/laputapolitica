@@ -13,6 +13,7 @@ const navItems: { href: string; label: string; roles: string[] }[] = [
   { href: "/admin/opinadores", label: "Opinadores", roles: ["admin", "director"] },
   { href: "/admin/metricas", label: "Métricas", roles: ["admin", "director"] },
   { href: "/admin/usuarios-y-roles", label: "Usuarios y roles", roles: ["admin"] },
+  { href: "/admin/configuracion", label: "Configuración", roles: ["admin"] },
 ];
 
 function isActivePath(pathname: string, href: string) {

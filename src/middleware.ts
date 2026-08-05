@@ -6,6 +6,7 @@ const ROUTE_ROLES: { prefix: string; roles: string[] }[] = [
   { prefix: "/admin/opinadores", roles: ["admin", "director"] },
   { prefix: "/admin/metricas", roles: ["admin", "director"] },
   { prefix: "/admin/usuarios-y-roles", roles: ["admin"] },
+  { prefix: "/admin/configuracion", roles: ["admin"] },
 ];
 
 function rolesPermitidos(pathname: string): string[] {
