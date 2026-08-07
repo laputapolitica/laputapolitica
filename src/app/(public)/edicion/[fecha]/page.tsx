@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { DEFAULT_CITY_ID, findNearestCity, getClimaEdicion } from "@/lib/clima";
 import { createClient } from "@/lib/supabase/server";
-import type { Edicion, Noticia } from "@/lib/mock-data";
+import type { Edicion, Noticia } from "@/types/edicion";
 
 import { EdicionClient } from "./EdicionClient";
 

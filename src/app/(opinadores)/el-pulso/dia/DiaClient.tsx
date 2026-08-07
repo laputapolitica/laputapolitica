@@ -9,7 +9,7 @@ import {
   type NoticiaSwipeNoticia,
 } from "@/components/opinadores";
 import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
-import type { Edicion } from "@/lib/mock-data";
+import type { Edicion } from "@/types/edicion";
 
 type DiaClientProps = {
   edicion: Edicion;

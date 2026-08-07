@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import Image from "next/image";
 
-import type { Edicion } from "@/lib/mock-data";
+import type { Edicion } from "@/types/edicion";
 
 type PortadaSlideProps = {
   edicion: Edicion;

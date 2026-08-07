@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { InterpretacionBars } from "@/components/shared/InterpretacionBars";
 import { cn } from "@/lib/utils";
-import type { Noticia } from "@/lib/mock-data";
+import type { Noticia } from "@/types/edicion";
 
 type NoticiaSlideProps = {
   noticia: Noticia;

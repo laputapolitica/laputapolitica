@@ -3,7 +3,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 import { OpinionForm } from "@/components/opinadores/OpinionForm";
-import type { Noticia } from "@/lib/mock-data";
+import type { Noticia } from "@/types/edicion";
 
 export type NoticiaSwipeNoticia = Noticia;
 

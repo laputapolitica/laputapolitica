@@ -16,7 +16,7 @@ import {
   PortadaSlide,
 } from "@/components/public";
 import type { ClimaCiudadData } from "@/lib/clima";
-import type { Edicion, Noticia } from "@/lib/mock-data";
+import type { Edicion, Noticia } from "@/types/edicion";
 
 type EdicionClientProps = {
   edicion: Edicion;

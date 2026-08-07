@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Edicion, Noticia } from "@/lib/mock-data";
+import type { Edicion, Noticia } from "@/types/edicion";
 
 import { DiaClient } from "./DiaClient";
 
