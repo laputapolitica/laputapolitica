@@ -2,7 +2,7 @@
 
 import type { OpinadorEdicion } from "@/app/(admin)/admin/actions";
 import type { Canal } from "./types";
-import { canales } from "./mocks";
+import { canales } from "./canales";
 import { TabPrimary, TabSecondary } from "@/components/admin/shared";
 import { CanalIcon } from "./shared/CanalIcon";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";

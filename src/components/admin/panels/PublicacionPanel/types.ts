@@ -12,26 +12,3 @@ export type NoticiaPublicacion = {
     incierta: number;
   };
 };
-
-export type ClimaDia = {
-  dia: string;
-  min: number;
-  max: number;
-};
-
-export type MockOpinador = {
-  id: number;
-  nombre: string;
-  email: string;
-  ciudad: string;
-  votos: (string | null)[];
-  completadas: number;
-  ultimaRespuesta: string;
-};
-
-export type MockOpinion = {
-  noticia: string;
-  texto: string;
-  interpretacion: string;
-  color: string;
-};

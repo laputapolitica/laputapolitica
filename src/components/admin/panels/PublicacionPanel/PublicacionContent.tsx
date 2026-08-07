@@ -1,7 +1,6 @@
 "use client";
 
 import type { Canal, NoticiaPublicacion } from "./types";
-import { noticias as mockNoticias } from "./mocks";
 import { PortadaSlide } from "./WebChannel/PortadaSlide";
 import { NoticiaSlide } from "./WebChannel/NoticiaSlide";
 import { ClimaSlide } from "./WebChannel/ClimaSlide";
@@ -99,7 +98,7 @@ export function PublicacionContent({
   elPulso,
 }: PublicacionContentProps) {
   const { activeCanal, activeSlide, selectedOpinador, noticiaIndex } = state;
-  const noticiasData = noticias ?? mockNoticias;
+  const noticiasData = noticias ?? [];
   const climaData = clima ?? [];
   const instagramData = instagram ?? [];
   const twitterData = twitter ?? [];
