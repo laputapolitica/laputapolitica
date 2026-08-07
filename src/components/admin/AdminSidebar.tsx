@@ -93,7 +93,7 @@ function AdminSidebarContent() {
           })}
         </div>
 
-        {pathname === "/admin" && (
+        {pathname === "/admin" && process.env.NODE_ENV === "development" && (
           <div className="mt-2 flex flex-col gap-3">
             <span className="font-ui text-[10px] font-medium text-text-secondary uppercase tracking-wider px-1">
               Dev — Escenario

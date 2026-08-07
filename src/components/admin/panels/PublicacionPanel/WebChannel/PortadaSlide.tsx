@@ -15,7 +15,7 @@ export function PortadaSlide({
   titulo?: string;
   portadaUrl?: string | null;
 }) {
-  const [titulo, setTitulo] = useState(tituloInicial ?? "Equilibrio ciego");
+  const [titulo, setTitulo] = useState(tituloInicial ?? "");
   const [imagenUrl, setImagenUrl] = useState(portadaUrl);
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
@@ -23,7 +23,7 @@ export function PortadaSlide({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setTitulo(tituloInicial ?? "Equilibrio ciego");
+    setTitulo(tituloInicial ?? "");
   }, [tituloInicial]);
 
   useEffect(() => {

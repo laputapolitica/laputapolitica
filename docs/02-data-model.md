@@ -11,7 +11,7 @@ Los roles del producto viven en `profiles.role` para staff y en `opinadores` par
 | Rol | Alcance |
 |---|---|
 | `admin` | Acceso total a todas las tablas y operaciones. |
-| `editor` | Opera pipeline, crea y edita ediciones, gestiona opinadores y publica. |
+| `editor` | Solo "Edición del día": opera el pipeline (aprueba gates) y publica. No gestiona opinadores ni ve métricas/lista de ediciones. |
 | `director` | Lectura total, gestión de opinadores y métricas. No publica ni aprueba gates R. |
 | `opinador` | Lee ediciones/noticias habilitadas para opinión o publicadas y crea/edita sus propias opiniones antes del cierre. |
 | `public` | Lee únicamente contenido publicado de la web pública y crea postulaciones. |

@@ -41,7 +41,7 @@ export function PortadaPanel({
   historial,
   onRestaurar,
 }: PortadaPanelProps) {
-  const [titulo, setTitulo] = useState(portada?.titulo ?? "Equilibrio ciego");
+  const [titulo, setTitulo] = useState(portada?.titulo ?? "");
 
   useEffect(() => {
     if (portada?.titulo) setTitulo(portada.titulo);
