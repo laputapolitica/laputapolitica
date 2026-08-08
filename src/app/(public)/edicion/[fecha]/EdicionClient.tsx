@@ -162,7 +162,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
     >
       <div
         ref={scrollContainerRef}
-        className="mx-auto h-screen max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base"
+        className="mx-auto h-screen max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar"
       >
         <PortadaSlide
           ref={(node) => {
@@ -229,7 +229,7 @@ function NoticiaExpandedModal({ noticia, onClose }: NoticiaExpandedModalProps) {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6">
+      <div className="flex-1 overflow-y-auto px-6 no-scrollbar">
         <article className="mx-auto flex max-w-[480px] flex-col pb-24 pt-6">
           <div className="font-ui text-sm font-semibold text-text-secondary">
             NOTICIA {newsNumber}

@@ -187,3 +187,11 @@
   animation: gate-spinner 1.8s linear infinite;
   transform-origin: center;
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
