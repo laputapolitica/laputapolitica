@@ -8,14 +8,16 @@ export function CountrySelector({ className }: CountrySelectorProps) {
       type="button"
       disabled
       title="Próximamente: más países"
+      aria-label="País: Argentina"
       className={[
-        "inline-flex h-8 min-w-12 items-center justify-center rounded-full border border-black px-3 font-ui text-sm font-medium text-text-primary opacity-50 cursor-not-allowed",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full cursor-not-allowed",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      AR
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/cockades/ar.svg" alt="Argentina" className="h-6 w-6" />
     </button>
   );
 }
