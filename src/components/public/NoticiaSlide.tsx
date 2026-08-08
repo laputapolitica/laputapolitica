@@ -1,8 +1,7 @@
 import { forwardRef } from "react";
-import { ArrowUpRight } from "lucide-react";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
-import { InterpretacionBars } from "@/components/shared/InterpretacionBars";
+import { InterpretacionGeneral } from "@/components/shared/InterpretacionGeneral";
 import { cn } from "@/lib/utils";
 import type { Noticia } from "@/types/edicion";
 
@@ -10,11 +9,10 @@ type NoticiaSlideProps = {
   noticia: Noticia;
   slideNumber: number;
   isModalOpen: boolean;
-  onReadMore: () => void;
 };
 
 export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
-  function NoticiaSlide({ noticia, slideNumber, isModalOpen, onReadMore }, ref) {
+  function NoticiaSlide({ noticia, slideNumber, isModalOpen }, ref) {
     return (
       <section
         ref={ref}
@@ -24,40 +22,36 @@ export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
         <article
           className={cn("flex min-h-0 flex-1 flex-col", isModalOpen && "invisible")}
         >
-          <h2 className="font-display text-2xl font-normal leading-[1.15] text-text-primary">
-            {noticia.titulo}
-          </h2>
+          {/* Sección A — Noticia */}
+          <div className="flex min-h-0 flex-1 flex-col">
+            <h2 className="font-display text-3xl font-semibold leading-[1.1] text-text-primary">
+              {noticia.titulo}
+            </h2>
 
-          <p className="mt-5 line-clamp-4 font-editorial text-base leading-normal text-text-primary">
-            {noticia.cuerpo}
-          </p>
+            <div className="mt-5 min-h-0 flex-1 overflow-hidden fade-bottom">
+              <p className="font-editorial text-base leading-normal text-text-primary">
+                {noticia.cuerpo}
+              </p>
+            </div>
+          </div>
 
-          <ElPulsoLogo className="mt-6 h-auto w-[106px]" />
+          {/* Sección B — El Pulso */}
+          <div className="mt-6 flex min-h-0 flex-1 flex-col">
+            <ElPulsoLogo className="h-auto w-[106px]" />
 
-          <p className="mt-4 line-clamp-4 font-editorial text-base leading-normal text-text-primary">
-            {noticia.el_pulso.texto_resumen}
-          </p>
+            <div className="mt-4 min-h-0 flex-1 overflow-hidden fade-bottom">
+              <p className="font-editorial text-base leading-normal text-text-primary">
+                {noticia.el_pulso.texto_resumen}
+              </p>
+            </div>
 
-          <section className="mt-6">
-            <h3 className="font-ui text-base font-medium text-text-primary">
-              Interpretación general
-            </h3>
-            <InterpretacionBars
-              className="mt-3"
+            <InterpretacionGeneral
+              className="mt-6"
               pct_incierta={noticia.el_pulso.pct_incierta}
               pct_negativa={noticia.el_pulso.pct_negativa}
               pct_positiva={noticia.el_pulso.pct_positiva}
             />
-          </section>
-
-          <button
-            type="button"
-            onClick={onReadMore}
-            className="mx-auto mt-7 inline-flex items-center gap-2 font-ui text-base font-normal text-text-primary"
-          >
-            Leer más
-            <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-          </button>
+          </div>
         </article>
       </section>
     );
