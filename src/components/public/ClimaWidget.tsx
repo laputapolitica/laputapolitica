@@ -26,8 +26,14 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
   );
   const canCycleCities = ciudades.length > 1;
 
+  const sectionRef = useRef<HTMLElement>(null);
   const autoplay = useRef(
-    Autoplay({ delay: AUTOPLAY_DELAY, stopOnInteraction: false, stopOnMouseEnter: false }),
+    Autoplay({
+      delay: AUTOPLAY_DELAY,
+      playOnInit: false,
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
+    }),
   );
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, startIndex: initialIndex, active: canCycleCities },
@@ -53,6 +59,29 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
     };
   }, [emblaApi, onSelect]);
 
+  // El auto-avance NO arranca al cargar (playOnInit: false). Arranca cuando el
+  // slide del clima entra en pantalla, reseteando a la ciudad inicial; se pausa
+  // cuando sale de vista.
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || !emblaApi || !canCycleCities) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          emblaApi.scrollTo(initialIndex, true);
+          autoplay.current.play();
+        } else {
+          autoplay.current.stop();
+        }
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [emblaApi, canCycleCities, initialIndex]);
+
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
@@ -63,7 +92,7 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
   const activeCity = ciudades[selectedIndex] ?? ciudades[0];
 
   return (
-    <section className="mx-auto w-full max-w-[360px]">
+    <section ref={sectionRef} className="mx-auto w-full max-w-[360px]">
       <div className="flex items-center">
         <button
           type="button"

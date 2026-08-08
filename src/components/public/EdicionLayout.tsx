@@ -60,7 +60,10 @@ export function EdicionLayout({
     <main className="flex h-[100dvh] flex-col bg-bg-base text-text-primary">
       <header className="z-30 w-full shrink-0 bg-bg-base px-5 py-4">
         <div className="relative mx-auto flex max-w-[480px] items-center justify-center">
-          <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
+          <Logo
+            className={`h-auto w-[206px] max-w-[calc(100vw-112px)] origin-center transition-transform duration-300 ease-out ${slideActivo === 1 ? "scale-[1.3]" : "scale-100"}`}
+            variant="large"
+          />
           <div className="absolute right-0">
             <CountrySelector />
           </div>

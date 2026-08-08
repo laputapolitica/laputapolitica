@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
@@ -24,15 +25,19 @@ export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(
           </h2>
 
           <p className="mt-4 font-editorial text-base leading-normal text-text-primary">
-            Sumate a la red que interpreta la política del día y ayuda a construir{" "}
-            <ElPulsoLogo className="inline-block h-auto w-[88px] translate-y-1" />
+            Sumate a la red que interpreta la política del día y ayuda a construir
           </p>
+
+          <ElPulsoLogo className="mx-auto mt-3 block h-auto w-[88px]" />
 
           <Link
             href="/el-pulso"
-            className="mt-8 inline-flex rounded-full border border-black bg-white px-8 py-3 font-ui text-base font-normal text-text-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center font-ui text-base font-bold tracking-[-0.02em] text-text-primary"
           >
-            Sumar mi voz
+            <span className="underline underline-offset-[3px]">Sumar mi voz</span>
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
           </Link>
         </div>
 
