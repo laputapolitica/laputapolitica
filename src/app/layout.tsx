@@ -8,7 +8,7 @@ import {
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
-  weight: ["400", "600", "700", "900"],
+  weight: ["400", "500", "600", "700", "900"],
   variable: "--font-display",
   subsets: ["latin"],
 });
