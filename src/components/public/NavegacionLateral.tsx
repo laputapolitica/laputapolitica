@@ -20,19 +20,23 @@ export function NavegacionLateral({ slideActivo, className }: NavegacionLateralP
         className,
       )}
     >
-      <ol className="flex flex-col gap-2">
-        {slides.map((slide) => (
-          <li key={slide}>
-            <span
-              className={cn(
-                "font-ui text-sm leading-none text-text-secondary",
-                slideActivo === slide && "text-base font-bold text-text-primary",
-              )}
-            >
-              {formatSlideNumber(slide)}
-            </span>
-          </li>
-        ))}
+      <ol className="flex flex-col gap-1.5">
+        {slides.map((slide) => {
+          const isActive = slideActivo === slide;
+          return (
+            <li key={slide}>
+              <span
+                className={cn(
+                  "text-[11px] leading-none tracking-[0.04em]",
+                  isActive ? "font-bold text-admin-ink" : "text-[#A7A29A]",
+                )}
+                style={{ fontFamily: "var(--font-nav)" }}
+              >
+                {formatSlideNumber(slide)}
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );
