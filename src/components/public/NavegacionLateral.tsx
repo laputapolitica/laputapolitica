@@ -14,7 +14,7 @@ export function NavegacionLateral({ slideActivo }: NavegacionLateralProps) {
   return (
     <nav
       aria-label="Navegación de la edición"
-      className="fixed left-0 top-1/2 z-30 -translate-y-1/2 pl-3"
+      className="absolute left-0 top-1/2 z-30 -translate-y-1/2 pl-3"
     >
       <ol className="flex flex-col gap-2">
         {slides.map((slide) => (

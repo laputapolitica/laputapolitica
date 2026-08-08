@@ -162,7 +162,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
     >
       <div
         ref={scrollContainerRef}
-        className="mx-auto h-screen max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar"
+        className="mx-auto h-full max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar"
       >
         <PortadaSlide
           ref={(node) => {

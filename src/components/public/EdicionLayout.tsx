@@ -15,38 +15,24 @@ type EdicionLayoutProps = {
 };
 
 const monthLabels = [
-  "ENE",
-  "FEB",
-  "MAR",
-  "ABR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AGO",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DIC",
+  "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
+  "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",
 ];
 
 function formatFechaLabel(fecha: string) {
   const dateParts = fecha.split("-");
-
   if (dateParts.length !== 3) {
     return fecha.toUpperCase();
   }
-
   const [first, second, third] = dateParts;
   const isIsoDate = first.length === 4;
   const day = isIsoDate ? third : first;
   const month = Number(isIsoDate ? second : second);
   const year = isIsoDate ? first : third;
   const monthLabel = monthLabels[month - 1];
-
   if (!monthLabel) {
     return fecha.toUpperCase();
   }
-
   return `${day} ${monthLabel} ${year}`;
 }
 
@@ -59,8 +45,8 @@ export function EdicionLayout({
   onFechaClick,
 }: EdicionLayoutProps) {
   return (
-    <main className="min-h-screen bg-bg-base text-text-primary">
-      <header className="fixed left-0 top-0 z-30 w-full bg-bg-base px-5 py-4">
+    <main className="flex h-[100dvh] flex-col bg-bg-base text-text-primary">
+      <header className="z-30 w-full shrink-0 bg-bg-base px-5 py-4">
         <div className="relative mx-auto flex max-w-[480px] items-center justify-center">
           <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
           <div className="absolute right-0">
@@ -69,11 +55,12 @@ export function EdicionLayout({
         </div>
       </header>
 
-      <NavegacionLateral slideActivo={slideActivo} />
+      <div className="relative min-h-0 flex-1">
+        <NavegacionLateral slideActivo={slideActivo} />
+        {children}
+      </div>
 
-      {children}
-
-      <footer className="fixed bottom-0 left-0 z-30 w-full bg-bg-base px-5 py-5">
+      <footer className="z-30 w-full shrink-0 bg-bg-base px-5 py-5">
         <div className="mx-auto flex max-w-[480px] items-center justify-between">
           <button
             type="button"

@@ -13,7 +13,7 @@ export const PortadaSlide = forwardRef<HTMLElement, PortadaSlideProps>(
       <section
         ref={ref}
         data-slide="1"
-        className="flex h-screen snap-start snap-always flex-col items-center justify-center gap-8 px-6 pt-20 pb-28 text-center animate-in fade-in duration-200"
+        className="flex h-full snap-start snap-always flex-col items-center justify-center gap-8 px-6 py-6 text-center animate-in fade-in duration-200"
       >
         <h1 className="font-display text-3xl font-normal leading-tight text-text-primary">
           {edicion.titulo}

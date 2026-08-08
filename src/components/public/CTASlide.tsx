@@ -16,7 +16,7 @@ export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(
       <section
         ref={ref}
         data-slide="7"
-        className="flex h-screen snap-start snap-always animate-in fade-in duration-200 flex-col justify-between px-6 pb-24 pt-24 text-center"
+        className="flex h-full snap-start snap-always animate-in fade-in duration-200 flex-col justify-between px-6 py-6 text-center"
       >
         <div className="mx-auto max-w-[360px]">
           <h2 className="font-display text-2xl font-normal leading-tight text-text-primary">
