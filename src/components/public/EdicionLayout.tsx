@@ -61,9 +61,11 @@ export function EdicionLayout({
   return (
     <main className="min-h-screen bg-bg-base text-text-primary">
       <header className="fixed left-0 top-0 z-30 w-full bg-bg-base px-5 py-4">
-        <div className="mx-auto flex max-w-[480px] items-center justify-between gap-4">
+        <div className="relative mx-auto flex max-w-[480px] items-center justify-center">
           <Logo className="h-auto w-[206px] max-w-[calc(100vw-112px)]" variant="large" />
-          <CountrySelector />
+          <div className="absolute right-0">
+            <CountrySelector />
+          </div>
         </div>
       </header>
 
@@ -71,7 +73,7 @@ export function EdicionLayout({
 
       {children}
 
-      <footer className="fixed bottom-0 left-0 z-30 w-full px-5 py-5">
+      <footer className="fixed bottom-0 left-0 z-30 w-full bg-bg-base px-5 py-5">
         <div className="mx-auto flex max-w-[480px] items-center justify-between">
           <button
             type="button"
