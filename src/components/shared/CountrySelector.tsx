@@ -6,11 +6,10 @@ export function CountrySelector({ className }: CountrySelectorProps) {
   return (
     <button
       type="button"
-      disabled
       title="Próximamente: más países"
       aria-label="País: Argentina"
       className={[
-        "inline-flex h-8 w-8 items-center justify-center rounded-full cursor-not-allowed",
+        "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-bg-base shadow-[-2px_-2px_5px_#ffffff,3px_3px_6px_#E6E3DB] transition-shadow duration-150 ease-out active:shadow-[inset_2px_2px_4px_#E6E3DB,inset_-2px_-2px_4px_#ffffff]",
         className,
       ]
         .filter(Boolean)
