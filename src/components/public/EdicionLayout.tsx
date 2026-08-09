@@ -1,7 +1,6 @@
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  Calendar,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -29,22 +28,24 @@ const monthLabels = [
   "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",
 ];
 
-function formatFechaLabel(fecha: string) {
+function formatFechaParts(fecha: string) {
   const dateParts = fecha.split("-");
   if (dateParts.length !== 3) {
-    return fecha.toUpperCase();
+    return null;
   }
   const [first, second, third] = dateParts;
   const isIsoDate = first.length === 4;
   const day = isIsoDate ? third : first;
-  const month = Number(isIsoDate ? second : second);
+  const monthLabel = monthLabels[Number(second) - 1];
   const year = isIsoDate ? first : third;
-  const monthLabel = monthLabels[month - 1];
   if (!monthLabel) {
-    return fecha.toUpperCase();
+    return null;
   }
-  return `${day} ${monthLabel} ${year}`;
+  return { day, month: monthLabel, year2: year.slice(-2) };
 }
+
+const teclaFisica =
+  "rounded-[9px] border border-b-4 border-[#B6B0A5] bg-bg-base text-text-primary transition-all duration-100 ease-out active:translate-y-[3px] active:border-b active:bg-[#F1EEE7]";
 
 export function EdicionLayout({
   children,
@@ -57,6 +58,8 @@ export function EdicionLayout({
   modoLectura = false,
   onCerrar,
 }: EdicionLayoutProps) {
+  const fechaParts = formatFechaParts(fecha);
+
   return (
     <main className="flex h-[100dvh] flex-col bg-bg-base text-text-primary">
       <header className="z-30 w-full shrink-0 bg-bg-base px-5 py-4">
@@ -109,10 +112,17 @@ export function EdicionLayout({
             <button
               type="button"
               onClick={onFechaClick}
-              className="inline-flex items-center gap-2 rounded-lg border border-black bg-white px-2 py-1.5 font-ui text-sm font-normal text-text-primary"
+              aria-label="Cambiar de edición"
+              style={{ fontFamily: "var(--font-nav)" }}
+              className={cn(
+                teclaFisica,
+                "flex flex-col items-center px-2.5 pb-1 pt-0.5 leading-none",
+              )}
             >
-              <Calendar aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-              {formatFechaLabel(fecha)}
+              <span className="text-[17px] font-bold">{fechaParts?.day ?? "--"}</span>
+              <span className="mt-0.5 text-[8.5px] font-medium tracking-[0.1em] text-text-secondary">
+                {fechaParts ? `${fechaParts.month} ${fechaParts.year2}` : ""}
+              </span>
             </button>
 
             {onReadMore ? (
@@ -132,7 +142,10 @@ export function EdicionLayout({
                 disabled={slideActivo === 1}
                 onClick={onPrev}
                 aria-label="Ir al slide anterior"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black bg-white text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                className={cn(
+                  teclaFisica,
+                  "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                )}
               >
                 <ChevronUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
               </button>
@@ -141,7 +154,10 @@ export function EdicionLayout({
                 disabled={slideActivo === 7}
                 onClick={onNext}
                 aria-label="Ir al slide siguiente"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black bg-white text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                className={cn(
+                  teclaFisica,
+                  "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                )}
               >
                 <ChevronDown aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
               </button>
