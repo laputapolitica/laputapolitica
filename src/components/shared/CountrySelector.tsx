@@ -56,7 +56,7 @@ export function CountrySelector({ className }: CountrySelectorProps) {
         aria-label="Elegí tu país"
         onClick={() => setOpen(true)}
         className={[
-          "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-bg-base shadow-[-2px_-2px_5px_#ffffff,3px_3px_6px_#E6E3DB] transition-shadow duration-150 ease-out active:shadow-[inset_2px_2px_4px_#E6E3DB,inset_-2px_-2px_4px_#ffffff]",
+          "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-bg-base shadow-[-3px_-3px_6px_#ffffff,4px_4px_9px_#D9D5CC] transition-shadow duration-150 ease-out active:shadow-[inset_3px_3px_6px_#D9D5CC,inset_-3px_-3px_6px_#ffffff]",
           className,
         ]
           .filter(Boolean)
