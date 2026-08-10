@@ -13,11 +13,12 @@ import {
 } from "@/components/public";
 import type { ClimaCiudadData } from "@/lib/clima";
 import { cn } from "@/lib/utils";
-import type { Edicion, Noticia } from "@/types/edicion";
+import type { Edicion, EdicionResumen, Noticia } from "@/types/edicion";
 
 type EdicionClientProps = {
   edicion: Edicion;
   clima: { ciudades: ClimaCiudadData[]; initialCityId: string };
+  ediciones: EdicionResumen[];
 };
 
 function normalizeEditionDate(fecha: string) {
@@ -32,7 +33,7 @@ function normalizeEditionDate(fecha: string) {
   return `${third}-${second}-${first}`;
 }
 
-export function EdicionClient({ edicion, clima }: EdicionClientProps) {
+export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLElement | null>>([]);
   const [slideActivo, setSlideActivo] = useState(1);
@@ -160,6 +161,7 @@ export function EdicionClient({ edicion, clima }: EdicionClientProps) {
 
       <FechaSelector
         fechaActual={fechaActual}
+        ediciones={ediciones}
         isOpen={fechaSelectorOpen}
         onClose={() => setFechaSelectorOpen(false)}
       />

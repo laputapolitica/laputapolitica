@@ -7,7 +7,7 @@ import {
   type ClimaCiudadData,
 } from "@/lib/clima";
 import { createClient } from "@/lib/supabase/server";
-import type { Edicion, Noticia } from "@/types/edicion";
+import type { Edicion, EdicionResumen, Noticia } from "@/types/edicion";
 
 // En la base, ediciones.fecha es un slug "dd-mm-yyyy". Aceptamos también
 // "yyyy-mm-dd" en la URL y lo normalizamos.
@@ -122,4 +122,33 @@ export async function cargarEdicion(slug?: string): Promise<EdicionData | null> 
   const ciudades = await getClimaEdicion(supabase, edicion.id);
 
   return { edicion, clima: { ciudades, initialCityId } };
+}
+
+type EdicionResumenRow = {
+  fecha: string;
+  titulo: string;
+  portada_url: string | null;
+};
+
+export async function listarEdiciones(): Promise<EdicionResumen[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("ediciones")
+    .select("fecha, titulo, portada_url, publicada_en")
+    .eq("estado", "published")
+    .order("publicada_en", { ascending: false });
+
+  if (error) {
+    console.error("Error listando ediciones publicas desde Supabase:", error.message);
+    return [];
+  }
+
+  const rows = (data ?? []) as unknown as EdicionResumenRow[];
+
+  return rows.map((row) => ({
+    fecha: row.fecha,
+    titulo: row.titulo ?? "",
+    portadaUrl: row.portada_url ?? "/placeholder.svg",
+  }));
 }

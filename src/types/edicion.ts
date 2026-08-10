@@ -19,3 +19,9 @@ export interface Edicion {
   portada_illustracion_url: string;
   noticias: Noticia[];
 }
+
+export interface EdicionResumen {
+  fecha: string;
+  titulo: string;
+  portadaUrl: string;
+}

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { cargarEdicion, toDbSlug } from "@/lib/edicion";
+import { cargarEdicion, listarEdiciones, toDbSlug } from "@/lib/edicion";
 import { EdicionClient } from "./EdicionClient";
 
 type EdicionPageProps = {
@@ -11,9 +11,16 @@ type EdicionPageProps = {
 
 export default async function EdicionPage({ params }: EdicionPageProps) {
   const { fecha } = await params;
-  const data = await cargarEdicion(toDbSlug(fecha));
+  const [data, ediciones] = await Promise.all([
+    cargarEdicion(toDbSlug(fecha)),
+    listarEdiciones(),
+  ]);
+
   if (!data) {
     notFound();
   }
-  return <EdicionClient edicion={data.edicion} clima={data.clima} />;
+
+  return (
+    <EdicionClient edicion={data.edicion} clima={data.clima} ediciones={ediciones} />
+  );
 }
