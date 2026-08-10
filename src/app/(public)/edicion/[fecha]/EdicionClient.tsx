@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { InterpretacionGeneral } from "@/components/shared/InterpretacionGeneral";
@@ -50,6 +51,7 @@ export function EdicionClient({
   const [cambiandoEdicion, setCambiandoEdicion] = useState(false);
   const [noticiaLeyendo, setNoticiaLeyendo] = useState<Noticia | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [copiado, setCopiado] = useState(false);
   const fechaActual = normalizeEditionDate(edicion.fecha);
 
   const noticiaEnSlide = edicion.noticias.find(
@@ -94,14 +96,25 @@ export function EdicionClient({
       text: `${titulo} — La Puta Política`,
       url,
     };
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
         await navigator.share(datos);
-      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
       }
-    } catch {
-      // el usuario canceló el compartir
+    }
+
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopiado(true);
+      } catch {
+        // no se pudo copiar el link
+      }
     }
   }, [edicion, slideActivo]);
 
@@ -153,6 +166,14 @@ export function EdicionClient({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [cerrarLectura, noticiaLeyendo]);
+
+  useEffect(() => {
+    if (!copiado) {
+      return;
+    }
+    const timeout = setTimeout(() => setCopiado(false), 1800);
+    return () => clearTimeout(timeout);
+  }, [copiado]);
 
   return (
     <EdicionLayout
@@ -219,6 +240,19 @@ export function EdicionClient({
         onClose={() => setFechaSelectorOpen(false)}
         onSelect={seleccionarEdicion}
       />
+
+      <div
+        aria-live="polite"
+        className={cn(
+          "pointer-events-none fixed inset-x-0 bottom-24 z-[70] flex justify-center px-6 transition-all duration-300 ease-out",
+          copiado ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0",
+        )}
+      >
+        <span className="inline-flex items-center gap-2 rounded-full border border-admin-ink bg-bg-base px-4 py-2 text-[13px] font-medium text-text-primary">
+          <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+          Link copiado
+        </span>
+      </div>
     </EdicionLayout>
   );
 }
