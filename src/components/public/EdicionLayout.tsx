@@ -41,7 +41,7 @@ function formatFechaParts(fecha: string) {
   if (!monthLabel) {
     return null;
   }
-  return { day, month: monthLabel, year2: year.slice(-2) };
+  return { day, month: monthLabel, year };
 }
 
 const teclaFisica =
@@ -121,7 +121,7 @@ export function EdicionLayout({
             >
               <span className="text-[17px] font-bold">{fechaParts?.day ?? "--"}</span>
               <span className="mt-0.5 text-[8.5px] font-medium tracking-[0.1em] text-text-secondary">
-                {fechaParts ? `${fechaParts.month} ${fechaParts.year2}` : ""}
+                {fechaParts ? `${fechaParts.month} ${fechaParts.year}` : ""}
               </span>
             </button>
 
