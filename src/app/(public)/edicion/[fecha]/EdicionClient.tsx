@@ -188,7 +188,6 @@ export function EdicionClient({
             ref={(node) => {
               slideRefs.current[noticia.orden] = node;
             }}
-            isModalOpen={false}
             noticia={noticia}
             slideNumber={noticia.orden + 1}
           />

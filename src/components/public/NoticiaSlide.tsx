@@ -2,26 +2,22 @@ import { forwardRef } from "react";
 
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 import { InterpretacionGeneral } from "@/components/shared/InterpretacionGeneral";
-import { cn } from "@/lib/utils";
 import type { Noticia } from "@/types/edicion";
 
 type NoticiaSlideProps = {
   noticia: Noticia;
   slideNumber: number;
-  isModalOpen: boolean;
 };
 
 export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
-  function NoticiaSlide({ noticia, slideNumber, isModalOpen }, ref) {
+  function NoticiaSlide({ noticia, slideNumber }, ref) {
     return (
       <section
         ref={ref}
         data-slide={slideNumber}
         className="flex h-full snap-start snap-always animate-in fade-in duration-200 flex-col py-6 pl-12 pr-6"
       >
-        <article
-          className={cn("flex min-h-0 flex-1 flex-col", isModalOpen && "invisible")}
-        >
+        <article className="flex min-h-0 flex-1 flex-col">
           {/* Sección A — Noticia */}
           <div className="flex min-h-0 flex-1 flex-col">
             <h2 className="font-display text-3xl font-semibold leading-[1.1] text-text-primary">
