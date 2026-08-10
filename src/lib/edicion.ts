@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { headers } from "next/headers";
 
 import {
@@ -75,7 +76,7 @@ export type EdicionData = {
 };
 
 // Sin slug → última edición publicada (la "home"). Con slug → esa fecha.
-export async function cargarEdicion(slug?: string): Promise<EdicionData | null> {
+export const cargarEdicion = cache(async (slug?: string): Promise<EdicionData | null> => {
   const supabase = await createClient();
 
   const base = supabase
@@ -122,7 +123,7 @@ export async function cargarEdicion(slug?: string): Promise<EdicionData | null> 
   const ciudades = await getClimaEdicion(supabase, edicion.id);
 
   return { edicion, clima: { ciudades, initialCityId } };
-}
+});
 
 type EdicionResumenRow = {
   fecha: string;
