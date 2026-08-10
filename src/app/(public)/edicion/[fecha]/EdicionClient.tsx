@@ -11,13 +11,16 @@ import {
   NoticiaSlide,
   PortadaSlide,
 } from "@/components/public";
+import { obtenerEdicion } from "@/lib/actions";
 import type { ClimaCiudadData } from "@/lib/clima";
 import { cn } from "@/lib/utils";
 import type { Edicion, EdicionResumen, Noticia } from "@/types/edicion";
 
+type ClimaData = { ciudades: ClimaCiudadData[]; initialCityId: string };
+
 type EdicionClientProps = {
   edicion: Edicion;
-  clima: { ciudades: ClimaCiudadData[]; initialCityId: string };
+  clima: ClimaData;
   ediciones: EdicionResumen[];
 };
 
@@ -33,11 +36,18 @@ function normalizeEditionDate(fecha: string) {
   return `${third}-${second}-${first}`;
 }
 
-export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps) {
+export function EdicionClient({
+  edicion: edicionInicial,
+  clima: climaInicial,
+  ediciones,
+}: EdicionClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLElement | null>>([]);
+  const [edicion, setEdicion] = useState(edicionInicial);
+  const [clima, setClima] = useState<ClimaData>(climaInicial);
   const [slideActivo, setSlideActivo] = useState(1);
   const [fechaSelectorOpen, setFechaSelectorOpen] = useState(false);
+  const [cambiandoEdicion, setCambiandoEdicion] = useState(false);
   const [noticiaLeyendo, setNoticiaLeyendo] = useState<Noticia | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const fechaActual = normalizeEditionDate(edicion.fecha);
@@ -54,6 +64,46 @@ export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps)
   const cerrarLectura = useCallback(() => {
     setIsClosing(true);
   }, []);
+
+  const seleccionarEdicion = useCallback(async (fecha: string) => {
+    setCambiandoEdicion(true);
+    try {
+      const data = await obtenerEdicion(fecha);
+      if (data) {
+        setNoticiaLeyendo(null);
+        setIsClosing(false);
+        setEdicion(data.edicion);
+        setClima(data.clima);
+        setSlideActivo(1);
+        scrollContainerRef.current?.scrollTo({ top: 0 });
+      }
+    } finally {
+      setCambiandoEdicion(false);
+    }
+  }, []);
+
+  const compartir = useCallback(async () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const url = `${origin}/edicion/${edicion.fecha}`;
+    const noticia = edicion.noticias.find(
+      (item) => item.orden === slideActivo - 1,
+    );
+    const titulo = noticia ? noticia.titulo : edicion.titulo;
+    const datos = {
+      title: titulo,
+      text: `${titulo} — La Puta Política`,
+      url,
+    };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(datos);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {
+      // el usuario canceló el compartir
+    }
+  }, [edicion, slideActivo]);
 
   const scrollToSlide = useCallback((slideNumber: number) => {
     const slide = slideRefs.current[slideNumber - 1];
@@ -89,7 +139,7 @@ export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps)
       }
     });
     return () => observer.disconnect();
-  }, []);
+  }, [edicion]);
 
   useEffect(() => {
     if (!noticiaLeyendo) {
@@ -114,12 +164,16 @@ export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps)
       onReadMore={
         noticiaEnSlide ? () => abrirLectura(noticiaEnSlide) : undefined
       }
+      onShare={compartir}
       modoLectura={Boolean(noticiaLeyendo) && !isClosing}
       onCerrar={cerrarLectura}
     >
       <div
         ref={scrollContainerRef}
-        className="mx-auto h-full max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar"
+        className={cn(
+          "mx-auto h-full max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar transition-opacity duration-200",
+          cambiandoEdicion && "pointer-events-none opacity-50",
+        )}
       >
         <PortadaSlide
           ref={(node) => {
@@ -164,6 +218,7 @@ export function EdicionClient({ edicion, clima, ediciones }: EdicionClientProps)
         ediciones={ediciones}
         isOpen={fechaSelectorOpen}
         onClose={() => setFechaSelectorOpen(false)}
+        onSelect={seleccionarEdicion}
       />
     </EdicionLayout>
   );

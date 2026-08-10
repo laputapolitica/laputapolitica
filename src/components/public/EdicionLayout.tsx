@@ -19,6 +19,7 @@ type EdicionLayoutProps = {
   onNext: () => void;
   onFechaClick: () => void;
   onReadMore?: () => void;
+  onShare?: () => void;
   modoLectura?: boolean;
   onCerrar?: () => void;
 };
@@ -55,6 +56,7 @@ export function EdicionLayout({
   onNext,
   onFechaClick,
   onReadMore,
+  onShare,
   modoLectura = false,
   onCerrar,
 }: EdicionLayoutProps) {
@@ -83,6 +85,32 @@ export function EdicionLayout({
           )}
         />
         {children}
+        {onShare ? (
+          <button
+            type="button"
+            onClick={onShare}
+            aria-label="Compartir esta noticia"
+            className={cn(
+              "absolute bottom-4 left-0 z-30 pl-3 text-text-primary transition-opacity duration-300 ease-out active:scale-90",
+              modoLectura ? "pointer-events-none opacity-0" : "opacity-100",
+            )}
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="square"
+              strokeLinejoin="miter"
+              className="h-3.5 w-3.5"
+            >
+              <path d="M6 11v9h12v-9" />
+              <path d="M12 15V3" />
+              <path d="M8 7l4-4 4 4" />
+            </svg>
+          </button>
+        ) : null}
       </div>
 
       <footer className="z-30 w-full shrink-0 bg-bg-base px-5 py-5">

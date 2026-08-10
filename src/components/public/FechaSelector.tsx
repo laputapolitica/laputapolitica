@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, LayoutGrid } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Drawer } from "vaul";
 
 import { cn } from "@/lib/utils";
@@ -13,6 +12,7 @@ interface FechaSelectorProps {
   ediciones: EdicionResumen[];
   isOpen: boolean;
   onClose: () => void;
+  onSelect: (fecha: string) => void;
 }
 
 const MONTHS = [
@@ -65,8 +65,7 @@ function groupByMonth(ediciones: EdicionResumen[]): MonthGroup[] {
   return groups;
 }
 
-export function FechaSelector({ fechaActual, ediciones, isOpen, onClose }: FechaSelectorProps) {
-  const router = useRouter();
+export function FechaSelector({ fechaActual, ediciones, isOpen, onClose, onSelect }: FechaSelectorProps) {
   const [view, setView] = useState<"kiosco" | "almanaque">("kiosco");
   const initial = parseParts(fechaActual);
   const [viewYear, setViewYear] = useState(initial.year);
@@ -108,7 +107,7 @@ export function FechaSelector({ fechaActual, ediciones, isOpen, onClose }: Fecha
   const hasEdiciones = ediciones.length > 0;
 
   function abrirEdicion(fecha: string) {
-    router.push(`/edicion/${fecha}`, { scroll: false });
+    onSelect(fecha);
     onClose();
   }
 
