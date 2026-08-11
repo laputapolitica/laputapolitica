@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 import type { Edicion } from "@/types/edicion";
 
@@ -8,30 +9,36 @@ type PortadaSlideProps = {
   onStart?: () => void;
 };
 
-const monthLabels = [
-  "ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-  "JUL", "AGO", "SEP", "OCT", "NOV", "DIC",
-];
-
-function formatFecha(fecha: string) {
+function numeroExpediente(fecha: string): string | null {
   const parts = fecha.split("-");
   if (parts.length !== 3) {
     return null;
   }
-  const [first, second, third] = parts;
-  const isIso = first.length === 4;
-  const day = isIso ? third : first;
-  const month = monthLabels[Number(second) - 1];
-  const year = isIso ? first : third;
-  if (!month) {
+  const [a, b, c] = parts;
+  const iso = a.length === 4;
+  const year = Number(iso ? a : c);
+  const month = Number(b);
+  const day = Number(iso ? c : a);
+  if (!year || !month || !day) {
     return null;
   }
-  return `${day} · ${month} · ${year}`;
+  const inicio = Date.UTC(year, 0, 0);
+  const actual = Date.UTC(year, month - 1, day);
+  const diaDelAno = Math.floor((actual - inicio) / 86400000);
+  return `${year}_${String(diaDelAno).padStart(3, "0")}-AR`;
+}
+
+function tituloSize(titulo: string): string {
+  const len = titulo.trim().length;
+  if (len <= 16) return "text-[46px]";
+  if (len <= 24) return "text-[40px]";
+  if (len <= 34) return "text-[34px]";
+  return "text-[30px]";
 }
 
 export const PortadaSlide = forwardRef<HTMLElement, PortadaSlideProps>(
   function PortadaSlide({ edicion, onStart }, ref) {
-    const fechaLabel = formatFecha(edicion.fecha);
+    const expediente = numeroExpediente(edicion.fecha);
 
     return (
       <section
@@ -68,41 +75,28 @@ export const PortadaSlide = forwardRef<HTMLElement, PortadaSlideProps>(
               src={edicion.portada_illustracion_url}
             />
           </div>
-          <div className="max-w-[400px]">
-            {fechaLabel ? (
+          <div className="max-w-[440px]">
+            {expediente ? (
               <span
                 className="text-[11px] font-medium uppercase tracking-[0.16em] text-text-secondary"
                 style={{ fontFamily: "var(--font-nav)" }}
               >
-                {fechaLabel}
+                Expediente N.º {expediente}
               </span>
             ) : null}
-            <h1 className="mt-3.5 font-display text-[60px] font-medium italic leading-[1.02] tracking-[-0.01em] text-text-primary">
+            <h1
+              className={`mt-3.5 font-display font-medium italic leading-[1.02] tracking-[-0.01em] text-text-primary ${tituloSize(edicion.titulo)}`}
+            >
               {edicion.titulo}
             </h1>
-            <p className="mt-5 max-w-[330px] font-editorial text-[15px] leading-relaxed text-text-secondary">
-              Tres temas para entender la jornada política argentina, en claro y sin vueltas.
-            </p>
             {onStart ? (
               <button
                 type="button"
                 onClick={onStart}
-                className="mt-8 inline-flex items-center gap-2.5 rounded-[10px] border-b-4 border-black bg-admin-ink px-5 py-3 font-ui text-[14px] font-semibold text-white transition-all duration-100 ease-out active:translate-y-[3px] active:border-b"
+                className="mt-7 inline-flex items-center gap-1.5 font-ui text-[15px] font-bold text-text-primary transition-transform active:scale-95"
               >
-                Empezar a leer
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-[15px] w-[15px]"
-                >
-                  <path d="M5 12h14" />
-                  <path d="M13 6l6 6-6 6" />
-                </svg>
+                <span className="underline underline-offset-[4px]">Empezar a leer</span>
+                <ArrowRight aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
               </button>
             ) : null}
           </div>
