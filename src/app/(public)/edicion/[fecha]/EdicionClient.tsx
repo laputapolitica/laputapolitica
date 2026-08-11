@@ -234,6 +234,7 @@ export function EdicionClient({
         <NoticiaLectura
           noticia={noticiaLeyendo}
           isClosing={isClosing}
+          onRequestClose={cerrarLectura}
           onExited={() => {
             setNoticiaLeyendo(null);
             setIsClosing(false);
@@ -269,10 +270,12 @@ type NoticiaLecturaProps = {
   noticia: Noticia;
   isClosing: boolean;
   onExited: () => void;
+  onRequestClose: () => void;
 };
 
-function NoticiaLectura({ noticia, isClosing, onExited }: NoticiaLecturaProps) {
+function NoticiaLectura({ noticia, isClosing, onExited, onRequestClose }: NoticiaLecturaProps) {
   const [entered, setEntered] = useState(false);
+  const exited = useRef(false);
 
   useEffect(() => {
     let innerRaf = 0;
@@ -286,43 +289,123 @@ function NoticiaLectura({ noticia, isClosing, onExited }: NoticiaLecturaProps) {
   }, []);
 
   const shown = entered && !isClosing;
+  const numeroNoticia = String(noticia.orden).padStart(2, "0");
+  const parrafos = noticia.cuerpo
+    .split(/\n+/)
+    .map((parrafo) => parrafo.trim())
+    .filter(Boolean);
+
+  const handleEnd = () => {
+    if (isClosing && !exited.current) {
+      exited.current = true;
+      onExited();
+    }
+  };
 
   return (
-    <div className="absolute inset-x-0 bottom-0 -top-px z-40 overflow-hidden">
-      <div
-        onTransitionEnd={() => {
-          if (isClosing) {
-            onExited();
-          }
-        }}
-        className={cn(
-          "absolute inset-0 overflow-y-auto bg-bg-base no-scrollbar transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-          shown ? "translate-y-0" : "translate-y-full",
-        )}
-      >
-        <article className="mx-auto flex max-w-[480px] flex-col px-6 pb-10 pt-6">
-          <h1 className="font-display text-3xl font-semibold leading-[1.1] text-text-primary">
-            {noticia.titulo}
-          </h1>
-
-          <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-            {noticia.cuerpo}
-          </p>
-
-          <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
-
-          <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
-            {noticia.el_pulso.texto_resumen}
-          </p>
-
-          <InterpretacionGeneral
-            className="mt-8"
-            pct_incierta={noticia.el_pulso.pct_incierta}
-            pct_negativa={noticia.el_pulso.pct_negativa}
-            pct_positiva={noticia.el_pulso.pct_positiva}
-          />
-        </article>
+    <>
+      {/* MOBILE — hoja que sube */}
+      <div className="absolute inset-x-0 bottom-0 -top-px z-40 overflow-hidden lg:hidden">
+        <div
+          onTransitionEnd={handleEnd}
+          className={cn(
+            "absolute inset-0 overflow-y-auto bg-bg-base no-scrollbar transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+            shown ? "translate-y-0" : "translate-y-full",
+          )}
+        >
+          <article className="mx-auto flex max-w-[480px] flex-col px-6 pb-10 pt-6">
+            <h1 className="font-display text-3xl font-semibold leading-[1.1] text-text-primary">
+              {noticia.titulo}
+            </h1>
+            <p className="mt-6 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+              {noticia.cuerpo}
+            </p>
+            <ElPulsoLogo className="mt-8 h-auto w-[106px]" />
+            <p className="mt-4 whitespace-pre-line font-editorial text-base leading-relaxed text-text-primary">
+              {noticia.el_pulso.texto_resumen}
+            </p>
+            <InterpretacionGeneral
+              className="mt-8"
+              pct_incierta={noticia.el_pulso.pct_incierta}
+              pct_negativa={noticia.el_pulso.pct_negativa}
+              pct_positiva={noticia.el_pulso.pct_positiva}
+            />
+          </article>
+        </div>
       </div>
-    </div>
+
+      {/* DESKTOP — modal centrado */}
+      <div className="hidden lg:block">
+        <div
+          onClick={onRequestClose}
+          className={cn(
+            "fixed inset-0 z-50 bg-[rgba(20,18,14,0.44)] transition-opacity duration-300 ease-out",
+            shown ? "opacity-100" : "opacity-0",
+          )}
+        />
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-8">
+          <div
+            onTransitionEnd={handleEnd}
+            className={cn(
+              "pointer-events-auto relative flex max-h-[86vh] w-full max-w-[760px] flex-col overflow-hidden rounded-[18px] bg-bg-base shadow-[0_30px_80px_rgba(0,0,0,0.35)] transition-all duration-300 ease-out",
+              shown ? "scale-100 opacity-100" : "scale-95 opacity-0",
+            )}
+          >
+            <button
+              type="button"
+              onClick={onRequestClose}
+              aria-label="Cerrar lectura"
+              className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border-default bg-bg-base text-text-primary shadow-[-2px_-2px_5px_#ffffff,3px_3px_7px_#E4DFD5] transition active:scale-90"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="h-4 w-4">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+            <div className="overflow-y-auto px-16 pb-12 pt-14 no-scrollbar">
+              <span
+                className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-secondary"
+                style={{ fontFamily: "var(--font-nav)" }}
+              >
+                Noticia {numeroNoticia}
+              </span>
+              <h1 className="mt-2.5 font-display text-[38px] font-semibold leading-[1.08] tracking-[-0.01em] text-text-primary">
+                {noticia.titulo}
+              </h1>
+              <div className="mt-6 max-w-[600px] font-editorial text-base leading-[1.75] text-text-primary [&>p]:mb-4">
+                {parrafos.map((parrafo, index) => (
+                  <p
+                    key={index}
+                    className={
+                      index === 0
+                        ? "first-letter:float-left first-letter:pr-2.5 first-letter:pt-1 first-letter:font-display first-letter:text-[58px] first-letter:font-bold first-letter:leading-[0.82] first-letter:text-text-primary"
+                        : undefined
+                    }
+                  >
+                    {parrafo}
+                  </p>
+                ))}
+              </div>
+              <hr className="mt-8 border-border-default" />
+              <ElPulsoLogo className="mt-7 h-auto w-[112px]" />
+              <p
+                className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-text-secondary"
+                style={{ fontFamily: "var(--font-nav)" }}
+              >
+                La lectura de la comunidad
+              </p>
+              <p className="mt-4 max-w-[600px] whitespace-pre-line font-editorial text-[15.5px] leading-relaxed text-text-primary">
+                {noticia.el_pulso.texto_resumen}
+              </p>
+              <InterpretacionGeneral
+                className="mt-6 max-w-[520px]"
+                pct_incierta={noticia.el_pulso.pct_incierta}
+                pct_negativa={noticia.el_pulso.pct_negativa}
+                pct_positiva={noticia.el_pulso.pct_positiva}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
