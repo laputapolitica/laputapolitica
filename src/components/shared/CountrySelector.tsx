@@ -36,9 +36,9 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function Cockade({ colors, size }: { colors: string[]; size: number }) {
+function Cockade({ colors }: { colors: string[] }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 200 200" width={size} height={size} className="rounded-full">
+    <svg aria-hidden="true" viewBox="0 0 200 200" className="h-full w-full rounded-full">
       {COCKADE_RADII.map((r, i) => (
         <circle key={r} cx={100} cy={100} r={r} fill={colors[i % colors.length]} />
       ))}
@@ -192,9 +192,9 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
         shown ? "opacity-100" : "opacity-0",
       )}
     >
-      <div className="relative flex items-center justify-center px-5 py-5">
+      <div className="relative flex items-center justify-center px-5 py-5 lg:py-7">
         <span
-          className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-text-secondary"
+          className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-text-secondary lg:text-[11px]"
           style={{ fontFamily: "var(--font-nav)" }}
         >
           Elegí tu país
@@ -203,9 +203,9 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
           type="button"
           onClick={handleClose}
           aria-label="Cerrar"
-          className="absolute right-5 text-text-secondary transition-transform active:scale-90"
+          className="absolute right-5 text-text-secondary transition-transform active:scale-90 lg:right-8"
         >
-          <X aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+          <X aria-hidden="true" className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.8} />
         </button>
       </div>
 
@@ -213,21 +213,25 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
         <div className="h-full overflow-hidden" ref={emblaRef}>
           <div className="flex h-full">
             {COUNTRIES.map((country, index) => (
-              <div key={country.code} className="flex flex-[0_0_50%] items-center justify-center">
+              <div
+                key={country.code}
+                className="flex flex-[0_0_50%] items-center justify-center lg:flex-[0_0_26%]"
+              >
                 <div
                   ref={(el) => {
                     tweenNodesRef.current[index] = el;
                   }}
+                  className="h-[132px] w-[132px] lg:h-[208px] lg:w-[208px]"
                 >
                   {country.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`/cockades/${country.code}.svg`}
                       alt={`Escarapela de ${country.name}`}
-                      className="h-[132px] w-[132px]"
+                      className="h-full w-full"
                     />
                   ) : (
-                    <Cockade colors={country.colors ?? []} size={132} />
+                    <Cockade colors={country.colors ?? []} />
                   )}
                 </div>
               </div>
@@ -236,23 +240,23 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center">
-          <div className="flex flex-1 flex-col items-center justify-end pb-9">
+          <div className="flex flex-1 flex-col items-center justify-end pb-9 lg:pb-12">
             <span
-              className="text-[11px] font-medium uppercase tracking-[0.22em] text-text-primary"
+              className="text-[11px] font-medium uppercase tracking-[0.22em] text-text-primary lg:text-[13px] lg:tracking-[0.24em]"
               style={{ fontFamily: "var(--font-nav)" }}
             >
               {active.name}
             </span>
           </div>
 
-          <div className="h-[132px]" aria-hidden="true" />
+          <div className="h-[132px] lg:h-[208px]" aria-hidden="true" />
 
-          <div className="flex flex-1 flex-col items-center justify-start pt-9">
-            <div className="flex h-9 items-center justify-center">
+          <div className="flex flex-1 flex-col items-center justify-start pt-9 lg:pt-12">
+            <div className="flex h-9 items-center justify-center lg:h-[52px]">
               {active.available ? (
-                <Logo variant="large" className="h-auto w-[200px]" />
+                <Logo variant="large" className="h-auto w-[200px] lg:w-[280px]" />
               ) : (
-                <span className="font-display text-xl italic text-text-secondary">
+                <span className="font-display text-xl italic text-text-secondary lg:text-2xl">
                   Próximamente
                 </span>
               )}
@@ -262,14 +266,14 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="pointer-events-auto mt-7 inline-flex items-center gap-1 font-ui text-[15px] font-bold text-text-primary"
+                className="pointer-events-auto mt-7 inline-flex items-center gap-1 font-ui text-[15px] font-bold text-text-primary lg:mt-9 lg:text-[17px]"
               >
                 <span className="underline underline-offset-[4px]">Entrar</span>
-                <ArrowRight aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                <ArrowRight aria-hidden="true" className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={2} />
               </button>
             ) : (
               <span
-                className="mt-7 text-[10px] font-bold uppercase tracking-[0.14em] text-text-secondary"
+                className="mt-7 text-[10px] font-bold uppercase tracking-[0.14em] text-text-secondary lg:mt-9 lg:text-[11px]"
                 style={{ fontFamily: "var(--font-nav)" }}
               >
                 Aún no disponible
@@ -279,7 +283,7 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div className="flex justify-center gap-1.5 pb-9 pt-4">
+      <div className="flex justify-center gap-1.5 pb-9 pt-4 lg:pb-12">
         {COUNTRIES.map((country, index) => (
           <button
             key={country.code}
