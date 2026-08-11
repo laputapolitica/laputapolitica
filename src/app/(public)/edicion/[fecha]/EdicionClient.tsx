@@ -208,6 +208,7 @@ export function EdicionClient({
             slideRefs.current[0] = node;
           }}
           edicion={edicion}
+          onStart={() => scrollToSlide(2)}
         />
 
         {edicion.noticias.map((noticia) => (
