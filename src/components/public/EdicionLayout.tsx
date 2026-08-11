@@ -64,6 +64,30 @@ const shareGlyph = (
   </svg>
 );
 
+const REDES: Record<string, { instagram: string; x: string }> = {
+  // TODO: reemplazar por las URLs reales de cada cuenta cuando existan.
+  ar: {
+    instagram: "https://www.instagram.com/",
+    x: "https://x.com/",
+  },
+};
+
+const PAIS_REDES = "ar";
+
+const instagramGlyph = (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-3.5 w-3.5">
+    <rect x="2.5" y="2.5" width="19" height="19" rx="5.2" />
+    <circle cx="12" cy="12" r="4.2" />
+    <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const xGlyph = (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
 export function EdicionLayout({
   children,
   fecha,
@@ -114,26 +138,12 @@ export function EdicionLayout({
       {/* ===== MASTHEAD DESKTOP ===== */}
       <header className="hidden shrink-0 bg-bg-base lg:block">
         <div className="relative mx-auto max-w-[1280px] px-10 pb-3 pt-6 text-center">
-          <span
-            className="absolute left-10 top-8 text-[10px] font-medium uppercase tracking-[0.14em] text-text-secondary"
-            style={{ fontFamily: "var(--font-nav)" }}
-          >
-            Edición del día
-          </span>
-          <div className="absolute right-10 top-6 flex items-center gap-3">
-            {fechaParts ? (
-              <span
-                className="text-[10px] uppercase tracking-[0.1em] text-text-secondary"
-                style={{ fontFamily: "var(--font-nav)" }}
-              >
-                {fechaParts.day} · {fechaParts.month} · {fechaParts.year}
-              </span>
-            ) : null}
+          <div className="absolute right-10 top-1/2 -translate-y-1/2">
             <CountrySelector />
           </div>
-          <Logo variant="large" className="mx-auto h-auto w-[360px]" />
+          <Logo variant="large" className="mx-auto h-auto w-[330px]" />
         </div>
-        <div className="mx-auto max-w-[1280px] px-10">
+        <div className="mx-auto max-w-[1280px]">
           <div className="h-1 border-b border-t-2 border-admin-ink" />
         </div>
       </header>
@@ -149,12 +159,6 @@ export function EdicionLayout({
         />
 
         <aside className="hidden w-[240px] flex-none border-r border-border-default px-8 py-7 lg:block">
-          <p
-            className="mb-4 text-[10px] font-bold uppercase tracking-[0.14em] text-text-secondary"
-            style={{ fontFamily: "var(--font-nav)" }}
-          >
-            En esta edición
-          </p>
           <ol>
             {secciones.map((s) => {
               const activa = s.n === slideActivo;
@@ -163,10 +167,10 @@ export function EdicionLayout({
                   <button
                     type="button"
                     onClick={() => onSelectSlide?.(s.n)}
-                    className="flex w-full items-start gap-2.5 border-b border-[#EDEAE3] py-2.5 text-left last:border-b-0"
+                    className="flex w-full items-baseline gap-2.5 border-b border-[#EDEAE3] py-2.5 text-left last:border-b-0"
                   >
                     <span
-                      className={cn("pt-0.5 text-[11px]", activa ? "font-bold text-admin-ink" : "text-[#A7A29A]")}
+                      className={cn("text-[11px]", activa ? "font-bold text-admin-ink" : "text-[#A7A29A]")}
                       style={{ fontFamily: "var(--font-nav)" }}
                     >
                       {pad(s.n)}
@@ -263,7 +267,29 @@ export function EdicionLayout({
       {/* ===== FOOTER DESKTOP ===== */}
       <footer className="hidden shrink-0 border-t border-border-default bg-bg-base lg:block">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-10 py-4">
-          {selloFecha}
+          <div className="flex items-center gap-4">
+            {selloFecha}
+            <div className="flex items-center gap-3 text-text-secondary">
+              <a
+                href={REDES[PAIS_REDES].instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="transition-colors hover:text-text-primary"
+              >
+                {instagramGlyph}
+              </a>
+              <a
+                href={REDES[PAIS_REDES].x}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="X"
+                className="transition-colors hover:text-text-primary"
+              >
+                {xGlyph}
+              </a>
+            </div>
+          </div>
 
           <div className="flex items-center gap-6 font-ui text-[13px] font-bold text-text-primary">
             {onShare ? (
