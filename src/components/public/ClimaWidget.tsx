@@ -59,9 +59,6 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
     };
   }, [emblaApi, onSelect]);
 
-  // El auto-avance NO arranca al cargar (playOnInit: false). Arranca cuando el
-  // slide del clima entra en pantalla, reseteando a la ciudad inicial; se pausa
-  // cuando sale de vista.
   useEffect(() => {
     const node = sectionRef.current;
     if (!node || !emblaApi || !canCycleCities) {
@@ -92,7 +89,7 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
   const activeCity = ciudades[selectedIndex] ?? ciudades[0];
 
   return (
-    <section ref={sectionRef} className="mx-auto w-full max-w-[360px]">
+    <section ref={sectionRef} className="mx-auto w-full max-w-[360px] lg:max-w-[600px]">
       <div className="flex items-center">
         <button
           type="button"
@@ -108,7 +105,7 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
 
         <h3
           className={cn(
-            "mx-4 shrink-0 whitespace-nowrap font-display font-normal text-text-primary",
+            "mx-4 shrink-0 whitespace-nowrap font-display font-normal text-text-primary lg:mx-6 lg:text-[32px]",
             cityLabelSize(activeCity.label),
           )}
         >
@@ -128,20 +125,20 @@ export function ClimaWidget({ clima }: ClimaWidgetProps) {
         </button>
       </div>
 
-      <div className="mt-5 overflow-hidden" ref={emblaRef}>
+      <div className="mt-5 overflow-hidden lg:mt-8" ref={emblaRef}>
         <div className="flex">
           {ciudades.map((ciudad) => (
             <div key={ciudad.id} className="min-w-0 flex-[0_0_100%]">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4 lg:gap-6">
                 {ciudad.dias.map((dia) => (
                   <article key={dia.fecha} className="text-center">
                     <ClimaIcon dia={dia} />
-                    <div className="mt-3 font-display text-2xl font-medium text-text-primary">
+                    <div className="mt-3 font-display text-2xl font-medium text-text-primary lg:mt-4 lg:text-[34px]">
                       <span className="text-[#2F4E85]">{formatTemperature(dia.temperaturaMin)}</span>
                       <span className="text-text-secondary">/</span>
                       <span className="text-[#B74A4A]">{formatTemperature(dia.temperaturaMax)}</span>
                     </div>
-                    <div className="mt-1.5 font-display text-xs font-medium text-text-primary">
+                    <div className="mt-1.5 font-display text-xs font-medium text-text-primary lg:text-[15px]">
                       {dia.diaLabel}
                     </div>
                   </article>
@@ -163,10 +160,10 @@ function ClimaIcon({ dia }: { dia: ClimaDiaData }) {
   return (
     <Image
       alt={dia.condicion ?? dia.icono}
-      className="mx-auto h-[100px] w-[100px] object-contain"
-      height={100}
+      className="mx-auto h-[100px] w-[100px] object-contain lg:h-[136px] lg:w-[136px]"
+      height={136}
       src={climaIconPath(dia.icono)}
-      width={100}
+      width={136}
     />
   );
 }
