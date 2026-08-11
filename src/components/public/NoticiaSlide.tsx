@@ -11,7 +11,6 @@ type NoticiaSlideProps = {
 
 export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
   function NoticiaSlide({ noticia, slideNumber }, ref) {
-    const numeroNoticia = String(slideNumber - 1).padStart(2, "0");
     const parrafos = noticia.cuerpo
       .split(/\n+/)
       .map((p) => p.trim())
@@ -53,17 +52,11 @@ export const NoticiaSlide = forwardRef<HTMLElement, NoticiaSlideProps>(
 
         {/* DESKTOP */}
         <div className="mx-auto hidden min-h-0 w-full max-w-[1000px] flex-1 flex-col lg:flex">
-          <span
-            className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-secondary"
-            style={{ fontFamily: "var(--font-nav)" }}
-          >
-            Noticia {numeroNoticia}
-          </span>
-          <h2 className="mt-3 font-display text-[38px] font-semibold leading-[1.05] tracking-[-0.01em] text-text-primary">
+          <h2 className="font-display text-[38px] font-semibold leading-[1.05] tracking-[-0.01em] text-text-primary">
             {noticia.titulo}
           </h2>
           <div className="mt-6 flex min-h-0 flex-1 gap-10">
-            <div className="min-h-0 min-w-0 flex-1 overflow-hidden fade-bottom">
+            <div className="min-h-0 min-w-0 flex-1 overflow-hidden fade-col-right">
               <div className="columns-2 gap-8 font-editorial text-[14px] leading-[1.72] text-text-primary [&>p]:mb-3.5">
                 {parrafos.map((parrafo, index) => (
                   <p
