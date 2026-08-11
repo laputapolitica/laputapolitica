@@ -45,13 +45,7 @@ export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(
         {/* DESKTOP */}
         <div className="mx-auto hidden w-full max-w-[1160px] items-center justify-between gap-14 lg:flex">
           <div className="flex min-w-0 flex-1 flex-col items-center">
-            <span
-              className="self-start text-[11px] font-medium uppercase tracking-[0.16em] text-text-secondary"
-              style={{ fontFamily: "var(--font-nav)" }}
-            >
-              El clima de hoy
-            </span>
-            <div className="mt-6 w-full">
+            <div className="w-full">
               <ClimaWidget clima={clima} />
             </div>
           </div>
@@ -68,10 +62,10 @@ export const CTASlide = forwardRef<HTMLElement, CTASlideProps>(
               href="/el-pulso"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2.5 rounded-[10px] border-b-4 border-black bg-admin-ink px-5 py-3 font-ui text-[14px] font-semibold text-white transition-all duration-100 ease-out active:translate-y-[3px] active:border-b"
+              className="mt-6 inline-flex items-center font-ui text-[15px] font-bold text-text-primary transition-transform active:scale-95"
             >
-              Sumar mi voz
-              <ArrowUpRight aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2.2} />
+              <span className="underline underline-offset-[4px]">Sumar mi voz</span>
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
             </Link>
           </aside>
         </div>
