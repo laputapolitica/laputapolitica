@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
 
@@ -76,7 +76,7 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
   const [selected, setSelected] = useState(0);
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
-  const tweenNodesRef = useRef<Array<HTMLDivElement | null>>([]);
+  const tweenNodesRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     let inner = 0;
@@ -169,13 +169,22 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
       if (event.key === "Escape") {
         handleClose();
       }
+      if (event.key === "ArrowLeft") {
+        emblaApi?.scrollPrev();
+      }
+      if (event.key === "ArrowRight") {
+        emblaApi?.scrollNext();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleClose]);
+  }, [handleClose, emblaApi]);
 
   const shown = visible && !closing;
   const active = COUNTRIES[selected] ?? COUNTRIES[0];
+
+  const arrowClass =
+    "absolute top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-bg-base text-text-primary shadow-[-3px_-3px_6px_#ffffff,4px_4px_9px_#D9D5CC] transition-shadow duration-150 ease-out active:shadow-[inset_3px_3px_6px_#D9D5CC,inset_-3px_-3px_6px_#ffffff] lg:flex";
 
   return createPortal(
     <div
@@ -217,11 +226,18 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
                 key={country.code}
                 className="flex flex-[0_0_50%] items-center justify-center lg:flex-[0_0_26%]"
               >
-                <div
+                <button
+                  type="button"
+                  aria-label={`Ver ${country.name}`}
+                  onClick={() => {
+                    if (emblaApi) {
+                      emblaApi.scrollTo(index);
+                    }
+                  }}
                   ref={(el) => {
                     tweenNodesRef.current[index] = el;
                   }}
-                  className="h-[132px] w-[132px] lg:h-[208px] lg:w-[208px]"
+                  className="h-[132px] w-[132px] lg:h-[168px] lg:w-[168px]"
                 >
                   {country.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -233,11 +249,28 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
                   ) : (
                     <Cockade colors={country.colors ?? []} />
                   )}
-                </div>
+                </button>
               </div>
             ))}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => emblaApi?.scrollPrev()}
+          aria-label="País anterior"
+          className={cn(arrowClass, "left-12")}
+        >
+          <ChevronLeft aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+        </button>
+        <button
+          type="button"
+          onClick={() => emblaApi?.scrollNext()}
+          aria-label="País siguiente"
+          className={cn(arrowClass, "right-12")}
+        >
+          <ChevronRight aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+        </button>
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center">
           <div className="flex flex-1 flex-col items-center justify-end pb-9 lg:pb-12">
@@ -249,7 +282,7 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
             </span>
           </div>
 
-          <div className="h-[132px] lg:h-[208px]" aria-hidden="true" />
+          <div className="h-[132px] lg:h-[168px]" aria-hidden="true" />
 
           <div className="flex flex-1 flex-col items-center justify-start pt-9 lg:pt-12">
             <div className="flex h-9 items-center justify-center lg:h-[52px]">
