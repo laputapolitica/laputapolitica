@@ -60,7 +60,7 @@ export function EdicionClient({
   const secciones = [
     { n: 1, titulo: "Portada" },
     ...edicion.noticias.map((n) => ({ n: n.orden + 1, titulo: n.titulo })),
-    { n: edicion.noticias.length + 2, titulo: "El clima de hoy" },
+    { n: edicion.noticias.length + 2, titulo: "El clima" },
   ];
 
   const abrirLectura = useCallback((noticia: Noticia) => {
@@ -289,7 +289,6 @@ function NoticiaLectura({ noticia, isClosing, onExited, onRequestClose }: Notici
   }, []);
 
   const shown = entered && !isClosing;
-  const numeroNoticia = String(noticia.orden).padStart(2, "0");
   const parrafos = noticia.cuerpo
     .split(/\n+/)
     .map((parrafo) => parrafo.trim())
@@ -362,13 +361,7 @@ function NoticiaLectura({ noticia, isClosing, onExited, onRequestClose }: Notici
               </svg>
             </button>
             <div className="overflow-y-auto px-16 pb-12 pt-14 no-scrollbar">
-              <span
-                className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-secondary"
-                style={{ fontFamily: "var(--font-nav)" }}
-              >
-                Noticia {numeroNoticia}
-              </span>
-              <h1 className="mt-2.5 font-display text-[38px] font-semibold leading-[1.08] tracking-[-0.01em] text-text-primary">
+              <h1 className="font-display text-[38px] font-semibold leading-[1.08] tracking-[-0.01em] text-text-primary">
                 {noticia.titulo}
               </h1>
               <div className="mt-6 max-w-[600px] font-editorial text-base leading-[1.75] text-text-primary [&>p]:mb-4">
