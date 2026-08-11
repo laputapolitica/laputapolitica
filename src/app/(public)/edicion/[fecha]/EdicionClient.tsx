@@ -57,6 +57,11 @@ export function EdicionClient({
   const noticiaEnSlide = edicion.noticias.find(
     (noticia) => noticia.orden === slideActivo - 1,
   );
+  const secciones = [
+    { n: 1, titulo: "Portada" },
+    ...edicion.noticias.map((n) => ({ n: n.orden + 1, titulo: n.titulo })),
+    { n: edicion.noticias.length + 2, titulo: "El clima de hoy" },
+  ];
 
   const abrirLectura = useCallback((noticia: Noticia) => {
     setIsClosing(false);
@@ -186,13 +191,15 @@ export function EdicionClient({
         noticiaEnSlide ? () => abrirLectura(noticiaEnSlide) : undefined
       }
       onShare={compartir}
+      secciones={secciones}
+      onSelectSlide={scrollToSlide}
       modoLectura={Boolean(noticiaLeyendo) && !isClosing}
       onCerrar={cerrarLectura}
     >
       <div
         ref={scrollContainerRef}
         className={cn(
-          "mx-auto h-full max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar transition-opacity duration-200",
+          "mx-auto h-full max-w-[480px] snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-bg-base no-scrollbar transition-opacity duration-200 lg:mx-0 lg:max-w-none lg:flex-1",
           cambiandoEdicion && "pointer-events-none opacity-50",
         )}
       >
