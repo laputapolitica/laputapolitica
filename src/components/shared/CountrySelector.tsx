@@ -17,33 +17,24 @@ type Country = {
   code: string;
   name: string;
   available: boolean;
-  image?: boolean;
-  colors?: string[];
 };
 
 const COUNTRIES: Country[] = [
-  { code: "ar", name: "Argentina", available: true, image: true },
-  { code: "br", name: "Brasil", available: false, image: true },
-  { code: "cl", name: "Chile", available: false, colors: ["#DA291C", "#FFFFFF", "#0033A0", "#FFFFFF"] },
-  { code: "co", name: "Colombia", available: false, image: true },
-  { code: "mx", name: "México", available: false, image: true },
-  { code: "uy", name: "Uruguay", available: false, image: true },
+  { code: "ar", name: "Argentina", available: true },
+  { code: "bo", name: "Bolivia", available: false },
+  { code: "br", name: "Brasil", available: false },
+  { code: "cl", name: "Chile", available: false },
+  { code: "co", name: "Colombia", available: false },
+  { code: "ec", name: "Ecuador", available: false },
+  { code: "mx", name: "México", available: false },
+  { code: "py", name: "Paraguay", available: false },
+  { code: "pe", name: "Perú", available: false },
+  { code: "uy", name: "Uruguay", available: false },
+  { code: "ve", name: "Venezuela", available: false },
 ];
-
-const COCKADE_RADII = [100, 74, 48, 22];
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
-}
-
-function Cockade({ colors }: { colors: string[] }) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 200 200" className="h-full w-full rounded-full">
-      {COCKADE_RADII.map((r, i) => (
-        <circle key={r} cx={100} cy={100} r={r} fill={colors[i % colors.length]} />
-      ))}
-    </svg>
-  );
 }
 
 export function CountrySelector({ className }: CountrySelectorProps) {
@@ -239,16 +230,12 @@ function PaisSelector({ onClose }: { onClose: () => void }) {
                   }}
                   className="h-[132px] w-[132px] lg:h-[168px] lg:w-[168px]"
                 >
-                  {country.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`/cockades/${country.code}.svg`}
-                      alt={`Escarapela de ${country.name}`}
-                      className="h-full w-full"
-                    />
-                  ) : (
-                    <Cockade colors={country.colors ?? []} />
-                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/cockades/${country.code}.svg`}
+                    alt={`Escarapela de ${country.name}`}
+                    className="h-full w-full"
+                  />
                 </button>
               </div>
             ))}
