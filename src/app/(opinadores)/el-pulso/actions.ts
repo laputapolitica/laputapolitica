@@ -22,6 +22,11 @@ export async function crearPostulacion(
     return { error: "Todos los campos son obligatorios" };
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { error: "Ingresá un email válido" };
+  }
+
   const edad = Number.parseInt(edadRaw, 10);
   if (Number.isNaN(edad) || edad < 13) {
     return { error: "Ingresá una edad válida (mínimo 13 años)" };

@@ -2,18 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { OnboardingNav, OnboardingSlide } from "@/components/opinadores";
-import { CountryIndicator, ElPulsoLogo, Logo } from "@/components/shared";
+import { HeaderElPulso, OnboardingNav, OnboardingSlide } from "@/components/opinadores";
 
 type OnboardingItem = {
   numero: number;
   titulo: string;
   descripcion: string;
   ilustracionUrl: string;
-  esFormulario?: boolean;
 };
 
-const TOTAL_SLIDES = 4;
+const TOTAL_SLIDES = 3;
 
 const slides: OnboardingItem[] = [
   {
@@ -21,28 +19,21 @@ const slides: OnboardingItem[] = [
     titulo: "La política del día, interpretada por vos",
     descripcion:
       "Leé las noticias centrales de cada jornada y sumá una mirada honesta, breve y situada.",
-    ilustracionUrl: "/placeholder.svg",
+    ilustracionUrl: "/onboarding/slide-1.png",
   },
   {
     numero: 2,
     titulo: "Tu opinión construye El Pulso",
     descripcion:
       "Cada voto ayuda a revelar cómo se está leyendo la actualidad política desde la comunidad.",
-    ilustracionUrl: "/placeholder.svg",
+    ilustracionUrl: "/onboarding/slide-2.png",
   },
   {
     numero: 3,
     titulo: "5 minutos. Todos los días. Tu voz importa.",
     descripcion:
       "Un ritual simple para participar mejor: leer, votar y dejar una interpretación propia.",
-    ilustracionUrl: "/placeholder.svg",
-  },
-  {
-    numero: 4,
-    titulo: "Sumate como opinador",
-    descripcion: "Completá tu postulación para formar parte de la comunidad.",
-    ilustracionUrl: "/placeholder.svg",
-    esFormulario: true,
+    ilustracionUrl: "/onboarding/slide-3.png",
   },
 ];
 
@@ -115,17 +106,12 @@ export function OpinadoresClient(): React.ReactElement {
   }, [activeSlide, scrollToSlide]);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-bg-base text-text-primary">
+    <main className="fixed inset-0 overflow-hidden bg-bg-base text-text-primary">
       <header className="fixed left-0 top-0 z-50 flex w-full items-center justify-between bg-bg-base px-5 py-4">
-        <div className="flex items-center gap-3">
-          <Logo variant="small" className="h-10 w-auto" />
-          <span aria-hidden="true" className="h-8 w-px bg-border-default" />
-          <ElPulsoLogo className="h-[26px] w-auto" />
-        </div>
-        <CountryIndicator />
+        <HeaderElPulso />
       </header>
 
-      <div className="flex h-screen w-screen snap-x snap-mandatory overflow-x-auto scroll-smooth">
+      <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth">
         {slides.map(
           (slide: OnboardingItem, index: number): React.ReactElement => (
             <div
@@ -134,26 +120,24 @@ export function OpinadoresClient(): React.ReactElement {
                 slideRefs.current[index] = element;
               }}
               data-slide={slide.numero}
-              className="w-screen flex-shrink-0 snap-center snap-always"
+              className="h-full w-screen flex-shrink-0 snap-center snap-always"
             >
               <OnboardingSlide
                 {...slide}
-                isActive={activeSlide === slide.numero}
                 total={TOTAL_SLIDES}
+                mostrarCta={slide.numero === TOTAL_SLIDES}
               />
             </div>
           ),
         )}
       </div>
 
-      {activeSlide < TOTAL_SLIDES ? (
-        <OnboardingNav
-          activeSlide={activeSlide}
-          total={TOTAL_SLIDES}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-        />
-      ) : null}
+      <OnboardingNav
+        activeSlide={activeSlide}
+        total={TOTAL_SLIDES}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+      />
     </main>
   );
 }

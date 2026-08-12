@@ -1,8 +1,10 @@
 export { HeaderOpinador } from "./HeaderOpinador";
+export { HeaderElPulso } from "./HeaderElPulso";
 export { NoticiaSwipe } from "./NoticiaSwipe";
 export { OnboardingNav } from "./OnboardingNav";
 export { OnboardingSlide } from "./OnboardingSlide";
 export { OpinionForm } from "./OpinionForm";
+export { PostulacionForm } from "./PostulacionForm";
 export type { HeaderOpinadorProps } from "./HeaderOpinador";
 export type { NoticiaSwipeNoticia, NoticiaSwipeProps } from "./NoticiaSwipe";
 export type { OnboardingNavProps } from "./OnboardingNav";

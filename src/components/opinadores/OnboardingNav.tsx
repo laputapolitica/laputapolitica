@@ -26,22 +26,12 @@ export function OnboardingNav({
           aria-label="Slide anterior"
           disabled={isFirstSlide}
           onClick={onPrevious}
-          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-30"
+          className="flex flex-1 items-center bg-transparent p-0 transition-opacity duration-300 ease-out disabled:pointer-events-none disabled:opacity-20"
         >
-          <svg
-            aria-hidden="true"
-            width="100%"
-            height="6"
-            viewBox="0 0 139 6"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 2.88672L5 5.77347V-3.26633e-05L0 2.88672ZM139 2.88672V2.38672L4.5 2.38672V2.88672V3.38672L139 3.38672V2.88672Z"
-              fill="#444444"
-            />
+          <svg aria-hidden="true" width="7" height="8" viewBox="0 0 7 8" fill="none" className="shrink-0">
+            <path d="M0 4L7 0V8L0 4Z" fill="#444444" />
           </svg>
+          <span aria-hidden="true" className="h-px flex-1 bg-[#444444]" />
         </button>
 
         <span className="mx-4 shrink-0 text-center font-display text-base font-normal text-text-primary">
@@ -53,21 +43,11 @@ export function OnboardingNav({
           aria-label="Slide siguiente"
           disabled={isLastSlide}
           onClick={onNext}
-          className="flex-1 bg-transparent p-0 disabled:pointer-events-none disabled:opacity-30"
+          className="flex flex-1 items-center bg-transparent p-0 transition-opacity duration-300 ease-out disabled:pointer-events-none disabled:opacity-20"
         >
-          <svg
-            aria-hidden="true"
-            width="100%"
-            height="6"
-            viewBox="0 0 139 6"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M139 2.88672L134 -3.26633e-05V5.77347L139 2.88672ZM0 2.88672L0 3.38672L134.5 3.38672V2.88672V2.38672L0 2.38672L0 2.88672Z"
-              fill="#444444"
-            />
+          <span aria-hidden="true" className="h-px flex-1 bg-[#444444]" />
+          <svg aria-hidden="true" width="7" height="8" viewBox="0 0 7 8" fill="none" className="shrink-0">
+            <path d="M7 4L0 0V8L7 4Z" fill="#444444" />
           </svg>
         </button>
       </div>
