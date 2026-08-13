@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { HeaderElPulso, OnboardingNav, OnboardingSlide } from "@/components/opinadores";
+import {
+  HeaderElPulso,
+  OnboardingNav,
+  OnboardingSlide,
+  PostulacionForm,
+} from "@/components/opinadores";
 
 type OnboardingItem = {
   numero: number;
@@ -105,39 +110,58 @@ export function OpinadoresClient(): React.ReactElement {
     }
   }, [activeSlide, scrollToSlide]);
 
+  useEffect(() => {
+    const timer = window.setTimeout((): void => {
+      const nextSlide = activeSlide < TOTAL_SLIDES ? activeSlide + 1 : 1;
+      scrollToSlide(nextSlide);
+    }, 6000);
+
+    return (): void => {
+      window.clearTimeout(timer);
+    };
+  }, [activeSlide, scrollToSlide]);
+
   return (
-    <main className="fixed inset-0 overflow-hidden bg-bg-base text-text-primary">
-      <header className="fixed left-0 top-0 z-50 flex w-full items-center justify-between bg-bg-base px-5 py-4">
+    <main className="flex h-[100dvh] flex-col overflow-hidden bg-bg-base text-text-primary">
+      <header className="fixed left-0 top-0 z-50 flex w-full items-center justify-between bg-bg-base px-5 py-4 lg:static lg:z-auto lg:border-b lg:border-border-default lg:px-8 lg:py-5">
         <HeaderElPulso />
       </header>
 
-      <div className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth">
-        {slides.map(
-          (slide: OnboardingItem, index: number): React.ReactElement => (
-            <div
-              key={slide.numero}
-              ref={(element: HTMLDivElement | null): void => {
-                slideRefs.current[index] = element;
-              }}
-              data-slide={slide.numero}
-              className="h-full w-screen flex-shrink-0 snap-center snap-always"
-            >
-              <OnboardingSlide
-                {...slide}
-                total={TOTAL_SLIDES}
-                mostrarCta={slide.numero === TOTAL_SLIDES}
-              />
-            </div>
-          ),
-        )}
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col lg:w-[55%] lg:max-w-[720px] lg:flex-none lg:border-r lg:border-border-default">
+          <div className="no-scrollbar flex min-h-0 w-full flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth">
+            {slides.map(
+              (slide: OnboardingItem, index: number): React.ReactElement => (
+                <div
+                  key={slide.numero}
+                  ref={(element: HTMLDivElement | null): void => {
+                    slideRefs.current[index] = element;
+                  }}
+                  data-slide={slide.numero}
+                  className="h-full w-screen flex-shrink-0 snap-center snap-always lg:w-full"
+                >
+                  <OnboardingSlide
+                    {...slide}
+                    total={TOTAL_SLIDES}
+                    mostrarCta={slide.numero === TOTAL_SLIDES}
+                  />
+                </div>
+              ),
+            )}
+          </div>
 
-      <OnboardingNav
-        activeSlide={activeSlide}
-        total={TOTAL_SLIDES}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-      />
+          <OnboardingNav
+            activeSlide={activeSlide}
+            total={TOTAL_SLIDES}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+          />
+        </div>
+
+        <div className="hidden min-h-0 flex-1 flex-col overflow-y-auto lg:flex">
+          <PostulacionForm showHeadingOnDesktop />
+        </div>
+      </div>
     </main>
   );
 }

@@ -26,7 +26,7 @@ const textareaClass =
 const labelClass =
   "font-ui text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary";
 
-export function PostulacionForm(): React.ReactElement {
+export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingOnDesktop?: boolean } = {}): React.ReactElement {
   const [state, formAction, isPending] = useActionState<CrearPostulacionState, FormData>(
     crearPostulacion,
     {},
@@ -54,9 +54,9 @@ export function PostulacionForm(): React.ReactElement {
 
   return (
     <form action={formAction} className="flex h-full flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 pt-4">
-        <div className="mx-auto w-full max-w-[440px]">
-          <header className="text-center">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-8 pt-4 lg:px-8 lg:py-10">
+        <div className="mx-auto flex w-full max-w-[440px] flex-col lg:my-auto lg:max-w-[460px]">
+          <header className={`text-center${showHeadingOnDesktop ? "" : " lg:hidden"}`}>
             <h1 className="font-display text-[26px] font-normal leading-tight text-text-primary">
               Sumate como opinador
             </h1>
@@ -65,7 +65,7 @@ export function PostulacionForm(): React.ReactElement {
             </p>
           </header>
 
-          <div className="mt-7 flex flex-col gap-4 text-left">
+          <div className={`mt-7 flex flex-col gap-4 text-left${showHeadingOnDesktop ? "" : " lg:mt-0"}`}>
             <label className="flex flex-col gap-2">
               <span className={labelClass}>Nombre completo</span>
               <Input className={inputClass} name="nombre" placeholder="Juan Pérez" required />
@@ -137,8 +137,8 @@ export function PostulacionForm(): React.ReactElement {
         </div>
       </div>
 
-      <div className="flex-none border-t border-border-default bg-bg-base px-6 py-4">
-        <div className="mx-auto w-full max-w-[440px]">
+      <div className="flex-none border-t border-border-default bg-bg-base px-6 py-4 lg:px-8 lg:py-5">
+        <div className="mx-auto w-full max-w-[440px] lg:max-w-[460px]">
           <button
             type="submit"
             disabled={isPending}

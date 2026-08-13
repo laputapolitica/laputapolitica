@@ -18,9 +18,9 @@ export function OnboardingNav({
   return (
     <nav
       aria-label="Navegación del onboarding"
-      className="fixed bottom-0 left-0 z-50 w-full bg-bg-base text-text-primary"
+      className="fixed bottom-0 left-0 z-50 w-full bg-bg-base text-text-primary lg:static lg:z-auto"
     >
-      <div className="flex w-full items-center px-5 py-5">
+      <div className="flex w-full items-center px-5 py-5 lg:px-8">
         <button
           type="button"
           aria-label="Slide anterior"
