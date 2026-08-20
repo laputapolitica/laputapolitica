@@ -66,10 +66,16 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
           </header>
 
           <div className={`mt-7 flex flex-col gap-4 text-left${showHeadingOnDesktop ? "" : " lg:mt-0"}`}>
-            <label className="flex flex-col gap-2">
-              <span className={labelClass}>Nombre completo</span>
-              <Input className={inputClass} name="nombre" placeholder="Juan Pérez" required />
-            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-2">
+                <span className={labelClass}>Nombre</span>
+                <Input className={inputClass} name="nombre" placeholder="Juan" required />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className={labelClass}>Apellido</span>
+                <Input className={inputClass} name="apellido" placeholder="Pérez" required />
+              </label>
+            </div>
 
             <label className="flex flex-col gap-2">
               <span className={labelClass}>Email</span>

@@ -12,13 +12,14 @@ export async function crearPostulacion(
   formData: FormData,
 ): Promise<CrearPostulacionState> {
   const nombre = String(formData.get("nombre") ?? "").trim();
+  const apellido = String(formData.get("apellido") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
   const edadRaw = String(formData.get("edad") ?? "").trim();
   const provincia = String(formData.get("provincia") ?? "").trim();
   const motivacion = String(formData.get("motivacion") ?? "").trim();
 
-  if (!nombre || !email || !telefono || !edadRaw || !provincia || !motivacion) {
+  if (!nombre || !apellido || !email || !telefono || !edadRaw || !provincia || !motivacion) {
     return { error: "Todos los campos son obligatorios" };
   }
 
@@ -38,6 +39,7 @@ export async function crearPostulacion(
   // (requerido por la policy de inserción pública).
   const { error } = await supabase.from("postulaciones").insert({
     nombre,
+    apellido,
     email,
     telefono,
     edad,
