@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export interface HeaderOpinadorProps {
@@ -50,15 +51,26 @@ function getRemainingUntilClose(): number {
   return Math.max(0, closeTimestamp - Date.now());
 }
 
-function formatRemaining(milliseconds: number): string {
+function formatRemainingParts(milliseconds: number): {
+  horas: string;
+  minutos: string;
+  segundos: string;
+} {
   const totalSeconds = Math.floor(milliseconds / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const horas = Math.floor(totalSeconds / 3600);
+  const minutos = Math.floor((totalSeconds % 3600) / 60);
+  const segundos = totalSeconds % 60;
 
-  return [hours, minutes, seconds]
-    .map((value: number): string => String(value).padStart(2, "0"))
-    .join(":");
+  const pad = (value: number): string => String(value).padStart(2, "0");
+
+  return { horas: pad(horas), minutos: pad(minutos), segundos: pad(segundos) };
+}
+
+function saludoSize(nombre: string): string {
+  const len = nombre.trim().length;
+  if (len <= 10) return "text-base";
+  if (len <= 16) return "text-sm";
+  return "text-xs";
 }
 
 export function HeaderOpinador({
@@ -77,12 +89,33 @@ export function HeaderOpinador({
     return (): void => window.clearInterval(intervalId);
   }, []);
 
+  const { horas, minutos, segundos } = formatRemainingParts(remaining);
+  const cierreInminente = remaining > 0 && remaining <= 30 * 60 * 1000;
+
   return (
-    <section className="fixed left-0 top-16 z-40 flex h-12 w-full items-center justify-between border-y border-border-default bg-bg-base px-4 font-ui text-base">
-      <p className="min-w-0 flex-1 truncate text-text-primary">Hola, {nombre}</p>
-      <p className="shrink-0 px-3 font-medium text-text-primary">{displayDate}</p>
-      <p className="min-w-0 flex-1 truncate text-right text-state-required">
-        Cierre: {formatRemaining(remaining)}
+    <section className="flex h-12 w-full flex-none items-center justify-between border-y border-text-primary bg-bg-base px-4 font-ui text-base">
+      <p className={`min-w-0 flex-1 truncate text-text-primary ${saludoSize(nombre)}`}>
+        Hola, {nombre}
+      </p>
+      <p className="shrink-0 px-3 font-semibold tracking-tight text-text-primary">
+        {displayDate}
+      </p>
+      <p
+        className={`flex min-w-0 flex-1 items-center justify-end gap-1.5 ${
+          cierreInminente ? "text-state-required" : "text-text-primary"
+        }`}
+      >
+        <Clock aria-hidden="true" className="h-[15px] w-[15px] flex-none" strokeWidth={2} />
+        <span
+          className="min-w-0 truncate text-[15px]"
+          style={{ fontFamily: "var(--font-readout)" }}
+        >
+          {horas}
+          <span className={cierreInminente ? "animate-blink-fast" : "animate-blink"}>:</span>
+          {minutos}
+          <span className={cierreInminente ? "animate-blink-fast" : "animate-blink"}>:</span>
+          {segundos}
+        </span>
       </p>
     </section>
   );

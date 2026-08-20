@@ -1,7 +1,9 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
 
+import type { OpinionSentiment } from "@/app/(opinadores)/el-pulso/dia/actions";
 import { OpinionForm } from "@/components/opinadores/OpinionForm";
 import type { Noticia } from "@/types/edicion";
 
@@ -10,32 +12,81 @@ export type NoticiaSwipeNoticia = Noticia;
 export interface NoticiaSwipeProps {
   noticia: NoticiaSwipeNoticia;
   onRead: (noticia: NoticiaSwipeNoticia) => void;
+  onOpinionEnviada?: (noticiaId: string) => void;
+  opinionPrevia?: { texto: string; sentiment: OpinionSentiment };
+}
+
+const accentBySentiment: Record<OpinionSentiment, string> = {
+  positiva: "border-t-vote-positive",
+  negativa: "border-t-vote-negative",
+  incierta: "border-t-vote-uncertain",
+};
+
+function tituloSize(titulo: string): string {
+  const len = titulo.trim().length;
+  if (len <= 34) return "text-2xl";
+  if (len <= 46) return "text-[21px]";
+  if (len <= 58) return "text-[19px]";
+  if (len <= 70) return "text-[16px]";
+  return "text-[15px]";
 }
 
 export function NoticiaSwipe({
   noticia,
   onRead,
+  onOpinionEnviada,
+  opinionPrevia,
 }: NoticiaSwipeProps): React.ReactElement {
+  const [sentiment, setSentiment] = useState<OpinionSentiment | null>(
+    opinionPrevia?.sentiment ?? null,
+  );
+  const accentClass = sentiment
+    ? accentBySentiment[sentiment]
+    : "border-t-border-default";
+
   return (
-    <article className="mx-auto flex h-auto max-h-full max-w-[480px] flex-col overflow-y-auto rounded-xl border border-border-default bg-white p-6">
-      <p className="font-ui text-sm text-text-secondary">
-        Noticia {String(noticia.orden).padStart(2, "0")}
-      </p>
+    <article
+      className={`mx-auto flex h-full w-full max-w-[480px] flex-col overflow-hidden rounded-[8px] border border-t-[3px] border-border-default ${accentClass} bg-white transition-colors duration-300`}
+    >
+      <OpinionForm
+        noticiaId={noticia.id}
+        sentiment={sentiment}
+        onSentimentChange={setSentiment}
+        opinionPrevia={opinionPrevia}
+        onOpinionEnviada={
+          onOpinionEnviada ? () => onOpinionEnviada(noticia.id) : undefined
+        }
+        header={
+          <div className="flex flex-col">
+            <span className="font-display text-[40px] font-bold leading-[0.9] text-text-secondary/30">
+              {String(noticia.orden).padStart(2, "0")}
+            </span>
 
-      <h2 className="mt-3 font-display text-2xl font-normal leading-tight text-text-primary">
-        {noticia.titulo}
-      </h2>
+            <h2
+              className={`mt-2 line-clamp-2 font-display font-normal leading-tight text-text-primary ${tituloSize(noticia.titulo)}`}
+            >
+              {noticia.titulo}
+            </h2>
 
-      <button
-        type="button"
-        onClick={() => onRead(noticia)}
-        className="mt-5 inline-flex w-fit items-center gap-2 rounded-full border border-black bg-white px-4 py-2 font-ui text-sm text-text-primary"
-      >
-        Leer noticia
-        <ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.75} />
-      </button>
+            <span aria-hidden="true" className="mt-4 block h-px w-full bg-border-default" />
 
-      <OpinionForm noticiaId={noticia.id} />
+            <div className="mt-4 max-h-[4.6em] overflow-hidden fade-bottom">
+              <p className="font-editorial text-[15px] leading-[1.55] text-text-primary first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:font-display first-letter:text-[38px] first-letter:font-bold first-letter:leading-[0.8] first-letter:text-text-primary">
+                {noticia.cuerpo}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onRead(noticia)}
+              className="mt-4 inline-flex w-fit items-center font-ui text-[15px] font-bold text-text-primary"
+            >
+              <span className="underline underline-offset-[4px]">Leer noticia</span>
+              <ArrowUpRight aria-hidden="true" className="h-[17px] w-[17px]" strokeWidth={2} />
+            </button>
+          </div>
+        }
+      />
     </article>
   );
 }

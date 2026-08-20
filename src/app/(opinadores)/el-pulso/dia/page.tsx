@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { OpinionSentiment } from "./actions";
 import type { Edicion, Noticia } from "@/types/edicion";
 
 import { DiaClient } from "./DiaClient";
@@ -90,5 +91,39 @@ export default async function DiaPage(): Promise<React.ReactElement> {
     noticias,
   };
 
-  return <DiaClient edicion={edicion} nombre={nombreOpinador} />;
+  const noticiaIds = noticias.map((noticia): string => noticia.id);
+
+  const opinionesPrevias: Record<
+    string,
+    { texto: string; sentiment: OpinionSentiment }
+  > = {};
+
+  if (user && noticiaIds.length > 0) {
+    const { data: opinionesData } = await supabase
+      .from("opiniones")
+      .select("noticia_id, texto, sentiment")
+      .eq("opinador_id", user.id)
+      .in("noticia_id", noticiaIds);
+
+    const filas = (opinionesData ?? []) as Array<{
+      noticia_id: string;
+      texto: string;
+      sentiment: string;
+    }>;
+
+    for (const fila of filas) {
+      opinionesPrevias[fila.noticia_id] = {
+        texto: fila.texto,
+        sentiment: fila.sentiment as OpinionSentiment,
+      };
+    }
+  }
+
+  return (
+    <DiaClient
+      edicion={edicion}
+      nombre={nombreOpinador}
+      opinionesPrevias={opinionesPrevias}
+    />
+  );
 }
