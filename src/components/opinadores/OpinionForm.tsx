@@ -97,10 +97,10 @@ export function OpinionForm({
 
     return (
       <div className="flex h-full flex-col">
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4 lg:px-8 lg:py-8">
           {header}
 
-          <div className="mt-6 flex flex-col gap-4">
+          <div className={`flex flex-col gap-4 ${header ? "mt-6" : ""}`}>
             <div className="flex items-center gap-2 font-ui text-[12px] font-semibold uppercase tracking-[0.08em] text-text-secondary">
               <CheckCircle2 aria-hidden="true" className="text-vote-positive" size={18} />
               Ya opinaste esta noticia
@@ -137,10 +137,10 @@ export function OpinionForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4 lg:px-8 lg:py-8">
         {header}
 
-        <div className="mt-6 flex flex-col gap-5">
+        <div className={`flex flex-col gap-5 ${header ? "mt-6" : ""}`}>
           <label className="flex flex-col gap-2">
             <span className={labelClass}>Tu opinión</span>
             <Textarea
@@ -187,7 +187,7 @@ export function OpinionForm({
         </div>
       </div>
 
-      <div className="flex-none border-t border-border-default px-5 py-4">
+      <div className="flex-none border-t border-border-default px-5 py-4 lg:px-8 lg:py-5">
         <button
           type="submit"
           disabled={isPending}

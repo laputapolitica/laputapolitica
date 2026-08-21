@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -97,6 +97,16 @@ export function DiaClient({
           NOTICIAS DEL DÍA
         </p>
         <nav aria-label="Navegación de noticias" className="flex items-center gap-2.5">
+          <button
+            type="button"
+            aria-label="Noticia anterior"
+            disabled={activeSlide <= 1}
+            onClick={() => scrollToSlide(activeSlide - 1)}
+            className="hidden text-text-secondary transition-colors hover:text-text-primary disabled:pointer-events-none disabled:opacity-25 lg:inline-flex"
+          >
+            <ChevronLeft aria-hidden="true" size={16} strokeWidth={2} />
+          </button>
+
           {edicion.noticias.map((noticia): React.ReactElement => {
             const isActive = noticia.orden === activeSlide;
             const isDone = opinadas.has(noticia.id);
@@ -121,6 +131,16 @@ export function DiaClient({
               </button>
             );
           })}
+
+          <button
+            type="button"
+            aria-label="Noticia siguiente"
+            disabled={activeSlide >= edicion.noticias.length}
+            onClick={() => scrollToSlide(activeSlide + 1)}
+            className="hidden text-text-secondary transition-colors hover:text-text-primary disabled:pointer-events-none disabled:opacity-25 lg:inline-flex"
+          >
+            <ChevronRight aria-hidden="true" size={16} strokeWidth={2} />
+          </button>
         </nav>
       </div>
 
@@ -133,19 +153,28 @@ export function DiaClient({
                 slideRefs.current[index] = element;
               }}
               data-slide={noticia.orden}
-              className="h-full w-screen flex-shrink-0 snap-center snap-always px-4 py-4"
+              className="h-full w-screen flex-shrink-0 snap-center snap-always px-4 py-4 lg:p-0"
             >
               <NoticiaSwipe
                 noticia={noticia}
                 onRead={setNoticiaActiva}
                 opinionPrevia={opinionesPrevias[noticia.id]}
-                onOpinionEnviada={(id: string): void =>
+                onOpinionEnviada={(id: string): void => {
                   setOpinadas((prev: Set<string>): Set<string> => {
                     const next = new Set(prev);
                     next.add(id);
                     return next;
-                  })
-                }
+                  });
+
+                  const actual = edicion.noticias.find(
+                    (item): boolean => item.id === id,
+                  );
+                  if (actual && actual.orden < edicion.noticias.length) {
+                    window.setTimeout((): void => {
+                      scrollToSlide(actual.orden + 1);
+                    }, 700);
+                  }
+                }}
               />
             </div>
           ),
