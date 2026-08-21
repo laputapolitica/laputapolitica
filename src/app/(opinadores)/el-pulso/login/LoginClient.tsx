@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
 const inputClass =
-  "h-12 rounded-[10px] border border-border-default bg-white px-3.5 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
+  "h-12 rounded-[6px] border border-border-default bg-white px-3.5 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
 const labelClass =
   "font-ui text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary";
 

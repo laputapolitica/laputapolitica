@@ -20,9 +20,9 @@ const provinciasArgentinas = [
 ] as const;
 
 const inputClass =
-  "h-12 rounded-[10px] border border-border-default bg-white px-3.5 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
+  "h-12 rounded-[6px] border border-border-default bg-white px-3.5 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
 const textareaClass =
-  "min-h-28 resize-none rounded-[10px] border border-border-default bg-white px-3.5 py-3 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
+  "min-h-28 resize-none rounded-[6px] border border-border-default bg-white px-3.5 py-3 font-ui text-[15px] text-text-primary placeholder:text-text-secondary focus-visible:ring-1 focus-visible:ring-text-primary focus-visible:ring-offset-0";
 const labelClass =
   "font-ui text-[11px] font-semibold uppercase tracking-[0.08em] text-text-secondary";
 
@@ -84,7 +84,7 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
 
             <label className="flex flex-col gap-2">
               <span className={labelClass}>Teléfono</span>
-              <div className="flex h-12 items-stretch overflow-hidden rounded-[10px] border border-border-default bg-white">
+              <div className="flex h-12 items-stretch overflow-hidden rounded-[6px] border border-border-default bg-white">
                 <span className="flex items-center border-r border-border-default bg-[#F3F1EB] px-3.5 font-ui text-[15px] font-semibold text-text-primary">
                   +54
                 </span>
@@ -112,7 +112,7 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
                     name="provincia"
                     required
                     defaultValue=""
-                    className="h-12 w-full appearance-none rounded-[10px] border border-border-default bg-white pl-3.5 pr-9 font-ui text-[15px] text-text-primary invalid:text-text-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-text-primary"
+                    className="h-12 w-full appearance-none rounded-[6px] border border-border-default bg-white pl-3.5 pr-9 font-ui text-[15px] text-text-primary invalid:text-text-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-text-primary"
                   >
                     <option value="" disabled>
                       Elegí una
