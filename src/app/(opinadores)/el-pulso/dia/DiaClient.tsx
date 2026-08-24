@@ -90,7 +90,7 @@ export function DiaClient({
         <HeaderElPulso />
       </header>
 
-      <HeaderOpinador nombre={nombre || "opinador"} />
+      <HeaderOpinador nombre={nombre || "opinador"} fecha={edicion.fecha} />
 
       <div className="flex h-10 w-full flex-none items-center justify-between bg-bg-base px-4">
         <p className="font-ui text-xs font-medium uppercase tracking-wider text-text-secondary">

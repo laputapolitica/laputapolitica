@@ -1,10 +1,11 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface HeaderOpinadorProps {
   nombre: string;
+  fecha: string;
 }
 
 const monthLabels = [
@@ -22,33 +23,20 @@ const monthLabels = [
   "DIC",
 ] as const;
 
-function getBuenosAiresDateParts(): { day: number; month: number; year: number } {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const parts = formatter.formatToParts(new Date());
-  const day = Number(parts.find((part) => part.type === "day")?.value ?? "1");
-  const month = Number(parts.find((part) => part.type === "month")?.value ?? "1");
-  const year = Number(parts.find((part) => part.type === "year")?.value ?? "2026");
-
+function parseFechaSlug(
+  fecha: string,
+): { day: number; month: number; year: number } | null {
+  const parts = fecha.split("-");
+  if (parts.length !== 3) {
+    return null;
+  }
+  const day = Number(parts[0]);
+  const month = Number(parts[1]);
+  const year = Number(parts[2]);
+  if (!day || !month || !year || month < 1 || month > 12) {
+    return null;
+  }
   return { day, month, year };
-}
-
-function formatDisplayDate(): string {
-  const { day, month, year } = getBuenosAiresDateParts();
-
-  return `${day} ${monthLabels[month - 1]} ${year}`;
-}
-
-function getRemainingUntilClose(): number {
-  const { day, month, year } = getBuenosAiresDateParts();
-  const closeTimestamp = Date.UTC(year, month - 1, day, 22, 0, 0);
-
-  return Math.max(0, closeTimestamp - Date.now());
 }
 
 function formatRemainingParts(milliseconds: number): {
@@ -75,19 +63,36 @@ function saludoSize(nombre: string): string {
 
 export function HeaderOpinador({
   nombre,
+  fecha,
 }: HeaderOpinadorProps): React.ReactElement {
-  const displayDate = useMemo((): string => formatDisplayDate(), []);
+  const partes = parseFechaSlug(fecha);
+
+  const displayDate = partes
+    ? `${partes.day} ${monthLabels[partes.month - 1]} ${partes.year}`
+    : fecha;
+
+  // Cierre a las 22:00 hora Argentina (UTC-3) del día de la edición.
+  const closeTimestamp = partes
+    ? Date.UTC(partes.year, partes.month - 1, partes.day, 22 + 3, 0, 0)
+    : null;
+
   const [remaining, setRemaining] = useState<number>(0);
 
   useEffect(() => {
-    setRemaining(getRemainingUntilClose());
+    if (closeTimestamp === null) {
+      setRemaining(0);
+      return;
+    }
 
-    const intervalId = window.setInterval((): void => {
-      setRemaining(getRemainingUntilClose());
-    }, 1000);
+    const tick = (): void => {
+      setRemaining(Math.max(0, closeTimestamp - Date.now()));
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
 
     return (): void => window.clearInterval(intervalId);
-  }, []);
+  }, [closeTimestamp]);
 
   const { horas, minutos, segundos } = formatRemainingParts(remaining);
   const cierreInminente = remaining > 0 && remaining <= 30 * 60 * 1000;
