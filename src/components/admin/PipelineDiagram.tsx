@@ -38,8 +38,8 @@ export type PipelineNodeId =
 
 export type PipelineDiagramProps = {
   pipelineState?: PipelineState;
-  onAutorizar?: (nodeId: PipelineNodeId) => void;
-  onPublicar?: () => void;
+  onAutorizar?: (nodeId: PipelineNodeId) => Promise<void> | void;
+  onPublicar?: () => Promise<void> | void;
   soloLectura?: boolean;
   diagramOnly?: boolean;
 };
@@ -282,6 +282,7 @@ export function PipelineDiagram({
   const [paths, setPaths] = useState<
     { d: string; running: boolean; key: string }[]
   >([]);
+  const [accionEnCurso, setAccionEnCurso] = useState<"autorizar" | "publicar" | null>(null);
 
   const recalculate = useCallback(() => {
     const container = containerRef.current;
@@ -550,10 +551,19 @@ export function PipelineDiagram({
           ) : (
             <button
               type="button"
-              onClick={() => activeReview && onAutorizar?.(activeReview.nodeId)}
-              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
+              disabled={accionEnCurso !== null}
+              onClick={async () => {
+                if (!activeReview) return;
+                setAccionEnCurso("autorizar");
+                try {
+                  await onAutorizar?.(activeReview.nodeId);
+                } finally {
+                  setAccionEnCurso(null);
+                }
+              }}
+              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Autorizar
+              {accionEnCurso === "autorizar" ? "Autorizando..." : "Autorizar"}
             </button>
           )}
         </div>
@@ -575,10 +585,18 @@ export function PipelineDiagram({
           ) : (
             <button
               type="button"
-              onClick={onPublicar}
-              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink"
+              disabled={accionEnCurso !== null}
+              onClick={async () => {
+                setAccionEnCurso("publicar");
+                try {
+                  await onPublicar?.();
+                } finally {
+                  setAccionEnCurso(null);
+                }
+              }}
+              className="inline-flex h-[28px] cursor-pointer items-center rounded-md border-2 border-[#35C759] bg-white px-4 font-ui text-sm font-bold text-admin-ink disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Publicar
+              {accionEnCurso === "publicar" ? "Publicando..." : "Publicar"}
             </button>
           )}
         </div>
