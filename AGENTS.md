@@ -23,7 +23,7 @@ Hay tres portales:
 - **Estilos**: Tailwind CSS + shadcn/ui (componentes base).
 - **Analytics**: PostHog.
 - **Pipeline de contenido**: n8n (self-hosted en Railway) consume API routes de la app.
-- **IA**: Claude API (texto), Gemini API (imágenes).
+- **IA**: Gemini API para texto (`gemini-2.5-flash`) e imágenes (`gemini-2.5-flash-image`). (Groq quedó deprecado por acceso — ago-2026. Claude está planeado para la "fase de mejora" pre-lanzamiento.)
 
 **Regla**: usar siempre `@supabase/ssr` (no el deprecated `@supabase/auth-helpers`). Para validar sesión en server, usar `supabase.auth.getClaims()`, nunca `getSession()`.
 
@@ -98,6 +98,14 @@ Estas constantes viven como variables CSS en `src/styles/globals.css` y como tok
 5. **No instalar dependencias sin avisar**. Mostrar qué se va a instalar y por qué antes de correr `npm install`.
 6. **Commits**: en español, formato `tipo: descripción corta`. Tipos: `feat`, `fix`, `refactor`, `docs`, `style`, `chore`.
 7. **Si un cambio afecta a más de 5 archivos**, parar y resumir antes de continuar.
+8. **Generación de texto duplicada (n8n ↔ app) — mantener en sync.** Los prompts, el modelo y el formato de salida de IA para generar texto viven en DOS lugares que hay que actualizar juntos:
+   - **n8n** (`n8n/workflows/`): la generación automática del pipeline.
+   - **App** (`src/app/(admin)/admin/actions.ts`): las funciones `rehacer*`, que son la regeneración manual del editor en el admin.
+     Cada `rehacer*` es el espejo de un paso de IA de n8n:
+   - `rehacerCampo` ↔ workflow **Títulos y Resúmenes**
+   - `rehacerPortada` y `rehacerTituloPortada` ↔ workflow **Portada**
+   - `rehacerResumenElPulso` ↔ workflow **El Pulso**
+     Si cambiás un prompt, el modelo o el formato de salida en un lado, **replicalo en el otro** o quedan desincronizados (el editor rehace y sale distinto a lo que generó el pipeline).
 
 ---
 
