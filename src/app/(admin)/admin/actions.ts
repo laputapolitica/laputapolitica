@@ -767,14 +767,7 @@ type RehacerResult = {
   valor?: string;
 };
 
-type GroqChatCompletionResponse = {
-  choices?: {
-    message?: {
-      content?: string;
-    };
-  }[];
-};
-
+// Espejo manual del workflow n8n "Títulos y Resúmenes". Mantener prompt/modelo en sync con ese workflow.
 export async function rehacerCampo(
   noticiaId: string,
   campo: "titulo" | "resumen",
@@ -818,34 +811,33 @@ export async function rehacerCampo(
     "\n\nIgnorá cualquier texto promocional del diario que no sea parte de la noticia.\n\nTexto de la nota:\n" +
     textoFuentes;
 
-  // 3. Llamar a Groq.
-  const apiKey = process.env.GROQ_API_KEY;
+  // 3. Llamar a Gemini.
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("Falta GROQ_API_KEY en el entorno.");
+    console.error("Falta GEMINI_API_KEY.");
     return { error: "Configuración incompleta del servidor." };
   }
 
   try {
-    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+    const resp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: "application/json" },
+        }),
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-      }),
-    });
+    );
 
     if (!resp.ok) {
-      console.error("Groq respondió con error:", resp.status);
+      console.error("Gemini respondió", resp.status, await resp.text());
       return { error: "La IA no respondió bien. Probá de nuevo en unos segundos." };
     }
 
-    const json = (await resp.json()) as GroqChatCompletionResponse;
-    const content = json.choices?.[0]?.message?.content;
+    const json = await resp.json();
+    const content = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     if (!content) {
       return { error: "La IA devolvió una respuesta vacía. Probá de nuevo." };
     }
@@ -857,7 +849,7 @@ export async function rehacerCampo(
 
     return { valor: parsed.valor };
   } catch (e) {
-    console.error("Error llamando a Groq:", e);
+    console.error("Error llamando a Gemini:", e);
     return { error: "Hubo un problema al regenerar. Probá de nuevo." };
   }
 }
@@ -1624,6 +1616,7 @@ export type OpcionRehacer =
   | { tipo: "ia_elige" }
   | { tipo: "elegir"; estiloId: string };
 
+// Espejo manual del workflow n8n "Portada" (elección de estilo). Mantener en sync con ese workflow.
 export async function rehacerPortada(
   edicionId: string,
   opcion: OpcionRehacer,
@@ -1645,7 +1638,7 @@ export async function rehacerPortada(
   if (opcion.tipo === "elegir") {
     estiloId = opcion.estiloId;
   } else {
-    // ia_elige: leer estilos activos y pedirle a Groq que elija uno distinto al actual.
+    // ia_elige: leer estilos activos y pedirle a Gemini que elija uno distinto al actual.
     const { data: estilos, error: estilosError } = await supabase
       .from("estilos_portada")
       .select("id, nombre, descripcion")
@@ -1679,33 +1672,44 @@ export async function rehacerPortada(
         .map((e) => `ID: ${e.id}\nNombre: ${e.nombre}\nCuándo usarlo: ${e.descripcion}`)
         .join("\n\n");
 
-      const apiKey = process.env.GROQ_API_KEY;
-      if (!apiKey) return { error: "Configuración incompleta del servidor." };
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        console.error("Falta GEMINI_API_KEY.");
+        return { error: "Configuración incompleta del servidor." };
+      }
 
       try {
-        const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            response_format: { type: "json_object" },
-            messages: [
-              {
-                role: "user",
-                content:
-                  "Elegí el estilo de portada que mejor encaje con las noticias de hoy.\n\nESTILOS:\n" +
-                  menu +
-                  "\n\nNOTICIAS:\n" +
-                  textoNoticias +
-                  '\n\nDevolvé SOLO un JSON {"estilo_id": "el-id-elegido"} y nada más.',
-              },
-            ],
-          }),
-        });
+        const resp = await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text:
+                        "Elegí el estilo de portada que mejor encaje con las noticias de hoy.\n\nESTILOS:\n" +
+                        menu +
+                        "\n\nNOTICIAS:\n" +
+                        textoNoticias +
+                        '\n\nDevolvé SOLO un JSON {"estilo_id": "el-id-elegido"} y nada más.',
+                    },
+                  ],
+                },
+              ],
+              generationConfig: { responseMimeType: "application/json" },
+            }),
+          },
+        );
 
-        if (!resp.ok) return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
-        const json = (await resp.json()) as GroqChatCompletionResponse;
-        const content = json.choices?.[0]?.message?.content;
+        if (!resp.ok) {
+          console.error("Gemini respondió", resp.status, await resp.text());
+          return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
+        }
+        const json = await resp.json();
+        const content = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
         if (!content) return { error: "La IA no pudo elegir un estilo. Probá de nuevo." };
         const parsed = JSON.parse(content) as { estilo_id?: string };
         estiloId = parsed.estilo_id ?? null;
@@ -1728,10 +1732,11 @@ export async function rehacerPortada(
   return await generarPortadaCore(edicionId, estiloId);
 }
 
+// Espejo manual del workflow n8n "Portada" (título de tapa). Mantener en sync con ese workflow.
 export async function rehacerTituloPortada(edicionId: string): Promise<AutorizarResult> {
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("Falta GROQ_API_KEY.");
+    console.error("Falta GEMINI_API_KEY.");
     return { error: "Configuración incompleta del servidor." };
   }
 
@@ -1761,31 +1766,39 @@ export async function rehacerTituloPortada(edicionId: string): Promise<Autorizar
     .map((n, i) => `${i + 1}. ${n.titulo}\n${n.cuerpo}`)
     .join("\n\n");
 
-  // Generar el título con Groq.
+  // Generar el título con Gemini.
   let nuevoTitulo = "";
   try {
-    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        temperature: 1.3,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "user",
-            content:
-              "Sos editor de un medio político argentino. Generá 5 títulos de tapa DISTINTOS entre sí, cortos y conceptuales (entre 2 y 6 palabras cada uno), con carácter editorial, que capten el clima del día a partir de estas noticias. No son resúmenes ni listan las noticias: son ganchos conceptuales, como títulos de tapa de revista. Que sean variados: distintos ángulos (tensión, ironía, trasfondo, clima emocional). Sin comillas.\n\nNoticias de hoy:\n" +
-              textoNoticias +
-              '\n\nDevolvé SOLAMENTE un objeto JSON con la forma {"titulos": ["...", "...", "...", "...", "..."]} y nada más.',
-          },
-        ],
-      }),
-    });
+    const resp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text:
+                    "Sos editor de un medio político argentino. Generá 5 títulos de tapa DISTINTOS entre sí, cortos y conceptuales (entre 2 y 6 palabras cada uno), con carácter editorial, que capten el clima del día a partir de estas noticias. No son resúmenes ni listan las noticias: son ganchos conceptuales, como títulos de tapa de revista. Que sean variados: distintos ángulos (tensión, ironía, trasfondo, clima emocional). Sin comillas.\n\nNoticias de hoy:\n" +
+                    textoNoticias +
+                    '\n\nDevolvé SOLAMENTE un objeto JSON con la forma {"titulos": ["...", "...", "...", "...", "..."]} y nada más.',
+                },
+              ],
+            },
+          ],
+          generationConfig: { responseMimeType: "application/json", temperature: 1.3 },
+        }),
+      },
+    );
 
-    if (!resp.ok) return { error: "La IA no pudo generar el título. Probá de nuevo." };
+    if (!resp.ok) {
+      console.error("Gemini respondió", resp.status, await resp.text());
+      return { error: "La IA no pudo generar el título. Probá de nuevo." };
+    }
     const json = await resp.json();
-    const parsed = JSON.parse(json.choices[0].message.content);
+    const content = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const parsed = JSON.parse(content);
     const opciones = Array.isArray(parsed.titulos)
       ? parsed.titulos.filter((t: unknown) => typeof t === "string" && t.trim().length > 0)
       : [];
@@ -1995,18 +2008,18 @@ export async function guardarResumenElPulso(
   return { success: true };
 }
 
+// Espejo manual del workflow n8n "El Pulso" (resumen). Mantener en sync con ese workflow.
 export async function rehacerResumenElPulso(
   noticiaId: string,
 ): Promise<AutorizarResult> {
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("Falta GROQ_API_KEY.");
+    console.error("Falta GEMINI_API_KEY.");
     return { error: "Configuración incompleta del servidor." };
   }
 
   const supabase = await createClient();
 
-  // Leer las opiniones de la noticia.
   const { data: opinionesData, error: opinionesError } = await supabase
     .from("opiniones")
     .select("texto, sentiment")
@@ -2017,17 +2030,13 @@ export async function rehacerResumenElPulso(
     return { error: "No se pudieron leer las opiniones." };
   }
 
-  type OpinionRow = {
-    texto: string;
-    sentiment: "positiva" | "negativa" | "incierta";
-  };
+  type OpinionRow = { texto: string; sentiment: "positiva" | "negativa" | "incierta" };
   const opiniones = (opinionesData ?? []) as OpinionRow[];
 
   if (opiniones.length === 0) {
-    return { error: "Esta noticia no tiene opiniones para resumir." };
+    return { error: "No hay opiniones para resumir en esta noticia." };
   }
 
-  // Consolidar las opiniones en un texto.
   const textoOpiniones = opiniones
     .map((o, i) => `Opinión ${i + 1} (voto: ${o.sentiment}): ${o.texto}`)
     .join("\n\n");
@@ -2035,26 +2044,27 @@ export async function rehacerResumenElPulso(
   const prompt =
     "Sos analista de un medio político argentino. A continuación tenés las opiniones que dejó una comunidad de lectores jóvenes sobre una noticia del día, cada una con su voto (positiva, negativa o incierta). Tu tarea es escribir un RESUMEN BREVE (2 a 4 oraciones) que sintetice qué pensó la comunidad: las posturas principales, y si hubo acuerdo o división. Tono neutral y descriptivo, fiel a lo que se opinó. No inventes posturas que no estén. No uses comillas.\n\nOpiniones de la comunidad:\n" +
     textoOpiniones +
-    '\n\nDevolvé SOLAMENTE un objeto JSON con la forma {"resumen": "..."} y nada más.';
+    "\n\nDevolvé SOLAMENTE el texto del resumen, sin comillas y sin formato JSON.";
 
   let resumen = "";
   try {
-    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        response_format: { type: "json_object" },
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    const resp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      },
+    );
 
-    if (!resp.ok) return { error: "No se pudo generar el resumen. Intentá de nuevo." };
+    if (!resp.ok) {
+      console.error("Gemini respondió", resp.status, await resp.text());
+      return { error: "No se pudo generar el resumen. Intentá de nuevo." };
+    }
     const json = await resp.json();
-    const parsed = JSON.parse(json.choices[0].message.content);
-    resumen = typeof parsed.resumen === "string" ? parsed.resumen.trim() : "";
+    resumen = (json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "").trim();
   } catch (e) {
-    console.error("Error llamando a Groq para rehacer pulso:", e);
+    console.error("Error llamando a Gemini para rehacer pulso:", e);
     return { error: "No se pudo generar el resumen. Intentá de nuevo." };
   }
 
@@ -2062,14 +2072,13 @@ export async function rehacerResumenElPulso(
     return { error: "El resumen generado vino vacío. Intentá de nuevo." };
   }
 
-  // Guardar el nuevo resumen en el_pulso_noticia.
   const { error: updateError } = await supabase
     .from("el_pulso_noticia")
     .update({ texto_resumen: resumen })
     .eq("noticia_id", noticiaId);
 
   if (updateError) {
-    console.error("Error guardando resumen de pulso:", updateError.message);
+    console.error("Error guardando resumen de El Pulso:", updateError.message);
     return { error: "No se pudo guardar el resumen." };
   }
 
