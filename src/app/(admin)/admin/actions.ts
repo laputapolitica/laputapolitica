@@ -260,11 +260,20 @@ export async function publicarEdicion(edicionId: string): Promise<AutorizarResul
 
   const ahora = new Date().toISOString();
 
+  const { data: portadaVigente } = await supabase
+    .from("portadas")
+    .select("titulo")
+    .eq("edicion_id", edicionId)
+    .eq("vigente", true)
+    .maybeSingle();
+  const tituloPortada = portadaVigente?.titulo?.trim();
+
   const { error: edicionError } = await supabase
     .from("ediciones")
     .update({
       estado: "published",
       publicada_en: ahora,
+      ...(tituloPortada ? { titulo: tituloPortada } : {}),
     })
     .eq("id", edicionId);
 
@@ -1289,6 +1298,15 @@ export async function guardarTituloPortada(
     return { error: "No se pudo guardar el título. Intentá de nuevo." };
   }
 
+  const { data: portada } = await supabase
+    .from("portadas")
+    .select("edicion_id, vigente")
+    .eq("id", portadaId)
+    .maybeSingle();
+  if (portada?.vigente && portada.edicion_id) {
+    await supabase.from("ediciones").update({ titulo }).eq("id", portada.edicion_id);
+  }
+
   return { success: true };
 }
 
@@ -1821,6 +1839,8 @@ export async function rehacerTituloPortada(edicionId: string): Promise<Autorizar
     console.error("Error guardando título regenerado:", updateError.message);
     return { error: "No se pudo guardar el título. Probá de nuevo." };
   }
+
+  await supabase.from("ediciones").update({ titulo: nuevoTitulo }).eq("id", edicionId);
 
   return { success: true };
 }
