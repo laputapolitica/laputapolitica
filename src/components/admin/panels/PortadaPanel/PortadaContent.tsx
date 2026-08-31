@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { EstiloBanco, PortadaHistorial } from "@/app/(admin)/admin/actions";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
 import { IconButton, TextField } from "@/components/admin/shared";
@@ -45,6 +45,22 @@ export function PortadaContent({
   const [mostrandoGaleria, setMostrandoGaleria] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Selección optimista de versión: mostramos la elegida al instante,
+  // mientras el server action + refetch se ponen al día de fondo.
+  const [optimisticId, setOptimisticId] = useState<string | null>(null);
+
+  // Cuando llega data nueva del servidor (cambia la imagen vigente), limpiamos el optimista.
+  useEffect(() => {
+    setOptimisticId(null);
+  }, [imagenUrl]);
+
+  const displayImagenUrl =
+    (optimisticId ? historial?.find((v) => v.id === optimisticId)?.imagenUrl : undefined) ??
+    imagenUrl;
+
+  const vigenteIdMostrado =
+    optimisticId ?? historial?.find((v) => v.vigente)?.id ?? null;
+
   function handleClickSubir() {
     fileInputRef.current?.click();
   }
@@ -59,10 +75,10 @@ export function PortadaContent({
   }
 
   async function handleDescargar() {
-    if (!imagenUrl) return;
+    if (!displayImagenUrl) return;
 
     try {
-      const res = await fetch(imagenUrl);
+      const res = await fetch(displayImagenUrl);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -121,9 +137,9 @@ export function PortadaContent({
           className="hidden"
         />
         <div className="flex items-start gap-4">
-          {imagenUrl ? (
+          {displayImagenUrl ? (
             <img
-              src={imagenUrl}
+              src={displayImagenUrl}
               alt="Portada de la edición"
               className="h-[300px] w-[300px] shrink-0 rounded-lg border border-admin-ink object-cover"
             />
@@ -226,27 +242,33 @@ export function PortadaContent({
             VERSIONES
           </span>
           <div className="flex flex-wrap gap-2">
-            {historial.map((version) => (
-              <button
-                key={version.id}
-                type="button"
-                onClick={() => {
-                  if (!version.vigente) onRestaurar?.(version.id);
-                }}
-                title={version.vigente ? "Versión actual" : "Restaurar esta versión"}
-                className={`relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-md border-2 ${
-                  version.vigente
-                    ? "border-admin-success cursor-default"
-                    : "border-admin-ink/30 cursor-pointer hover:border-admin-ink"
-                }`}
-              >
-                <img
-                  src={version.imagenUrl}
-                  alt={`Versión ${version.origen}`}
-                  className="h-full w-full object-cover"
-                />
-              </button>
-            ))}
+            {historial.map((version) => {
+              const mostradaVigente = version.id === vigenteIdMostrado;
+              return (
+                <button
+                  key={version.id}
+                  type="button"
+                  onClick={() => {
+                    if (!mostradaVigente) {
+                      setOptimisticId(version.id);
+                      onRestaurar?.(version.id);
+                    }
+                  }}
+                  title={mostradaVigente ? "Versión actual" : "Restaurar esta versión"}
+                  className={`relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-md border-2 ${
+                    mostradaVigente
+                      ? "border-admin-success cursor-default"
+                      : "border-admin-ink/30 cursor-pointer hover:border-admin-ink"
+                  }`}
+                >
+                  <img
+                    src={version.imagenUrl}
+                    alt={`Versión ${version.origen}`}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
