@@ -737,6 +737,19 @@ function AdminPageContent() {
     const supabase = createClient();
     let pipelineChannel: ReturnType<typeof supabase.channel> | null = null;
     let opinionesChannel: ReturnType<typeof supabase.channel> | null = null;
+    // Red de seguridad: si el realtime pierde un evento, refrescamos igual
+    // cada 20s (solo con la pestaña visible) y al volver el foco a la pestaña.
+    const backstopInterval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void recargarRef.current();
+      }
+    }, 20000);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void recargarRef.current();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
     const debouncedReload = () => {
       if (recargaTimeoutRef.current) {
         clearTimeout(recargaTimeoutRef.current);
@@ -785,6 +798,8 @@ function AdminPageContent() {
 
     return () => {
       cancelado = true;
+      clearInterval(backstopInterval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       if (recargaTimeoutRef.current) {
         clearTimeout(recargaTimeoutRef.current);
         recargaTimeoutRef.current = null;
