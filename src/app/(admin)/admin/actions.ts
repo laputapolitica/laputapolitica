@@ -262,11 +262,12 @@ export async function publicarEdicion(edicionId: string): Promise<AutorizarResul
 
   const { data: portadaVigente } = await supabase
     .from("portadas")
-    .select("titulo")
+    .select("titulo, imagen_url")
     .eq("edicion_id", edicionId)
     .eq("vigente", true)
     .maybeSingle();
   const tituloPortada = portadaVigente?.titulo?.trim();
+  const imagenPortada = portadaVigente?.imagen_url ?? null;
 
   const { error: edicionError } = await supabase
     .from("ediciones")
@@ -274,6 +275,7 @@ export async function publicarEdicion(edicionId: string): Promise<AutorizarResul
       estado: "published",
       publicada_en: ahora,
       ...(tituloPortada ? { titulo: tituloPortada } : {}),
+      ...(imagenPortada ? { portada_url: imagenPortada } : {}),
     })
     .eq("id", edicionId);
 
