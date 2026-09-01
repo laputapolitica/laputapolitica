@@ -71,6 +71,7 @@ pipeline_state                -- 1:1 con ediciones, una fila por edición
 
 noticias                      -- pertenecen a una edición, son las 5 noticias del día
 el_pulso_noticia              -- 1:1 con noticias
+versiones_texto               -- historial back office de textos editables
 
 -- Opiniones (lo que envían los opinadores)
 opiniones                     -- opinador_id, noticia_id, texto, sentiment, enviada_en
@@ -504,7 +505,73 @@ noticia_id references public.noticias(id) on delete cascade;
 
 ---
 
-### 3.9 `opiniones`
+### 3.9 `versiones_texto`
+
+Historial back office de textos editables del admin. Guarda una fila por versión y permite volver a cualquier versión anterior. La fila con `vigente = true` es la versión vigente para ese campo de la entidad. El texto que se muestra al lector sigue viviendo en las columnas actuales de `noticias`, `el_pulso_noticia` y `portadas`.
+
+**Semántica de `entidad_id`**
+
+| Texto versionado | `entidad_tipo` | `campo` | `entidad_id` |
+|---|---|---|---|
+| Título de noticia | `noticia` | `titulo` | `noticias.id` |
+| Cuerpo de noticia | `noticia` | `cuerpo` | `noticias.id` |
+| Título de tapa | `portada` | `titulo_tapa` | `ediciones.id` |
+| Resumen El Pulso | `el_pulso` | `resumen_pulso` | `noticias.id` |
+
+| Columna | Tipo | Null | Default | Notas |
+|---|---:|---:|---:|---|
+| `id` | `uuid` | no | `gen_random_uuid()` | PK. |
+| `edicion_id` | `uuid` | no | - | Edición asociada. |
+| `entidad_tipo` | `text` | no | - | `noticia`, `portada` o `el_pulso`. |
+| `entidad_id` | `uuid` | no | - | Id de la entidad dueña del texto, según la tabla de semántica. |
+| `campo` | `text` | no | - | `titulo`, `cuerpo`, `titulo_tapa` o `resumen_pulso`. |
+| `contenido` | `text` | no | - | Texto de esta versión. |
+| `vigente` | `boolean` | no | `true` | Marca la versión vigente para la entidad/campo. |
+| `origen` | `text` | no | `'ia'` | `ia` o `manual`. |
+| `created_at` | `timestamptz` | no | `now()` | Alta de la versión. |
+
+**Constraints**
+
+```sql
+primary key (id);
+check (entidad_tipo in ('noticia', 'portada', 'el_pulso'));
+check (campo in ('titulo', 'cuerpo', 'titulo_tapa', 'resumen_pulso'));
+check (origen in ('ia', 'manual'));
+```
+
+**Foreign keys**
+
+```sql
+edicion_id references public.ediciones(id) on delete cascade;
+```
+
+**Índices**
+
+| Índice | Columnas | Motivo |
+|---|---|---|
+| `versiones_texto_pkey` | `id` | PK. |
+| `versiones_texto_entidad_campo_vigente_key` | `entidad_tipo, entidad_id, campo` where `vigente = true` | Garantiza una sola versión vigente por campo de cada entidad. |
+| `versiones_texto_entidad_campo_created_at_idx` | `entidad_id, campo, created_at desc` | Historial y lookup por campo. |
+| `versiones_texto_edicion_id_idx` | `edicion_id` | Join frecuente con edición y filtro por país vía edición. |
+
+**Triggers**
+
+| Trigger | Momento | Función | Efecto |
+|---|---|---|---|
+| `trg_demote_versiones_texto_vigentes` | `BEFORE INSERT OR UPDATE` | `demote_versiones_texto()` | Si `NEW.vigente is true`, baja a `vigente = false` las demás filas con el mismo `entidad_tipo`, `entidad_id` y `campo`, excluyendo la fila propia. |
+
+**RLS**
+
+| Operación | Política |
+|---|---|
+| `SELECT` | Solo staff `admin` y `editor` del país de la edición. Público y opinadores no acceden. |
+| `INSERT` | Solo `admin` y `editor` del país de la edición. |
+| `UPDATE` | Solo `admin` y `editor` del país de la edición. |
+| `DELETE` | Solo `admin` del país de la edición. |
+
+---
+
+### 3.10 `opiniones`
 
 Opiniones enviadas por opinadores sobre noticias.
 
@@ -556,7 +623,7 @@ noticia_id references public.noticias(id) on delete cascade;
 
 ---
 
-### 3.10 `publicacion_web`
+### 3.11 `publicacion_web`
 
 Publicación web final de una edición. Relación 1:1 con `ediciones`.
 
@@ -605,7 +672,7 @@ edicion_id references public.ediciones(id) on delete cascade;
 
 ---
 
-### 3.11 `slides_web`
+### 3.12 `slides_web`
 
 Slides ordenados de la publicación web.
 
@@ -656,7 +723,7 @@ publicacion_web_id references public.publicacion_web(id) on delete cascade;
 
 ---
 
-### 3.12 `publicacion_instagram`
+### 3.13 `publicacion_instagram`
 
 Output manual para Instagram.
 
@@ -704,7 +771,7 @@ edicion_id references public.ediciones(id) on delete cascade;
 
 ---
 
-### 3.13 `slides_instagram`
+### 3.14 `slides_instagram`
 
 Slides del carrusel de Instagram.
 
@@ -753,7 +820,7 @@ publicacion_instagram_id references public.publicacion_instagram(id) on delete c
 
 ---
 
-### 3.14 `publicacion_twitter`
+### 3.15 `publicacion_twitter`
 
 Output manual para X/Twitter.
 
@@ -800,7 +867,7 @@ edicion_id references public.ediciones(id) on delete cascade;
 
 ---
 
-### 3.15 `hilos_twitter`
+### 3.16 `hilos_twitter`
 
 Hilos/tweets ordenados para X/Twitter.
 
@@ -849,7 +916,7 @@ publicacion_twitter_id references public.publicacion_twitter(id) on delete casca
 
 ---
 
-### 3.16 `fuentes_noticias`
+### 3.17 `fuentes_noticias`
 
 Catálogo configurable de medios fuente.
 
@@ -900,7 +967,7 @@ No tiene foreign keys.
 
 ---
 
-### 3.17 `clima_diario`
+### 3.18 `clima_diario`
 
 Caché del widget de clima por edición y provincia.
 
@@ -966,6 +1033,7 @@ edicion_id references public.ediciones(id) on delete cascade;
 | `pipeline_state` -> `ediciones` | 1:1 | `pipeline_state.edicion_id references ediciones(id)` |
 | `noticias` -> `ediciones` | N:1 | `noticias.edicion_id references ediciones(id)` |
 | `el_pulso_noticia` -> `noticias` | 1:1 | `el_pulso_noticia.noticia_id references noticias(id)` |
+| `versiones_texto` -> `ediciones` | N:1 | `versiones_texto.edicion_id references ediciones(id)` |
 | `opiniones` -> `opinadores` | N:1 | `opiniones.opinador_id references opinadores(id)` |
 | `opiniones` -> `noticias` | N:1 | `opiniones.noticia_id references noticias(id)` |
 | `publicacion_web` -> `ediciones` | 1:1 | `publicacion_web.edicion_id references ediciones(id)` |
