@@ -531,7 +531,7 @@ function PipelineActivePanel({
     );
   }
 
-  if (runningNodes.includes("ventanaOpinion")) {
+  if (runningNodes.length === 1 && runningNodes[0] === "ventanaOpinion") {
     return <VentanaOpinionPanel estado={estadoVentana} />;
   }
 
