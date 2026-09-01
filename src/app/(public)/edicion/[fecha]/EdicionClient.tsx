@@ -131,6 +131,14 @@ export function EdicionClient({
     slide.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  const irAlSiguiente = useCallback(() => {
+    scrollToSlide(Math.min(slideActivo + 1, 7));
+  }, [scrollToSlide, slideActivo]);
+
+  const irAlAnterior = useCallback(() => {
+    scrollToSlide(Math.max(slideActivo - 1, 1));
+  }, [scrollToSlide, slideActivo]);
+
   useEffect(() => {
     const root = scrollContainerRef.current;
     if (!root) {
@@ -160,6 +168,39 @@ export function EdicionClient({
   }, [edicion]);
 
   useEffect(() => {
+    function isEditableTarget(target: EventTarget | null) {
+      if (!(target instanceof HTMLElement)) {
+        return false;
+      }
+      return (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target.isContentEditable
+      );
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (noticiaLeyendo || fechaSelectorOpen || isEditableTarget(event.target)) {
+        return;
+      }
+
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        event.preventDefault();
+        irAlSiguiente();
+        return;
+      }
+
+      if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        irAlAnterior();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [fechaSelectorOpen, irAlAnterior, irAlSiguiente, noticiaLeyendo]);
+
+  useEffect(() => {
     if (!noticiaLeyendo) {
       return;
     }
@@ -184,8 +225,8 @@ export function EdicionClient({
     <EdicionLayout
       fecha={edicion.fecha}
       slideActivo={slideActivo}
-      onNext={() => scrollToSlide(Math.min(slideActivo + 1, 7))}
-      onPrev={() => scrollToSlide(Math.max(slideActivo - 1, 1))}
+      onNext={irAlSiguiente}
+      onPrev={irAlAnterior}
       onFechaClick={() => setFechaSelectorOpen(true)}
       onReadMore={
         noticiaEnSlide ? () => abrirLectura(noticiaEnSlide) : undefined
