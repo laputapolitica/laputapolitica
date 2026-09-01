@@ -26,6 +26,7 @@ type EdicionLayoutProps = {
   onCerrar?: () => void;
   secciones?: Seccion[];
   onSelectSlide?: (n: number) => void;
+  keyboardPressedDirection?: "next" | "prev" | null;
 };
 
 const monthLabels = [
@@ -55,6 +56,7 @@ function pad(n: number) {
 
 const teclaFisica =
   "rounded-[9px] border border-b-4 border-[#B6B0A5] bg-bg-base text-text-primary transition-all duration-100 ease-out active:translate-y-[3px] active:border-b active:bg-[#F1EEE7]";
+const teclaFisicaPressed = "translate-y-[3px] border-b bg-[#F1EEE7]";
 
 const shareGlyph = (
   <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="square" strokeLinejoin="miter" className="h-3.5 w-3.5">
@@ -101,6 +103,7 @@ export function EdicionLayout({
   onCerrar,
   secciones = [],
   onSelectSlide,
+  keyboardPressedDirection = null,
 }: EdicionLayoutProps) {
   const fechaParts = formatFechaParts(fecha);
   const ultimaSlide = secciones.length > 0 ? secciones[secciones.length - 1].n : 7;
@@ -246,7 +249,11 @@ export function EdicionLayout({
                 disabled={slideActivo === 1}
                 onClick={onPrev}
                 aria-label="Ir al slide anterior"
-                className={cn(teclaFisica, "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35")}
+                className={cn(
+                  teclaFisica,
+                  "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                  keyboardPressedDirection === "prev" && teclaFisicaPressed,
+                )}
               >
                 <ChevronUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
               </button>
@@ -255,7 +262,11 @@ export function EdicionLayout({
                 disabled={slideActivo === 7}
                 onClick={onNext}
                 aria-label="Ir al slide siguiente"
-                className={cn(teclaFisica, "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35")}
+                className={cn(
+                  teclaFisica,
+                  "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                  keyboardPressedDirection === "next" && teclaFisicaPressed,
+                )}
               >
                 <ChevronDown aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
               </button>
@@ -312,7 +323,11 @@ export function EdicionLayout({
               disabled={slideActivo === 1}
               onClick={onPrev}
               aria-label="Ir al slide anterior"
-              className={cn(teclaFisica, "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35")}
+              className={cn(
+                teclaFisica,
+                "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                keyboardPressedDirection === "prev" && teclaFisicaPressed,
+              )}
             >
               <ChevronUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
             </button>
@@ -321,7 +336,11 @@ export function EdicionLayout({
               disabled={slideActivo === ultimaSlide}
               onClick={onNext}
               aria-label="Ir al slide siguiente"
-              className={cn(teclaFisica, "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35")}
+              className={cn(
+                teclaFisica,
+                "inline-flex h-[38px] w-[42px] items-center justify-center disabled:cursor-not-allowed disabled:opacity-35",
+                keyboardPressedDirection === "next" && teclaFisicaPressed,
+              )}
             >
               <ChevronDown aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
             </button>

@@ -25,6 +25,8 @@ type EdicionClientProps = {
   ediciones: EdicionResumen[];
 };
 
+type KeyboardPressedDirection = "next" | "prev" | null;
+
 function normalizeEditionDate(fecha: string) {
   const parts = fecha.split("-");
   if (parts.length !== 3) {
@@ -44,6 +46,9 @@ export function EdicionClient({
 }: EdicionClientProps) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLElement | null>>([]);
+  const keyboardPressedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const [edicion, setEdicion] = useState(edicionInicial);
   const [clima, setClima] = useState<ClimaData>(climaInicial);
   const [slideActivo, setSlideActivo] = useState(1);
@@ -52,6 +57,8 @@ export function EdicionClient({
   const [noticiaLeyendo, setNoticiaLeyendo] = useState<Noticia | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [keyboardPressedDirection, setKeyboardPressedDirection] =
+    useState<KeyboardPressedDirection>(null);
   const fechaActual = normalizeEditionDate(edicion.fecha);
 
   const noticiaEnSlide = edicion.noticias.find(
@@ -139,6 +146,20 @@ export function EdicionClient({
     scrollToSlide(Math.max(slideActivo - 1, 1));
   }, [scrollToSlide, slideActivo]);
 
+  const animarBotonPorTeclado = useCallback(
+    (direction: Exclude<KeyboardPressedDirection, null>) => {
+      if (keyboardPressedTimeoutRef.current) {
+        clearTimeout(keyboardPressedTimeoutRef.current);
+      }
+      setKeyboardPressedDirection(direction);
+      keyboardPressedTimeoutRef.current = setTimeout(() => {
+        setKeyboardPressedDirection(null);
+        keyboardPressedTimeoutRef.current = null;
+      }, 130);
+    },
+    [],
+  );
+
   useEffect(() => {
     const root = scrollContainerRef.current;
     if (!root) {
@@ -186,19 +207,35 @@ export function EdicionClient({
 
       if (event.key === "ArrowDown" || event.key === "ArrowRight") {
         event.preventDefault();
+        animarBotonPorTeclado("next");
         irAlSiguiente();
         return;
       }
 
       if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
         event.preventDefault();
+        animarBotonPorTeclado("prev");
         irAlAnterior();
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [fechaSelectorOpen, irAlAnterior, irAlSiguiente, noticiaLeyendo]);
+  }, [
+    animarBotonPorTeclado,
+    fechaSelectorOpen,
+    irAlAnterior,
+    irAlSiguiente,
+    noticiaLeyendo,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (keyboardPressedTimeoutRef.current) {
+        clearTimeout(keyboardPressedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!noticiaLeyendo) {
@@ -234,6 +271,7 @@ export function EdicionClient({
       onShare={compartir}
       secciones={secciones}
       onSelectSlide={scrollToSlide}
+      keyboardPressedDirection={keyboardPressedDirection}
       modoLectura={Boolean(noticiaLeyendo) && !isClosing}
       onCerrar={cerrarLectura}
     >
