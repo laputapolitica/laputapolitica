@@ -148,6 +148,349 @@ export type AutorizarResult = {
 
 const CLIMA_CLAVES_SET = new Set<string>(CLIMA_CLAVES);
 
+export type VersionTextoEntidadTipo = "noticia" | "portada" | "el_pulso";
+export type VersionTextoCampo = "titulo" | "cuerpo" | "titulo_tapa" | "resumen_pulso";
+export type VersionTextoOrigen = "ia" | "manual";
+
+export type HistorialTextoItem = {
+  id: string;
+  contenido: string;
+  origen: VersionTextoOrigen;
+  vigente: boolean;
+  created_at: string;
+};
+
+type AplicarVersionTextoParams = {
+  edicionId: string;
+  entidadTipo: VersionTextoEntidadTipo;
+  entidadId: string;
+  campo: VersionTextoCampo;
+  contenido: string;
+  origen: VersionTextoOrigen;
+};
+
+type VersionTextoRealState = {
+  current: string | null;
+  realTargetExists: boolean;
+};
+
+type VersionTextoRow = {
+  id: string;
+  edicion_id: string;
+  entidad_tipo: VersionTextoEntidadTipo;
+  entidad_id: string;
+  campo: VersionTextoCampo;
+  contenido: string;
+  origen: VersionTextoOrigen;
+  vigente: boolean;
+  created_at: string;
+};
+
+function isVersionTextoEntidadTipo(value: string): value is VersionTextoEntidadTipo {
+  return value === "noticia" || value === "portada" || value === "el_pulso";
+}
+
+function isVersionTextoCampo(value: string): value is VersionTextoCampo {
+  return (
+    value === "titulo" ||
+    value === "cuerpo" ||
+    value === "titulo_tapa" ||
+    value === "resumen_pulso"
+  );
+}
+
+function targetVersionTextoValido(
+  entidadTipo: VersionTextoEntidadTipo,
+  campo: VersionTextoCampo,
+): boolean {
+  return (
+    (entidadTipo === "noticia" && (campo === "titulo" || campo === "cuerpo")) ||
+    (entidadTipo === "portada" && campo === "titulo_tapa") ||
+    (entidadTipo === "el_pulso" && campo === "resumen_pulso")
+  );
+}
+
+async function validarStaffTextos(edicionId: string): Promise<AutorizarResult> {
+  const supabase = await createClient();
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub;
+
+  if (claimsError || !userId) {
+    return { error: "Tu sesión expiró. Volvé a iniciar sesión." };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role, activo")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("Error validando permisos de versionado:", profileError.message);
+    return { error: "No se pudieron validar tus permisos." };
+  }
+
+  if (!profile?.activo || (profile.role !== "admin" && profile.role !== "editor")) {
+    return { error: "No tenés permisos para editar este texto." };
+  }
+
+  const { data: edicion, error: edicionError } = await supabase
+    .from("ediciones")
+    .select("id")
+    .eq("id", edicionId)
+    .maybeSingle();
+
+  if (edicionError) {
+    console.error("Error validando edición para versionado:", edicionError.message);
+    return { error: "No se pudieron validar tus permisos." };
+  }
+
+  if (!edicion) {
+    return { error: "No tenés permisos para editar este texto." };
+  }
+
+  return { success: true };
+}
+
+async function leerContenidoRealVersionTexto(
+  params: AplicarVersionTextoParams,
+): Promise<VersionTextoRealState | { error: string }> {
+  const admin = createAdminClient();
+
+  if (params.entidadTipo === "noticia") {
+    const { data, error } = await admin
+      .from("noticias")
+      .select("edicion_id, titulo, cuerpo")
+      .eq("id", params.entidadId)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error("Error leyendo texto real de noticia:", error?.message);
+      return { error: "No se pudo leer el texto actual." };
+    }
+    if (data.edicion_id !== params.edicionId) {
+      return { error: "La noticia no pertenece a esta edición." };
+    }
+
+    return {
+      current: params.campo === "titulo" ? data.titulo : data.cuerpo,
+      realTargetExists: true,
+    };
+  }
+
+  if (params.entidadTipo === "portada") {
+    if (params.entidadId !== params.edicionId) {
+      return { error: "La portada no corresponde a esta edición." };
+    }
+
+    const { data, error } = await admin
+      .from("portadas")
+      .select("titulo")
+      .eq("edicion_id", params.entidadId)
+      .eq("vigente", true)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error leyendo título de portada vigente:", error.message);
+      return { error: "No se pudo leer el título actual." };
+    }
+
+    return {
+      current: data?.titulo ?? null,
+      realTargetExists: Boolean(data),
+    };
+  }
+
+  const { data: noticia, error: noticiaError } = await admin
+    .from("noticias")
+    .select("edicion_id")
+    .eq("id", params.entidadId)
+    .maybeSingle();
+
+  if (noticiaError || !noticia) {
+    console.error("Error leyendo noticia para El Pulso:", noticiaError?.message);
+    return { error: "No se pudo leer la noticia." };
+  }
+  if (noticia.edicion_id !== params.edicionId) {
+    return { error: "La noticia no pertenece a esta edición." };
+  }
+
+  const { data: pulso, error: pulsoError } = await admin
+    .from("el_pulso_noticia")
+    .select("texto_resumen")
+    .eq("noticia_id", params.entidadId)
+    .maybeSingle();
+
+  if (pulsoError) {
+    console.error("Error leyendo resumen de El Pulso:", pulsoError.message);
+    return { error: "No se pudo leer el resumen actual." };
+  }
+
+  return {
+    current: pulso?.texto_resumen ?? null,
+    realTargetExists: Boolean(pulso),
+  };
+}
+
+async function escribirContenidoRealVersionTexto(
+  params: AplicarVersionTextoParams,
+): Promise<AutorizarResult> {
+  const admin = createAdminClient();
+
+  if (params.entidadTipo === "noticia") {
+    const update =
+      params.campo === "titulo"
+        ? { titulo: params.contenido }
+        : { cuerpo: params.contenido };
+    const { error } = await admin.from("noticias").update(update).eq("id", params.entidadId);
+
+    if (error) {
+      console.error("Error actualizando texto real de noticia:", error.message);
+      return { error: "No se pudo guardar. Intentá de nuevo." };
+    }
+    return { success: true };
+  }
+
+  if (params.entidadTipo === "portada") {
+    const { data: portada, error: portadaError } = await admin
+      .from("portadas")
+      .select("id")
+      .eq("edicion_id", params.entidadId)
+      .eq("vigente", true)
+      .maybeSingle();
+
+    if (portadaError) {
+      console.error("Error buscando portada vigente para escribir título:", portadaError.message);
+      return { error: "No se pudo guardar el título. Intentá de nuevo." };
+    }
+
+    if (!portada) {
+      return { success: true };
+    }
+
+    const { error } = await admin
+      .from("portadas")
+      .update({ titulo: params.contenido })
+      .eq("id", portada.id);
+
+    if (error) {
+      console.error("Error actualizando título de portada:", error.message);
+      return { error: "No se pudo guardar el título. Intentá de nuevo." };
+    }
+
+    const { error: edicionError } = await admin
+      .from("ediciones")
+      .update({ titulo: params.contenido })
+      .eq("id", params.edicionId);
+    if (edicionError) {
+      console.error("Error sincronizando título de edición:", edicionError.message);
+    }
+
+    return { success: true };
+  }
+
+  const { error } = await admin
+    .from("el_pulso_noticia")
+    .update({ texto_resumen: params.contenido })
+    .eq("noticia_id", params.entidadId);
+
+  if (error) {
+    console.error("Error actualizando resumen de El Pulso:", error.message);
+    return { error: "No se pudo guardar. Intentá de nuevo." };
+  }
+
+  return { success: true };
+}
+
+async function aplicarVersionTexto(
+  params: AplicarVersionTextoParams,
+): Promise<AutorizarResult> {
+  if (!targetVersionTextoValido(params.entidadTipo, params.campo)) {
+    return { error: "Campo de texto inválido." };
+  }
+
+  const permisos = await validarStaffTextos(params.edicionId);
+  if (permisos.error) return permisos;
+
+  const admin = createAdminClient();
+  const realState = await leerContenidoRealVersionTexto(params);
+  if ("error" in realState) return { error: realState.error };
+
+  const baseQuery = admin
+    .from("versiones_texto")
+    .select("id")
+    .eq("entidad_tipo", params.entidadTipo)
+    .eq("entidad_id", params.entidadId)
+    .eq("campo", params.campo)
+    .limit(1);
+
+  const { data: existentes, error: existentesError } = await baseQuery;
+  if (existentesError) {
+    console.error("Error leyendo versiones existentes:", existentesError.message);
+    return { error: "No se pudo guardar la versión." };
+  }
+
+  if (existentes && existentes.length > 0 && realState.current === params.contenido) {
+    const { data: vigenteActual, error: vigenteError } = await admin
+      .from("versiones_texto")
+      .select("contenido")
+      .eq("entidad_tipo", params.entidadTipo)
+      .eq("entidad_id", params.entidadId)
+      .eq("campo", params.campo)
+      .eq("vigente", true)
+      .maybeSingle();
+
+    if (vigenteError) {
+      console.error("Error leyendo versión vigente actual:", vigenteError.message);
+      return { error: "No se pudo guardar la versión." };
+    }
+    if (vigenteActual?.contenido === params.contenido) {
+      return { success: true };
+    }
+  }
+
+  if (!existentes || existentes.length === 0) {
+    const contenidoOriginal = realState.current?.trim() ? realState.current : null;
+    if (contenidoOriginal) {
+      const { error: seedError } = await admin.from("versiones_texto").insert({
+        edicion_id: params.edicionId,
+        entidad_tipo: params.entidadTipo,
+        entidad_id: params.entidadId,
+        campo: params.campo,
+        contenido: contenidoOriginal,
+        origen: "ia",
+        vigente: true,
+      });
+
+      if (seedError) {
+        console.error("Error sembrando versión original:", seedError.message);
+        return { error: "No se pudo guardar la versión original." };
+      }
+    }
+  }
+
+  const { error: versionError } = await admin.from("versiones_texto").insert({
+    edicion_id: params.edicionId,
+    entidad_tipo: params.entidadTipo,
+    entidad_id: params.entidadId,
+    campo: params.campo,
+    contenido: params.contenido,
+    origen: params.origen,
+    vigente: true,
+  });
+
+  if (versionError) {
+    console.error("Error insertando versión de texto:", versionError.message);
+    return { error: "No se pudo guardar la versión." };
+  }
+
+  if (!realState.realTargetExists && params.entidadTipo === "portada") {
+    return { success: true };
+  }
+
+  return escribirContenidoRealVersionTexto(params);
+}
+
 // Mapea el nodeId del diagrama al prefijo de columna en pipeline_state.
 const COLUMNA_APROBACION: Record<AutorizarEtapa, string> = {
   relevamiento: "relevamiento",
@@ -755,22 +1098,29 @@ export async function guardarTituloResumen(
   campo: "titulo" | "resumen",
   valor: string,
 ): Promise<AutorizarResult> {
-  const supabase = await createClient();
-
   // El panel usa "resumen", pero en la base la columna se llama "cuerpo".
-  const columna = campo === "resumen" ? "cuerpo" : "titulo";
+  const campoVersion: VersionTextoCampo = campo === "resumen" ? "cuerpo" : "titulo";
 
-  const { error } = await supabase
+  const admin = createAdminClient();
+  const { data: noticia, error: noticiaError } = await admin
     .from("noticias")
-    .update({ [columna]: valor })
-    .eq("id", noticiaId);
+    .select("edicion_id")
+    .eq("id", noticiaId)
+    .maybeSingle();
 
-  if (error) {
-    console.error("Error guardando título/resumen:", error.message);
+  if (noticiaError || !noticia) {
+    console.error("Error leyendo noticia para guardar título/resumen:", noticiaError?.message);
     return { error: "No se pudo guardar. Intentá de nuevo." };
   }
 
-  return { success: true };
+  return aplicarVersionTexto({
+    edicionId: noticia.edicion_id,
+    entidadTipo: "noticia",
+    entidadId: noticiaId,
+    campo: campoVersion,
+    contenido: valor,
+    origen: "manual",
+  });
 }
 
 type RehacerResult = {
@@ -788,7 +1138,7 @@ export async function rehacerCampo(
   // 1. Leer el texto de la(s) fuente(s) de la noticia.
   const { data, error } = await supabase
     .from("noticias")
-    .select("textos_fuentes")
+    .select("edicion_id, textos_fuentes")
     .eq("id", noticiaId)
     .maybeSingle();
 
@@ -856,6 +1206,20 @@ export async function rehacerCampo(
     const parsed = JSON.parse(content) as { valor?: string };
     if (!parsed.valor) {
       return { error: "La IA no devolvió el campo esperado. Probá de nuevo." };
+    }
+
+    const campoVersion: VersionTextoCampo = campo === "resumen" ? "cuerpo" : "titulo";
+    const guardado = await aplicarVersionTexto({
+      edicionId: data.edicion_id,
+      entidadTipo: "noticia",
+      entidadId: noticiaId,
+      campo: campoVersion,
+      contenido: parsed.valor,
+      origen: "ia",
+    });
+
+    if (guardado.error) {
+      return { error: guardado.error };
     }
 
     return { valor: parsed.valor };
@@ -1289,27 +1653,29 @@ export async function guardarTituloPortada(
   titulo: string,
 ): Promise<AutorizarResult> {
   const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("portadas")
-    .update({ titulo })
-    .eq("id", portadaId);
-
-  if (error) {
-    console.error("Error guardando título de portada:", error.message);
-    return { error: "No se pudo guardar el título. Intentá de nuevo." };
-  }
-
-  const { data: portada } = await supabase
+  const { data: portada, error: portadaError } = await supabase
     .from("portadas")
     .select("edicion_id, vigente")
     .eq("id", portadaId)
     .maybeSingle();
-  if (portada?.vigente && portada.edicion_id) {
-    await supabase.from("ediciones").update({ titulo }).eq("id", portada.edicion_id);
+
+  if (portadaError || !portada?.edicion_id) {
+    console.error("Error leyendo portada para guardar título:", portadaError?.message);
+    return { error: "No se pudo guardar el título. Intentá de nuevo." };
   }
 
-  return { success: true };
+  if (!portada.vigente) {
+    return { error: "Solo se puede editar el título de la portada vigente." };
+  }
+
+  return aplicarVersionTexto({
+    edicionId: portada.edicion_id,
+    entidadTipo: "portada",
+    entidadId: portada.edicion_id,
+    campo: "titulo_tapa",
+    contenido: titulo,
+    origen: "manual",
+  });
 }
 
 export async function subirPortadaManual(
@@ -1761,7 +2127,6 @@ export async function rehacerTituloPortada(edicionId: string): Promise<Autorizar
   }
 
   const supabase = await createClient();
-  const admin = createAdminClient();
 
   // Buscar la portada vigente.
   const { data: vigente, error: vigenteError } = await supabase
@@ -1831,20 +2196,14 @@ export async function rehacerTituloPortada(edicionId: string): Promise<Autorizar
 
   if (!nuevoTitulo) return { error: "La IA no devolvió un título. Probá de nuevo." };
 
-  // Guardar el nuevo título en la portada vigente.
-  const { error: updateError } = await admin
-    .from("portadas")
-    .update({ titulo: nuevoTitulo })
-    .eq("id", vigente.id);
-
-  if (updateError) {
-    console.error("Error guardando título regenerado:", updateError.message);
-    return { error: "No se pudo guardar el título. Probá de nuevo." };
-  }
-
-  await supabase.from("ediciones").update({ titulo: nuevoTitulo }).eq("id", edicionId);
-
-  return { success: true };
+  return aplicarVersionTexto({
+    edicionId,
+    entidadTipo: "portada",
+    entidadId: edicionId,
+    campo: "titulo_tapa",
+    contenido: nuevoTitulo,
+    origen: "ia",
+  });
 }
 
 export type EstiloBanco = {
@@ -2015,19 +2374,26 @@ export async function guardarResumenElPulso(
   noticiaId: string,
   valor: string,
 ): Promise<AutorizarResult> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
+  const { data: noticia, error: noticiaError } = await admin
+    .from("noticias")
+    .select("edicion_id")
+    .eq("id", noticiaId)
+    .maybeSingle();
 
-  const { error } = await supabase
-    .from("el_pulso_noticia")
-    .update({ texto_resumen: valor })
-    .eq("noticia_id", noticiaId);
-
-  if (error) {
-    console.error("Error guardando resumen de El Pulso:", error.message);
+  if (noticiaError || !noticia) {
+    console.error("Error leyendo noticia para guardar resumen de El Pulso:", noticiaError?.message);
     return { error: "No se pudo guardar. Intentá de nuevo." };
   }
 
-  return { success: true };
+  return aplicarVersionTexto({
+    edicionId: noticia.edicion_id,
+    entidadTipo: "el_pulso",
+    entidadId: noticiaId,
+    campo: "resumen_pulso",
+    contenido: valor,
+    origen: "manual",
+  });
 }
 
 // Espejo manual del workflow n8n "El Pulso" (resumen). Mantener en sync con ese workflow.
@@ -2094,14 +2460,102 @@ export async function rehacerResumenElPulso(
     return { error: "El resumen generado vino vacío. Intentá de nuevo." };
   }
 
-  const { error: updateError } = await supabase
-    .from("el_pulso_noticia")
-    .update({ texto_resumen: resumen })
-    .eq("noticia_id", noticiaId);
+  const { data: noticia, error: noticiaError } = await supabase
+    .from("noticias")
+    .select("edicion_id")
+    .eq("id", noticiaId)
+    .maybeSingle();
+
+  if (noticiaError || !noticia) {
+    console.error("Error leyendo noticia para guardar resumen de El Pulso:", noticiaError?.message);
+    return { error: "No se pudo guardar el resumen." };
+  }
+
+  return aplicarVersionTexto({
+    edicionId: noticia.edicion_id,
+    entidadTipo: "el_pulso",
+    entidadId: noticiaId,
+    campo: "resumen_pulso",
+    contenido: resumen,
+    origen: "ia",
+  });
+}
+
+export async function getHistorialTexto(
+  entidadTipo: VersionTextoEntidadTipo,
+  entidadId: string,
+  campo: VersionTextoCampo,
+): Promise<HistorialTextoItem[]> {
+  if (!targetVersionTextoValido(entidadTipo, campo)) {
+    return [];
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("versiones_texto")
+    .select("id, contenido, origen, vigente, created_at")
+    .eq("entidad_tipo", entidadTipo)
+    .eq("entidad_id", entidadId)
+    .eq("campo", campo)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error leyendo historial de texto:", error.message);
+    return [];
+  }
+
+  return ((data ?? []) as HistorialTextoItem[]).filter((version) =>
+    version.origen === "ia" || version.origen === "manual",
+  );
+}
+
+export async function restaurarVersionTexto(versionId: string): Promise<AutorizarResult> {
+  const admin = createAdminClient();
+
+  const { data, error } = await admin
+    .from("versiones_texto")
+    .select("id, edicion_id, entidad_tipo, entidad_id, campo, contenido, origen, vigente, created_at")
+    .eq("id", versionId)
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("Error leyendo versión de texto para restaurar:", error?.message);
+    return { error: "No se pudo leer la versión." };
+  }
+
+  const version = data as VersionTextoRow;
+  if (
+    !isVersionTextoEntidadTipo(version.entidad_tipo) ||
+    !isVersionTextoCampo(version.campo) ||
+    !targetVersionTextoValido(version.entidad_tipo, version.campo)
+  ) {
+    return { error: "La versión no corresponde a un texto editable." };
+  }
+
+  const permisos = await validarStaffTextos(version.edicion_id);
+  if (permisos.error) return permisos;
+
+  const { error: updateError } = await admin
+    .from("versiones_texto")
+    .update({ vigente: true })
+    .eq("id", version.id);
 
   if (updateError) {
-    console.error("Error guardando resumen de El Pulso:", updateError.message);
-    return { error: "No se pudo guardar el resumen." };
+    console.error("Error restaurando versión vigente:", updateError.message);
+    return { error: "No se pudo restaurar la versión." };
+  }
+
+  const escritura = await escribirContenidoRealVersionTexto({
+    edicionId: version.edicion_id,
+    entidadTipo: version.entidad_tipo,
+    entidadId: version.entidad_id,
+    campo: version.campo,
+    contenido: version.contenido,
+    origen: version.origen,
+  });
+
+  if (escritura.error) {
+    return { error: escritura.error };
   }
 
   return { success: true };
