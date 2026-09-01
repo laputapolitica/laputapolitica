@@ -15,6 +15,7 @@ export { PanelLayout } from "./PanelLayout";
 export { TabPrimary } from "./TabPrimary";
 export { TabSecondary } from "./TabSecondary";
 export { TitlePill } from "./TitlePill";
+export { VersionesTextoControl } from "./VersionesTextoControl";
 export {
   RowCardList,
   RowCardListHeader,

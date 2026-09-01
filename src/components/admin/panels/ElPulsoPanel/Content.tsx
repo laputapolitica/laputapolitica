@@ -5,13 +5,20 @@ import { useEffect, useState } from "react";
 import type { NoticiaElPulso } from "@/app/(admin)/admin/actions";
 import { IconEditar, IconRehacer } from "@/components/admin/icons";
 import { InterpretacionGeneral } from "@/components/admin/panels/PublicacionPanel/WebChannel/InterpretacionGeneral";
-import { IconButton, TextArea, TextField } from "@/components/admin/shared";
+import {
+  IconButton,
+  TextArea,
+  TextField,
+  VersionesTextoControl,
+} from "@/components/admin/shared";
 import { ElPulsoLogo } from "@/components/shared/ElPulsoLogo";
 
 type ContentProps = {
   noticia: NoticiaElPulso;
   onSaveResumen: (value: string) => void;
   onRehacerResumen: () => void;
+  onVersionRestored?: () => Promise<void> | void;
+  versionRefreshKey?: string;
   rehaciendoResumen?: boolean;
 };
 
@@ -19,6 +26,8 @@ export function ElPulsoContent({
   noticia,
   onSaveResumen,
   onRehacerResumen,
+  onVersionRestored,
+  versionRefreshKey,
   rehaciendoResumen = false,
 }: ContentProps) {
   const [isEditingResumen, setIsEditingResumen] = useState(false);
@@ -53,6 +62,13 @@ export function ElPulsoContent({
                   <IconRehacer width={11} height={11} />
                   {rehaciendoResumen ? "Rehaciendo..." : "Rehacer"}
                 </IconButton>
+                <VersionesTextoControl
+                  entidadTipo="el_pulso"
+                  entidadId={noticia.id}
+                  campo="resumen_pulso"
+                  refreshKey={`${noticia.resumen}:${versionRefreshKey ?? ""}`}
+                  onRestored={onVersionRestored}
+                />
               </div>
             )}
           </div>

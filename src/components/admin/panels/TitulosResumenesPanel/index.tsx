@@ -11,9 +11,10 @@ import { TitulosResumenesHeader } from "./Header";
 interface TitulosResumenesPanelProps {
   status: "running" | "ready";
   noticias?: NoticiaTituloResumen[];
-  onSaveTitulo?: (noticiaId: string, value: string) => void;
-  onSaveResumen?: (noticiaId: string, value: string) => void;
+  onSaveTitulo?: (noticiaId: string, value: string) => Promise<void> | void;
+  onSaveResumen?: (noticiaId: string, value: string) => Promise<void> | void;
   onRehacer?: (noticiaId: string, campo: "titulo" | "resumen") => Promise<void> | void;
+  onVersionRestored?: () => Promise<void> | void;
   onAutorizar?: () => void;
 }
 
@@ -23,6 +24,7 @@ export function TitulosResumenesPanel({
   onSaveTitulo,
   onSaveResumen,
   onRehacer,
+  onVersionRestored,
 }: TitulosResumenesPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [noticias, setNoticias] = useState<NoticiaTituloResumen[]>(
@@ -30,6 +32,7 @@ export function TitulosResumenesPanel({
   );
   const [rehaciendoTitulo, setRehaciendoTitulo] = useState(false);
   const [rehaciendoResumen, setRehaciendoResumen] = useState(false);
+  const [versionesRefresh, setVersionesRefresh] = useState(0);
 
   useEffect(() => {
     if (noticiasProp) setNoticias(noticiasProp);
@@ -53,7 +56,7 @@ export function TitulosResumenesPanel({
     );
   }
 
-  function updateActiveNoticia(
+  async function updateActiveNoticia(
     field: keyof Pick<NoticiaTituloResumen, "titulo" | "resumen">,
     value: string,
   ) {
@@ -67,10 +70,11 @@ export function TitulosResumenesPanel({
 
     if (!activeNoticiaId) return;
     if (field === "titulo") {
-      onSaveTitulo?.(activeNoticiaId, value);
+      await onSaveTitulo?.(activeNoticiaId, value);
     } else {
-      onSaveResumen?.(activeNoticiaId, value);
+      await onSaveResumen?.(activeNoticiaId, value);
     }
+    setVersionesRefresh((current) => current + 1);
   }
 
   async function handleRehacerTitulo() {
@@ -79,6 +83,7 @@ export function TitulosResumenesPanel({
     try {
       await onRehacer?.(activeNoticia.id, "titulo");
     } finally {
+      setVersionesRefresh((current) => current + 1);
       setRehaciendoTitulo(false);
     }
   }
@@ -89,6 +94,7 @@ export function TitulosResumenesPanel({
     try {
       await onRehacer?.(activeNoticia.id, "resumen");
     } finally {
+      setVersionesRefresh((current) => current + 1);
       setRehaciendoResumen(false);
     }
   }
@@ -109,6 +115,8 @@ export function TitulosResumenesPanel({
           onSaveResumen={(val) => updateActiveNoticia("resumen", val)}
           onRehacerTitulo={handleRehacerTitulo}
           onRehacerResumen={handleRehacerResumen}
+          onVersionRestored={onVersionRestored}
+          versionRefreshKey={String(versionesRefresh)}
           rehaciendoTitulo={rehaciendoTitulo}
           rehaciendoResumen={rehaciendoResumen}
         />

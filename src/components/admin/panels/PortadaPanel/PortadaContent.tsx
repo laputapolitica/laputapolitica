@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { EstiloBanco, PortadaHistorial } from "@/app/(admin)/admin/actions";
 import { IconBajar, IconEditar, IconRehacer, IconSubir } from "@/components/admin/icons";
-import { IconButton, TextField } from "@/components/admin/shared";
+import { IconButton, TextField, VersionesTextoControl } from "@/components/admin/shared";
 
 type PortadaContentProps = {
+  edicionId?: string;
   titulo: string;
   onSaveTitulo: (value: string) => void;
   imagenUrl?: string;
@@ -23,9 +24,12 @@ type PortadaContentProps = {
   onAbrirGaleriaEstilos?: () => void;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
+  onVersionTextoRestored?: () => Promise<void> | void;
+  versionTextoRefreshKey?: string;
 };
 
 export function PortadaContent({
+  edicionId,
   titulo,
   onSaveTitulo,
   imagenUrl,
@@ -39,6 +43,8 @@ export function PortadaContent({
   onAbrirGaleriaEstilos,
   historial,
   onRestaurar,
+  onVersionTextoRestored,
+  versionTextoRefreshKey,
 }: PortadaContentProps) {
   const [isEditingTitulo, setIsEditingTitulo] = useState(false);
   const [menuRehacerAbierto, setMenuRehacerAbierto] = useState(false);
@@ -119,6 +125,15 @@ export function PortadaContent({
                 <IconRehacer width={11} height={11} />
                 {rehaciendoTitulo ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
+              {edicionId && (
+                <VersionesTextoControl
+                  entidadTipo="portada"
+                  entidadId={edicionId}
+                  campo="titulo_tapa"
+                  refreshKey={`${titulo}:${versionTextoRefreshKey ?? ""}`}
+                  onRestored={onVersionTextoRestored}
+                />
+              )}
             </>
           )}
         </div>

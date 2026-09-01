@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import type { NoticiaTituloResumen } from "@/app/(admin)/admin/actions";
 import { IconEditar, IconRehacer } from "@/components/admin/icons";
-import { IconButton, TextArea, TextField } from "@/components/admin/shared";
+import {
+  IconButton,
+  TextArea,
+  TextField,
+  VersionesTextoControl,
+} from "@/components/admin/shared";
 
 type ContentProps = {
   noticia: NoticiaTituloResumen;
@@ -11,6 +16,8 @@ type ContentProps = {
   onSaveResumen: (value: string) => void;
   onRehacerTitulo: () => void;
   onRehacerResumen: () => void;
+  onVersionRestored?: () => Promise<void> | void;
+  versionRefreshKey?: string;
   rehaciendoTitulo?: boolean;
   rehaciendoResumen?: boolean;
 };
@@ -21,6 +28,8 @@ export function TitulosResumenesContent({
   onSaveResumen,
   onRehacerTitulo,
   onRehacerResumen,
+  onVersionRestored,
+  versionRefreshKey,
   rehaciendoTitulo = false,
   rehaciendoResumen = false,
 }: ContentProps) {
@@ -60,6 +69,13 @@ export function TitulosResumenesContent({
                 <IconRehacer width={11} height={11} />
                 {rehaciendoTitulo ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
+              <VersionesTextoControl
+                entidadTipo="noticia"
+                entidadId={noticia.id}
+                campo="titulo"
+                refreshKey={`${noticia.titulo}:${versionRefreshKey ?? ""}`}
+                onRestored={onVersionRestored}
+              />
             </>
           )}
         </div>
@@ -91,6 +107,13 @@ export function TitulosResumenesContent({
                 <IconRehacer width={11} height={11} />
                 {rehaciendoResumen ? "Rehaciendo..." : "Rehacer"}
               </IconButton>
+              <VersionesTextoControl
+                entidadTipo="noticia"
+                entidadId={noticia.id}
+                campo="cuerpo"
+                refreshKey={`${noticia.resumen}:${versionRefreshKey ?? ""}`}
+                onRestored={onVersionRestored}
+              />
             </div>
           )}
         </div>

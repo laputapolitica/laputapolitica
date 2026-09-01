@@ -296,6 +296,7 @@ function ActivePanel({
   onSaveResumenElPulso,
   onRehacer,
   onRehacerElPulso,
+  onVersionTextoRestored,
 }: {
   nodeId: PipelineNodeId;
   edicionId?: string;
@@ -315,8 +316,8 @@ function ActivePanel({
   onReordenar?: (ordenIds: string[]) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
-  onSaveTitulo?: (id: string, val: string) => void;
-  onSaveTituloPortada?: (titulo: string) => void;
+  onSaveTitulo?: (id: string, val: string) => Promise<void> | void;
+  onSaveTituloPortada?: (titulo: string) => Promise<void> | void;
   onSubirPortada?: (file: File) => void;
   onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
@@ -325,10 +326,11 @@ function ActivePanel({
   onRehacerPortada?: (opcion: OpcionRehacer) => void;
   rehaciendoPortadaProp?: boolean;
   onAbrirGaleriaEstilos?: () => void;
-  onSaveResumen?: (id: string, val: string) => void;
-  onSaveResumenElPulso?: (id: string, val: string) => void;
+  onSaveResumen?: (id: string, val: string) => Promise<void> | void;
+  onSaveResumenElPulso?: (id: string, val: string) => Promise<void> | void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
   onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
+  onVersionTextoRestored?: () => Promise<void> | void;
 }) {
   if (nodeId === "relevamiento") {
     return (
@@ -349,6 +351,7 @@ function ActivePanel({
         onSaveTitulo={(id, val) => onSaveTitulo?.(id, val)}
         onSaveResumen={(id, val) => onSaveResumen?.(id, val)}
         onRehacer={onRehacer}
+        onVersionRestored={onVersionTextoRestored}
       />
     );
   }
@@ -356,6 +359,7 @@ function ActivePanel({
     return (
       <PortadaPanel
         status="ready"
+        edicionId={edicionId}
         portada={portada}
         onSaveTitulo={onSaveTituloPortada}
         onSubirImagen={onSubirPortada}
@@ -368,6 +372,7 @@ function ActivePanel({
         onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
         historial={historialPortadas}
         onRestaurar={onRestaurarPortada}
+        onVersionTextoRestored={onVersionTextoRestored}
       />
     );
   }
@@ -379,6 +384,7 @@ function ActivePanel({
         noticias={noticiasElPulso ?? undefined}
         onSaveResumen={onSaveResumenElPulso}
         onRehacer={onRehacerElPulso}
+        onVersionRestored={onVersionTextoRestored}
       />
     );
   }
@@ -430,6 +436,7 @@ function PipelineActivePanel({
   onSaveResumenElPulso,
   onRehacer,
   onRehacerElPulso,
+  onVersionTextoRestored,
 }: {
   state: PipelineState;
   edicionId?: string;
@@ -449,8 +456,8 @@ function PipelineActivePanel({
   onReordenar?: (ordenIds: string[]) => void;
   onEliminar?: (id: string) => void;
   onAgregar?: (id: string) => void;
-  onSaveTitulo?: (id: string, val: string) => void;
-  onSaveTituloPortada?: (titulo: string) => void;
+  onSaveTitulo?: (id: string, val: string) => Promise<void> | void;
+  onSaveTituloPortada?: (titulo: string) => Promise<void> | void;
   onSubirPortada?: (file: File) => void;
   onRestaurarPortada?: (portadaId: string) => void;
   subiendoPortadaProp?: boolean;
@@ -459,10 +466,11 @@ function PipelineActivePanel({
   onRehacerPortada?: (opcion: OpcionRehacer) => void;
   rehaciendoPortadaProp?: boolean;
   onAbrirGaleriaEstilos?: () => void;
-  onSaveResumen?: (id: string, val: string) => void;
-  onSaveResumenElPulso?: (id: string, val: string) => void;
+  onSaveResumen?: (id: string, val: string) => Promise<void> | void;
+  onSaveResumenElPulso?: (id: string, val: string) => Promise<void> | void;
   onRehacer?: (id: string, campo: "titulo" | "resumen") => Promise<void> | void;
   onRehacerElPulso?: (noticiaId: string) => Promise<void> | void;
+  onVersionTextoRestored?: () => Promise<void> | void;
 }) {
   // Si todo está done → pantalla de publicado con cuenta atrás
   const allDone = Object.entries(state)
@@ -508,6 +516,7 @@ function PipelineActivePanel({
         onSaveResumenElPulso={onSaveResumenElPulso}
         onRehacer={onRehacer}
         onRehacerElPulso={onRehacerElPulso}
+        onVersionTextoRestored={onVersionTextoRestored}
       />
     );
   }
@@ -1112,6 +1121,7 @@ function AdminPageContent() {
             onSaveResumenElPulso={handleGuardarResumenElPulso}
             onRehacer={handleRehacer}
             onRehacerElPulso={handleRehacerElPulso}
+            onVersionTextoRestored={recargarPipeline}
           />
         ) : (
           <PipelineActivePanel
@@ -1151,6 +1161,7 @@ function AdminPageContent() {
             onSaveResumenElPulso={handleGuardarResumenElPulso}
             onRehacer={handleRehacer}
             onRehacerElPulso={handleRehacerElPulso}
+            onVersionTextoRestored={recargarPipeline}
           />
         )}
       </section>

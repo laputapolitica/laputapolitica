@@ -12,8 +12,9 @@ import { PortadaContent } from "./PortadaContent";
 
 interface PortadaPanelProps {
   status: "loading" | "ready";
+  edicionId?: string;
   portada?: PortadaVigente;
-  onSaveTitulo?: (titulo: string) => void;
+  onSaveTitulo?: (titulo: string) => Promise<void> | void;
   onSubirImagen?: (file: File) => void;
   subiendoImagen?: boolean;
   onRehacerTitulo?: () => void;
@@ -24,10 +25,12 @@ interface PortadaPanelProps {
   onAbrirGaleriaEstilos?: () => void;
   historial?: PortadaHistorial[];
   onRestaurar?: (portadaId: string) => void;
+  onVersionTextoRestored?: () => Promise<void> | void;
 }
 
 export function PortadaPanel({
   status,
+  edicionId,
   portada,
   onSaveTitulo,
   onSubirImagen,
@@ -40,16 +43,19 @@ export function PortadaPanel({
   onAbrirGaleriaEstilos,
   historial,
   onRestaurar,
+  onVersionTextoRestored,
 }: PortadaPanelProps) {
   const [titulo, setTitulo] = useState(portada?.titulo ?? "");
+  const [versionesRefresh, setVersionesRefresh] = useState(0);
 
   useEffect(() => {
     if (portada?.titulo) setTitulo(portada.titulo);
   }, [portada?.titulo]);
 
-  function handleSaveTitulo(value: string) {
+  async function handleSaveTitulo(value: string) {
     setTitulo(value);
-    onSaveTitulo?.(value);
+    await onSaveTitulo?.(value);
+    setVersionesRefresh((current) => current + 1);
   }
 
   if (status === "loading") {
@@ -67,6 +73,7 @@ export function PortadaPanel({
     <PanelLayout
       content={
         <PortadaContent
+          edicionId={edicionId}
           titulo={titulo}
           onSaveTitulo={handleSaveTitulo}
           imagenUrl={portada?.imagenUrl}
@@ -80,6 +87,8 @@ export function PortadaPanel({
           onAbrirGaleriaEstilos={onAbrirGaleriaEstilos}
           historial={historial}
           onRestaurar={onRestaurar}
+          onVersionTextoRestored={onVersionTextoRestored}
+          versionTextoRefreshKey={String(versionesRefresh)}
         />
       }
     />
