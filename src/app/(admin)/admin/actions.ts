@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CLIMA_CLAVES, getClimaEdicion, type ClimaCiudadData } from "@/lib/clima";
 import { VOTE_COLORS } from "@/lib/constants";
-import { formatFechaCorta } from "@/lib/fecha";
+import { getFechaHoyArgentina } from "@/lib/fecha";
 import type { PipelineState, GateStatus, NodeStatus } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
@@ -25,6 +25,14 @@ type PipelineRow = {
   el_pulso_aprobado_en: string | null;
 };
 
+type EdicionPipelineRow = {
+  id: string;
+  fecha: string;
+  titulo: string;
+  estado: string;
+  publicada_en: string | null;
+};
+
 function asNode(value: string): NodeStatus {
   if (value === "running" || value === "done") return value;
   return "pending";
@@ -38,41 +46,36 @@ export type PipelineEnCurso = {
   edicionId: string;
   fecha: string;
   titulo: string;
+  estado: string;
+  publicadaEn: string | null;
   state: PipelineState;
 } | null;
 
-export type EdicionPublicadaReciente = {
-  titulo: string;
-  fecha: string;
-  horaPublicacion: string;
-} | null;
-
-const HORA_PUBLICACION_FORMATTER = new Intl.DateTimeFormat("es-AR", {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: false,
-  timeZone: "America/Argentina/Buenos_Aires",
-});
-
-export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
+async function getPaisActualAdmin(): Promise<string> {
   const supabase = await createClient();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub;
 
-  // La edición en curso = la no publicada más reciente.
-  const { data: ed, error: edError } = await supabase
-    .from("ediciones")
-    .select("id, fecha, titulo")
-    .neq("estado", "published")
-    .order("fecha", { ascending: false })
-    .limit(1)
+  if (!userId) {
+    return "AR";
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("pais")
+    .eq("id", userId)
     .maybeSingle();
 
-  if (edError) {
-    console.error("Error leyendo edición en curso:", edError.message);
+  if (error) {
+    console.error("Error leyendo país del admin:", error.message);
+    return "AR";
   }
-  if (!ed) {
-    return null;
-  }
+
+  return data?.pais ?? "AR";
+}
+
+async function getPipelineParaEdicion(ed: EdicionPipelineRow): Promise<PipelineEnCurso> {
+  const supabase = await createClient();
 
   const { data: ps, error: psError } = await supabase
     .from("pipeline_state")
@@ -107,36 +110,36 @@ export async function getPipelineEnCurso(): Promise<PipelineEnCurso> {
     publicacion: asNode(row.publicacion_status),
   };
 
-  return { edicionId: ed.id, fecha: ed.fecha, titulo: ed.titulo, state };
+  return {
+    edicionId: ed.id,
+    fecha: ed.fecha,
+    titulo: ed.titulo,
+    estado: ed.estado,
+    publicadaEn: ed.publicada_en,
+    state,
+  };
 }
 
-export async function getEdicionPublicadaReciente(): Promise<EdicionPublicadaReciente> {
+export async function getPipelineEnCursoDeHoy(): Promise<PipelineEnCurso> {
   const supabase = await createClient();
+  const fechaHoy = getFechaHoyArgentina();
+  const paisActual = await getPaisActualAdmin();
 
-  const { data, error } = await supabase
+  const { data: ed, error: edError } = await supabase
     .from("ediciones")
-    .select("titulo, fecha, publicada_en")
-    .eq("estado", "published")
-    .order("publicada_en", { ascending: false })
-    .limit(1)
+    .select("id, fecha, titulo, estado, publicada_en")
+    .eq("fecha", fechaHoy)
+    .eq("pais", paisActual)
     .maybeSingle();
 
-  if (error) {
-    console.error("Error leyendo última edición publicada:", error.message);
+  if (edError) {
+    console.error("Error leyendo edición en curso de hoy:", edError.message);
   }
-  if (!data) {
+  if (!ed) {
     return null;
   }
 
-  const publicadaEn = data.publicada_en ? new Date(data.publicada_en) : null;
-
-  return {
-    titulo: data.titulo,
-    fecha: formatFechaCorta(data.fecha),
-    horaPublicacion: publicadaEn
-      ? HORA_PUBLICACION_FORMATTER.format(publicadaEn)
-      : "--:--:--",
-  };
+  return getPipelineParaEdicion(ed);
 }
 
 export type AutorizarEtapa = "relevamiento" | "titulosResumenes" | "portada" | "publicacion" | "elPulso";

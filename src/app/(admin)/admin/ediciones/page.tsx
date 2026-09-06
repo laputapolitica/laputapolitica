@@ -1,7 +1,7 @@
 import { PipelineDiagram } from "@/components/admin";
 import { PanelLayout } from "@/components/admin/shared";
 import { EdicionesList } from "@/components/admin/sections/ediciones";
-import { getPipelineEnCurso } from "@/app/(admin)/admin/actions";
+import { getPipelineEnCursoDeHoy } from "@/app/(admin)/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 import type { Edicion, EstadoEdicion } from "@/types/admin";
 
@@ -48,7 +48,7 @@ export default async function AdminEdicionesPage() {
       .from("ediciones")
       .select("id, fecha, titulo, estado, publicada_en")
       .eq("estado", "published"),
-    getPipelineEnCurso(),
+    getPipelineEnCursoDeHoy(),
   ]);
 
   if (error) {

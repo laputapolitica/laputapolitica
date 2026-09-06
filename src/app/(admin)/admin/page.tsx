@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import {
-  getPipelineEnCurso,
-  getEdicionPublicadaReciente,
+  getPipelineEnCursoDeHoy,
   getCandidatasRelevamiento,
   getNoticiasTitulosResumenes,
   getNoticiasElPulso,
@@ -33,7 +33,6 @@ import {
   rehacerResumenElPulso,
   guardarResumenElPulso,
   type PipelineEnCurso,
-  type EdicionPublicadaReciente,
   type NoticiasRelevamiento,
   type NoticiaTituloResumen,
   type NoticiaElPulso,
@@ -73,6 +72,7 @@ import {
   mockStateTitulosRunning,
 } from "@/components/admin/PipelineDiagram";
 import { createClient } from "@/lib/supabase/client";
+import { formatFechaCorta } from "@/lib/fecha";
 import type { PipelineNodeId, PipelineState } from "@/components/admin/PipelineDiagram";
 import type { NoticiaPublicacion } from "@/components/admin/panels/PublicacionPanel/types";
 
@@ -87,6 +87,19 @@ const VALID_NODES: PipelineNodeId[] = [
   "twitter",
   "publicacion",
 ];
+
+const HORA_PUBLICACION_FORMATTER = new Intl.DateTimeFormat("es-AR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+  timeZone: "America/Argentina/Buenos_Aires",
+});
+
+function formatHoraPublicacion(publicadaEn: string | null | undefined): string {
+  if (!publicadaEn) return "--:--:--";
+  return HORA_PUBLICACION_FORMATTER.format(new Date(publicadaEn));
+}
 
 const REVIEW_GATES = [
   {
@@ -407,6 +420,8 @@ function PipelineActivePanel({
   state,
   edicionId,
   titulo,
+  fecha,
+  publicadaEn,
   noticiasRelev,
   noticiasTitulos,
   noticiasElPulso,
@@ -441,6 +456,8 @@ function PipelineActivePanel({
   state: PipelineState;
   edicionId?: string;
   titulo?: string;
+  fecha?: string;
+  publicadaEn?: string | null;
   noticiasRelev?: NoticiasRelevamientoState;
   noticiasTitulos?: NoticiasTitulosState;
   noticiasElPulso?: NoticiaElPulso[] | null;
@@ -477,7 +494,15 @@ function PipelineActivePanel({
     .filter(([key]) => !key.includes("Gate"))
     .every(([, val]) => val === "done");
 
-  if (allDone) return <PublicadoPanel />;
+  if (allDone) {
+    return (
+      <PublicadoPanel
+        titulo={titulo}
+        fecha={fecha ? formatFechaCorta(fecha) : undefined}
+        horaPublicacion={formatHoraPublicacion(publicadaEn)}
+      />
+    );
+  }
 
   const reviewNode = getReviewNode(state);
 
@@ -573,8 +598,6 @@ function AdminPageContent() {
   const panelParam = searchParams.get("panel") as PipelineNodeId | null;
 
   const [enCurso, setEnCurso] = useState<PipelineEnCurso>(null);
-  const [edicionPublicadaReciente, setEdicionPublicadaReciente] =
-    useState<EdicionPublicadaReciente>(null);
   const [noticiasRelev, setNoticiasRelev] = useState<NoticiasRelevamientoState>(null);
   const [noticiasTitulos, setNoticiasTitulos] =
     useState<NoticiasTitulosState>(null);
@@ -603,12 +626,8 @@ function AdminPageContent() {
   const recargaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function recargarPipeline() {
-    const [data, publicadaReciente] = await Promise.all([
-      getPipelineEnCurso(),
-      getEdicionPublicadaReciente(),
-    ]);
+    const data = await getPipelineEnCursoDeHoy();
     setEnCurso(data);
-    setEdicionPublicadaReciente(publicadaReciente);
     if (data) {
       const [
         candidatas,
@@ -671,11 +690,10 @@ function AdminPageContent() {
 
   useEffect(() => {
     let activo = true;
-    Promise.all([getPipelineEnCurso(), getEdicionPublicadaReciente()]).then(
-      async ([data, publicadaReciente]) => {
+    getPipelineEnCursoDeHoy().then(
+      async (data) => {
         if (activo) {
           setEnCurso(data);
-          setEdicionPublicadaReciente(publicadaReciente);
           if (data) {
             const [
               candidatas,
@@ -1053,23 +1071,36 @@ function AdminPageContent() {
     );
   }
 
+  if (!scenarioParam && enCurso?.estado === "published") {
+    return (
+      <PublicadoPanel
+        titulo={enCurso.titulo}
+        fecha={formatFechaCorta(enCurso.fecha)}
+        horaPublicacion={formatHoraPublicacion(enCurso.publicadaEn)}
+      />
+    );
+  }
+
   // Sin scenario y sin edición en curso.
   if (!pipelineState) {
-    if (edicionPublicadaReciente) {
-      return (
-        <PublicadoPanel
-          titulo={edicionPublicadaReciente.titulo}
-          fecha={edicionPublicadaReciente.fecha}
-          horaPublicacion={edicionPublicadaReciente.horaPublicacion}
-        />
-      );
-    }
-
     return (
       <div className="flex h-full items-center justify-center">
-        <span className="font-ui text-sm text-text-secondary">
-          No hay una edición en curso en este momento.
-        </span>
+        <div className="max-w-[520px] border-2 border-admin-ink bg-bg-base px-8 py-7 text-center">
+          <h1 className="font-display text-2xl font-semibold text-admin-ink">
+            No hay edición en curso
+          </h1>
+          <p className="mt-3 font-ui text-sm leading-6 text-text-secondary">
+            La edición del día se crea automáticamente con el relevamiento nocturno.
+            Podés ver las ediciones anteriores en{" "}
+            <Link
+              href="/admin/ediciones"
+              className="font-semibold text-admin-ink underline underline-offset-4"
+            >
+              Lista de ediciones
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     );
   }
@@ -1128,6 +1159,8 @@ function AdminPageContent() {
             state={pipelineState}
             edicionId={enCurso?.edicionId}
             titulo={enCurso?.titulo}
+            fecha={enCurso?.fecha}
+            publicadaEn={enCurso?.publicadaEn}
             noticiasRelev={noticiasRelev}
             noticiasTitulos={noticiasTitulos}
             noticiasElPulso={noticiasElPulso}
