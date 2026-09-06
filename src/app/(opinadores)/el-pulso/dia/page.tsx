@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getFechaHoyArgentina } from "@/lib/fecha";
 import type { OpinionSentiment } from "./actions";
 import type { Edicion, Noticia } from "@/types/edicion";
 
@@ -22,6 +23,7 @@ type EdicionRow = {
 
 export default async function DiaPage(): Promise<React.ReactElement> {
   const supabase = await createClient();
+  const fechaHoy = getFechaHoyArgentina();
 
   // Nombre del opinador logueado, para el saludo del header.
   let nombreOpinador = "";
@@ -45,9 +47,8 @@ export default async function DiaPage(): Promise<React.ReactElement> {
     .select(
       "id, fecha, titulo, portada_url, noticias(id, orden, titulo, cuerpo, fuentes_urls)",
     )
+    .eq("fecha", fechaHoy)
     .neq("estado", "published")
-    .order("fecha", { ascending: false })
-    .limit(1)
     .maybeSingle();
 
   if (error) {
