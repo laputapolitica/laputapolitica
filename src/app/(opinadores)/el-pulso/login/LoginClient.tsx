@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { HeaderElPulso } from "@/components/opinadores";
+import { LegalLinks } from "@/components/shared/LegalLinks";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
@@ -142,6 +143,8 @@ export function LoginClient(): React.ReactElement {
                       </button>
                     </div>
                   </label>
+
+                  <LegalLinks className="mt-3" />
 
                   {error ? (
                     <p className="text-center font-ui text-sm text-state-required">{error}</p>

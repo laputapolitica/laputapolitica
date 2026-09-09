@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { LEGAL } from "@/lib/legal";
 
 export type CrearPostulacionState = {
   error?: string;
@@ -28,9 +29,13 @@ export async function crearPostulacion(
     return { error: "Ingresá un email válido" };
   }
 
-  const edad = Number.parseInt(edadRaw, 10);
-  if (Number.isNaN(edad) || edad < 13) {
-    return { error: "Ingresá una edad válida (mínimo 13 años)" };
+  const edad = Number(edadRaw);
+  if (!/^\d+$/.test(edadRaw) || !Number.isSafeInteger(edad) || edad < LEGAL.minimumAge) {
+    return { error: `Ingresá una edad válida. Para postularte tenés que tener ${LEGAL.minimumAge} años o más.` };
+  }
+
+  if (formData.get("aceptacionLegal") !== "accepted") {
+    return { error: "Para postularte tenés que aceptar los Términos y Condiciones y la Política de Privacidad." };
   }
 
   const supabase = await createClient();
@@ -45,6 +50,8 @@ export async function crearPostulacion(
     edad,
     provincia,
     motivacion,
+    acepto_legales_en: new Date().toISOString(),
+    legales_version: LEGAL.lastUpdated,
   });
 
   if (error) {

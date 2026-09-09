@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
+import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: new URL("/", siteUrl).href,
       lastModified: editions[0]?.publicada_en ?? undefined,
     },
+    ...Object.values(LEGAL_DOCUMENTS).map((document) => ({
+      url: new URL(document.href, siteUrl).href,
+      lastModified: LEGAL.lastUpdated,
+      priority: 0.2,
+    })),
     ...editions.map((edition) => ({
       // Share links use the database slug verbatim: dd-mm-yyyy.
       url: new URL(`/edicion/${edition.fecha}`, siteUrl).href,

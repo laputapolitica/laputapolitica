@@ -10,6 +10,7 @@ import {
 } from "@/app/(opinadores)/el-pulso/actions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 
 const provinciasArgentinas = [
   "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba",
@@ -103,7 +104,7 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
             <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Edad</span>
-                <Input className={inputClass} name="edad" type="number" inputMode="numeric" min={13} placeholder="22" required />
+                <Input className={inputClass} name="edad" type="number" inputMode="numeric" min={LEGAL.minimumAge} placeholder="22" required />
               </label>
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Provincia</span>
@@ -136,8 +137,18 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
               <Textarea className={textareaClass} name="motivacion" rows={4} placeholder="Contanos tu motivación..." required />
             </label>
 
+            <div className="flex items-start gap-3 font-ui text-xs leading-relaxed text-text-secondary">
+              <input id="aceptacionLegal" name="aceptacionLegal" type="checkbox" value="accepted" required className="mt-0.5 h-4 w-4 shrink-0 accent-text-primary" />
+              <label htmlFor="aceptacionLegal">
+                Leí y acepto los{" "}
+                <Link href={LEGAL_DOCUMENTS.terms.href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">Términos y Condiciones<span className="sr-only"> (abre en una pestaña nueva)</span></Link>
+                {" "}y la{" "}
+                <Link href={LEGAL_DOCUMENTS.privacy.href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">Política de Privacidad<span className="sr-only"> (abre en una pestaña nueva)</span></Link>.
+              </label>
+            </div>
+
             {state.error ? (
-              <p className="text-center font-ui text-sm text-state-required">{state.error}</p>
+              <p role="alert" className="text-center font-ui text-sm text-state-required">{state.error}</p>
             ) : null}
           </div>
         </div>

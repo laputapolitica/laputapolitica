@@ -227,6 +227,8 @@ postulacion_id references public.postulaciones(id) on delete set null;
 
 Formulario público previo a convertirse en opinador.
 
+La aplicación exige al menos 16 años y aceptación legal antes de insertar. Las columnas de consentimiento ya fueron agregadas por MCP; queda pendiente versionar esa migración como archivo. No se rellenan postulaciones históricas.
+
 | Columna | Tipo | Null | Default | Notas |
 |---|---:|---:|---:|---|
 | `id` | `uuid` | no | `gen_random_uuid()` | PK. |
@@ -236,6 +238,8 @@ Formulario público previo a convertirse en opinador.
 | `edad` | `integer` | no | - | Edad declarada. |
 | `provincia` | `text` | no | - | Provincia argentina. |
 | `motivacion` | `text` | no | - | Respuesta abierta. |
+| `acepto_legales_en` | `timestamptz` | sí | - | Momento del envío generado por el servidor, solo tras validar la aceptación legal. Sin completar para postulaciones anteriores. |
+| `legales_version` | `text` | sí | - | Versión aceptada tomada de `LEGAL.lastUpdated`. Sin completar para postulaciones anteriores. |
 | `estado` | `text` | no | `'pending'` | `pending`, `approved` o `rejected`. |
 | `revisada_por` | `uuid` | sí | - | Staff que revisó. |
 | `revisada_en` | `timestamptz` | sí | - | Fecha de revisión. |

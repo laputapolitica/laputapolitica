@@ -7,6 +7,7 @@ import {
 
 import { CountrySelector } from "@/components/shared/CountrySelector";
 import { Logo } from "@/components/shared/Logo";
+import { LegalLinks } from "@/components/shared/LegalLinks";
 import { cn } from "@/lib/utils";
 
 import { NavegacionLateral } from "./NavegacionLateral";
@@ -301,6 +302,8 @@ export function EdicionLayout({
               </a>
             </div>
           </div>
+
+          <LegalLinks />
 
           <div className="flex items-center gap-6 font-ui text-[13px] font-bold text-text-primary">
             {onShare ? (
