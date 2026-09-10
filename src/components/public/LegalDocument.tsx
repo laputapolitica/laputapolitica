@@ -10,8 +10,21 @@ import { LegalLinks } from "@/components/shared/LegalLinks";
 import { Logo } from "@/components/shared/Logo";
 import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 
-export async function LegalDocument({ document }: { document: keyof typeof LEGAL_DOCUMENTS }) {
-  const markdown = await readFile(path.join(process.cwd(), "docs/legal", LEGAL_DOCUMENTS[document].fileName), "utf8");
+const DOCUMENTS = {
+  ...LEGAL_DOCUMENTS,
+  info: {
+    directory: "docs/paginas",
+    fileName: "info.md",
+  },
+} as const;
+
+type Document = keyof typeof DOCUMENTS;
+
+export async function LegalDocument({ document }: { document: Document }) {
+  const documentConfig = DOCUMENTS[document];
+  const directory = "directory" in documentConfig ? documentConfig.directory : "docs/legal";
+  const isInfoPage = document === "info";
+  const markdown = await readFile(path.join(process.cwd(), directory, documentConfig.fileName), "utf8");
 
   return (
     <div className="min-h-dvh bg-bg-base text-text-primary">
@@ -23,11 +36,11 @@ export async function LegalDocument({ document }: { document: keyof typeof LEGAL
           <Link href="/" className="font-ui text-xs underline underline-offset-4 sm:text-sm">Volver a la edición</Link>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl px-5 py-10 sm:px-10 sm:py-16">
+      <main className={`mx-auto max-w-3xl px-5 py-10 sm:px-10 ${isInfoPage ? "sm:py-20" : "sm:py-16"}`}>
         <article className="min-w-0 break-words font-editorial text-[15px] leading-[1.9] sm:text-base">
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-            h1: ({ children }) => <h1 className="mb-6 font-display text-4xl leading-tight sm:text-5xl">{children}</h1>,
-            h2: ({ children }) => <h2 className="mb-4 mt-10 border-t border-border-default pt-6 font-display text-2xl leading-snug sm:text-3xl">{children}</h2>,
+            h1: ({ children }) => <h1 className={`mb-6 font-display leading-tight ${isInfoPage ? "text-5xl sm:text-6xl" : "text-4xl sm:text-5xl"}`}>{children}</h1>,
+            h2: ({ children }) => <h2 className={`mb-4 font-display text-2xl leading-snug sm:text-3xl ${isInfoPage ? "mt-14" : "mt-10 border-t border-border-default pt-6"}`}>{children}</h2>,
             h3: ({ children }) => <h3 className="mb-3 mt-7 font-display text-xl leading-snug sm:text-2xl">{children}</h3>,
             p: ({ children }) => <p className="my-4">{children}</p>,
             ul: ({ children }) => <ul className="my-4 list-disc space-y-2 pl-6">{children}</ul>,

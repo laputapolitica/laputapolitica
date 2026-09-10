@@ -66,6 +66,10 @@ export function PostulacionForm({ showHeadingOnDesktop = false }: { showHeadingO
             </p>
           </header>
 
+          <p className={`mx-auto mt-4 max-w-[340px] text-center font-ui text-xs leading-relaxed text-text-secondary${showHeadingOnDesktop ? "" : " lg:mt-0"}`}>
+            Antes de postularte, conocé <Link href="/info" className="underline underline-offset-2 hover:text-text-primary">qué es La Puta Política</Link>.
+          </p>
+
           <div className={`mt-7 flex flex-col gap-4 text-left${showHeadingOnDesktop ? "" : " lg:mt-0"}`}>
             <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-2">

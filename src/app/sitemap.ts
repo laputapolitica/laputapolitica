@@ -47,6 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: LEGAL.lastUpdated,
       priority: 0.2,
     })),
+    {
+      url: new URL("/info", siteUrl).href,
+      priority: 0.8,
+    },
     ...editions.map((edition) => ({
       // Share links use the database slug verbatim: dd-mm-yyyy.
       url: new URL(`/edicion/${edition.fecha}`, siteUrl).href,

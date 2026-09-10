@@ -4,10 +4,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import Link from "next/link";
 
 import { CountrySelector } from "@/components/shared/CountrySelector";
 import { Logo } from "@/components/shared/Logo";
-import { LegalLinks } from "@/components/shared/LegalLinks";
 import { cn } from "@/lib/utils";
 
 import { NavegacionLateral } from "./NavegacionLateral";
@@ -88,6 +88,14 @@ const instagramGlyph = (
 const xGlyph = (
   <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const informationGlyph = (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-3.5 w-3.5">
+    <circle cx="12" cy="12" r="9.5" />
+    <path d="M12 10.5v5.5" strokeLinecap="round" />
+    <circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none" />
   </svg>
 );
 
@@ -300,10 +308,16 @@ export function EdicionLayout({
               >
                 {xGlyph}
               </a>
+              <span aria-hidden="true" className="text-[14px] leading-none">·</span>
+              <Link
+                href="/info"
+                aria-label="Información sobre La Puta Política"
+                className="transition-colors hover:text-text-primary"
+              >
+                {informationGlyph}
+              </Link>
             </div>
           </div>
-
-          <LegalLinks />
 
           <div className="flex items-center gap-6 font-ui text-[13px] font-bold text-text-primary">
             {onShare ? (
