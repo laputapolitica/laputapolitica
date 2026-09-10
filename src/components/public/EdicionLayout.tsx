@@ -1,8 +1,6 @@
 import {
   ArrowUpRight,
   ArrowDownLeft,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -88,6 +86,18 @@ const instagramGlyph = (
 const xGlyph = (
   <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const FlechaTeclaArriba = ({ className }: { className?: string }) => (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 4 L18 12 L13.2 12 L13.2 20 L10.8 20 L10.8 12 L6 12 Z" />
+  </svg>
+);
+
+const FlechaTeclaAbajo = ({ className }: { className?: string }) => (
+  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 20 L6 12 L10.8 12 L10.8 4 L13.2 4 L13.2 12 L18 12 Z" />
   </svg>
 );
 
@@ -266,7 +276,7 @@ export function EdicionLayout({
                   keyboardPressedDirection === "prev" && teclaFisicaPressed,
                 )}
               >
-                <ChevronUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                <FlechaTeclaArriba className="h-5 w-5" />
               </button>
               <button
                 type="button"
@@ -279,7 +289,7 @@ export function EdicionLayout({
                   keyboardPressedDirection === "next" && teclaFisicaPressed,
                 )}
               >
-                <ChevronDown aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                <FlechaTeclaAbajo className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -350,7 +360,7 @@ export function EdicionLayout({
                 keyboardPressedDirection === "prev" && teclaFisicaPressed,
               )}
             >
-              <ChevronUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+              <FlechaTeclaArriba className="h-5 w-5" />
             </button>
             <button
               type="button"
@@ -363,7 +373,7 @@ export function EdicionLayout({
                 keyboardPressedDirection === "next" && teclaFisicaPressed,
               )}
             >
-              <ChevronDown aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+              <FlechaTeclaAbajo className="h-5 w-5" />
             </button>
           </div>
         </div>
