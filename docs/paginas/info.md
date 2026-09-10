@@ -2,7 +2,7 @@
 
 Un medio de política argentina para gente que quiere entender lo que pasa sin tener que dedicarle la vida.
 
-Cada día, una edición. Cinco noticias. Sin catarata de notificaciones, sin scroll infinito, sin veinte titulares peleándose por tu atención. Lo que importa, explicado corto y claro, con una portada que se puede mirar.
+Cada día, una edición. Solo las noticias que importan. Sin catarata de notificaciones, sin scroll infinito, sin veinte titulares peleándose por tu atención. Lo que pasó, explicado corto y claro, con una portada que se puede mirar.
 
 Sale todas las noches, alrededor de las 22.
 
@@ -10,7 +10,7 @@ Sale todas las noches, alrededor de las 22.
 
 **Se relevan las noticias del día.** Un sistema automático recorre las fuentes de política argentina y arma una lista de las candidatas más relevantes.
 
-**Un editor elige y aprueba.** De esa lista salen las cinco de la edición. Esa decisión la toma una persona, no un algoritmo.
+**Un editor elige y aprueba.** De esa lista sale la edición del día. Esa decisión la toma una persona, no un algoritmo.
 
 **Se escriben los textos y se genera la portada.** Acá usamos inteligencia artificial: para redactar los resúmenes y para las ilustraciones conceptuales de tapa.
 
@@ -22,17 +22,17 @@ Lo decimos con todas las letras porque nos parece que corresponde. Usamos IA com
 
 Acá está lo que hace distinto a este medio.
 
-Las noticias no se leen solas: **una comunidad de jóvenes las interpreta**. Cada día, antes de que la edición se publique, los opinadores leen las cinco noticias y dicen cómo las leen ellos.
+Las noticias no se leen solas: **la gente las interpreta**. Cada día, antes de que la edición se publique, los opinadores leen las noticias del día y dicen cómo las leen ellos.
 
-De esas respuestas sale **El Pulso**: una lectura colectiva de cada noticia. No es una encuesta ni un termómetro de opinión pública. Es lo que un grupo de gente joven, que se toma el trabajo de pensar la política, entendió de lo que pasó ese día.
+De esas respuestas sale **El Pulso**: una lectura colectiva de cada noticia. No es una encuesta ni un termómetro de opinión pública. Es lo que entendió de lo que pasó ese día un grupo de personas que se toma el trabajo de pensar la política.
 
 El Pulso se publica junto a la edición, de forma agregada y anónima. Se ven porcentajes y lecturas generales, no quién dijo qué.
 
 ### Cómo participar
 
-Los opinadores entran por postulación y son admitidos por el equipo editorial. Hay que tener 16 años o más.
+Opinar lo puede hacer cualquiera. No hace falta militar en nada, ni estudiar Ciencia Política, ni tener una posición formada sobre todo. Hace falta interés real y ganas de pensar en voz alta.
 
-No hace falta militar en nada ni estudiar Ciencia Política. Hace falta interés real y ganas de pensar en voz alta.
+Se entra por postulación y la admisión la decide el equipo editorial. Hay que tener 16 años o más.
 
 [Postularme como opinador](/el-pulso/postulacion)
 
