@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
     "/privacidad": ["./docs/legal/politica-de-privacidad.md"],
     "/info": ["./docs/paginas/info.md"],
   },
+  outputFileTracingExcludes: {
+    "/*": [
+      "./.next/cache/**",
+      "./.git/**",
+      "./public/**",
+      "./clima-masters/**",
+    ],
+  },
   images: {
     remotePatterns: [
       {

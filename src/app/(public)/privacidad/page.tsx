@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { LegalDocument } from "@/components/public/LegalDocument";
 import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 
+export const dynamic = "force-static";
+
 const document = LEGAL_DOCUMENTS.privacy;
 
 export const metadata: Metadata = {
