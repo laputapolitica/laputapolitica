@@ -181,7 +181,7 @@ export function EdicionLayout({
           )}
         />
 
-        <aside className="hidden w-[240px] flex-none border-r border-border-default px-8 py-7 lg:block">
+        <aside className="no-scrollbar hidden min-h-0 w-[240px] flex-none overflow-y-auto border-r border-border-default px-8 py-7 lg:block">
           <ol>
             {secciones.map((s) => {
               const activa = s.n === slideActivo;
