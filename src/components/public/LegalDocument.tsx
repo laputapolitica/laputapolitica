@@ -29,11 +29,10 @@ export async function LegalDocument({ document }: { document: Document }) {
   return (
     <div className="min-h-dvh bg-bg-base text-text-primary">
       <header className="border-b border-border-default px-5 py-5 sm:px-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-6">
+        <div className="mx-auto flex max-w-3xl justify-center">
           <Link href="/" aria-label="La Puta Política — ir a la edición del día">
             <Logo variant="large" className="h-auto w-44 sm:w-60" />
           </Link>
-          <Link href="/" className="font-ui text-xs underline underline-offset-4 sm:text-sm">Volver a la edición</Link>
         </div>
       </header>
       <main className={`mx-auto max-w-3xl px-5 py-10 sm:px-10 ${isInfoPage ? "sm:py-20" : "sm:py-16"}`}>
