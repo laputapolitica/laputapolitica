@@ -324,7 +324,7 @@ export function FechaSelector({ fechaActual, ediciones, isOpen, onClose, onSelec
             </div>
           </div>
 
-          <div className="mt-3 flex-1 overflow-y-auto px-5 pb-10 no-scrollbar">
+          <div className="mt-3 flex-1 overflow-y-auto px-5 pt-4 pb-10 no-scrollbar">
             <div className="mx-auto max-w-[480px]">{content}</div>
           </div>
         </Drawer.Content>
