@@ -180,6 +180,7 @@ export function EdicionLayout({
                   <button
                     type="button"
                     onClick={() => onSelectSlide?.(s.n)}
+                    title={s.titulo}
                     className="flex w-full items-baseline gap-2.5 border-b border-[#EDEAE3] py-2.5 text-left last:border-b-0"
                   >
                     <span
@@ -188,7 +189,7 @@ export function EdicionLayout({
                     >
                       {pad(s.n)}
                     </span>
-                    <span className={cn("font-display text-[13.5px] leading-tight", activa ? "font-semibold text-text-primary" : "text-text-secondary")}>
+                    <span className={cn("line-clamp-2 font-display text-[13.5px] leading-tight", activa ? "font-semibold text-text-primary" : "text-text-secondary")}>
                       {s.titulo}
                     </span>
                   </button>

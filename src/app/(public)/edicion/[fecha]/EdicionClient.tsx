@@ -64,8 +64,11 @@ export function EdicionClient({
   const noticiaEnSlide = edicion.noticias.find(
     (noticia) => noticia.orden === slideActivo - 1,
   );
+  const tituloPortada = edicion.titulo.trim();
+  const tituloIndicePortada =
+    tituloPortada && tituloPortada !== "Sin título" ? tituloPortada : "Portada";
   const secciones = [
-    { n: 1, titulo: "Portada" },
+    { n: 1, titulo: tituloIndicePortada },
     ...edicion.noticias.map((n) => ({ n: n.orden + 1, titulo: n.titulo })),
     { n: edicion.noticias.length + 2, titulo: "El clima" },
   ];
