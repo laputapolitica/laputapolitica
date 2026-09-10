@@ -40,31 +40,6 @@ function pad(value: number) {
   return String(value).padStart(2, "0");
 }
 
-type MonthGroup = {
-  key: string;
-  label: string;
-  ediciones: EdicionResumen[];
-};
-
-function groupByMonth(ediciones: EdicionResumen[]): MonthGroup[] {
-  const groups: MonthGroup[] = [];
-  const index = new Map<string, MonthGroup>();
-
-  for (const edicion of ediciones) {
-    const { year, month } = parseParts(edicion.fecha);
-    const key = `${year}-${month}`;
-    let group = index.get(key);
-    if (!group) {
-      group = { key, label: `${MONTHS[month - 1] ?? ""} ${year}`, ediciones: [] };
-      index.set(key, group);
-      groups.push(group);
-    }
-    group.ediciones.push(edicion);
-  }
-
-  return groups;
-}
-
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -116,7 +91,6 @@ export function FechaSelector({ fechaActual, ediciones, isOpen, onClose, onSelec
   }, [isOpen, fechaActual]);
 
   const currentIso = toIso(fechaActual);
-  const groups = groupByMonth(ediciones);
   const hasEdiciones = ediciones.length > 0;
 
   function abrirEdicion(fecha: string) {
@@ -161,59 +135,49 @@ export function FechaSelector({ fechaActual, ediciones, isOpen, onClose, onSelec
   const content =
     view === "kiosco" ? (
       <>
-        {groups.map((group) => (
-          <section key={group.key} className="mb-6">
-            <h3
-              className="sticky top-0 z-10 mb-3 bg-bg-base py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-text-secondary"
-              style={{ fontFamily: "var(--font-nav)" }}
-            >
-              {group.label}
-            </h3>
-            <div className={cn("grid gap-3", isDesktop ? "grid-cols-5 gap-4" : "grid-cols-3")}>
-              {group.ediciones.map((edicion) => {
-                const { day, month, year } = parseParts(edicion.fecha);
-                const dateLabel = `${pad(day)} ${(MONTHS[month - 1] ?? "").slice(0, 3).toUpperCase()} ${year}`;
-                const isCurrent = toIso(edicion.fecha) === currentIso;
-                return (
-                  <button
-                    key={edicion.fecha}
-                    type="button"
-                    onClick={() => abrirEdicion(edicion.fecha)}
-                    aria-label={`${edicion.titulo} — ${dateLabel}`}
+        {hasEdiciones ? (
+          <div className={cn("grid gap-3", isDesktop ? "grid-cols-5 gap-4" : "grid-cols-3")}>
+            {ediciones.map((edicion) => {
+              const { day, month, year } = parseParts(edicion.fecha);
+              const dateLabel = `${pad(day)} ${(MONTHS[month - 1] ?? "").slice(0, 3).toUpperCase()} ${year}`;
+              const isCurrent = toIso(edicion.fecha) === currentIso;
+              return (
+                <button
+                  key={edicion.fecha}
+                  type="button"
+                  onClick={() => abrirEdicion(edicion.fecha)}
+                  aria-label={`${edicion.titulo} — ${dateLabel}`}
+                  className={cn(
+                    "overflow-hidden rounded-lg border border-border-default bg-white text-left transition-transform active:scale-95",
+                    isCurrent && "outline outline-2 outline-offset-1 outline-admin-ink",
+                  )}
+                >
+                  <div className="aspect-square w-full bg-[#F0EEE7]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={edicion.portadaUrl}
+                      alt={edicion.titulo}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <span
                     className={cn(
-                      "overflow-hidden rounded-lg border border-border-default bg-white text-left transition-transform active:scale-95",
-                      isCurrent && "outline outline-2 outline-offset-1 outline-admin-ink",
+                      "block font-bold tracking-[0.05em] text-text-primary",
+                      isDesktop ? "px-2 py-1.5 text-[10px]" : "px-1.5 py-1 text-[8.5px]",
                     )}
+                    style={{ fontFamily: "var(--font-nav)" }}
                   >
-                    <div className="aspect-square w-full bg-[#F0EEE7]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={edicion.portadaUrl}
-                        alt={edicion.titulo}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <span
-                      className={cn(
-                        "block font-bold tracking-[0.05em] text-text-primary",
-                        isDesktop ? "px-2 py-1.5 text-[10px]" : "px-1.5 py-1 text-[8.5px]",
-                      )}
-                      style={{ fontFamily: "var(--font-nav)" }}
-                    >
-                      {dateLabel}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-
-        {groups.length === 0 ? (
+                    {dateLabel}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
           <p className="py-10 text-center font-ui text-sm text-text-secondary">
             Todavía no hay ediciones publicadas.
           </p>
-        ) : null}
+        )}
       </>
     ) : (
       <div className="mx-auto max-w-[420px] pt-1">
